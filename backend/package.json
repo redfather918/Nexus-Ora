@@ -1,0 +1,32 @@
+{
+  "name": "nexus-ora-backend",
+  "version": "1.0.0",
+  "description": "Nexus Ora MVP Backend API",
+  "main": "server_unified.js",
+  "scripts": {
+    "start": "node server_unified.js",
+    "dev": "nodemon server_unified.js"
+  },
+  "keywords": [
+    "nexus-ora",
+    "astrology",
+    "ai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "body-parser": "^1.20.5",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.2",
+    "node-fetch": "^3.3.2",
+    "pg": "^8.11.3",
+    "sql.js": "^1.14.1",
+    "stripe": "^14.25.0",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

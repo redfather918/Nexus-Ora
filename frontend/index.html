@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Ora - Your Life K-Line | AI玄学平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cosmos: { 950: '#080618', 900: '#0F0C1F', 800: '#1A1630', 700: '#221D3E' }
+      }
+    }
+  }
+}
+</script>
+<style>
+@keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes slide-up { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(168,85,247,0.4)} 100%{box-shadow:0 0 0 20px rgba(168,85,247,0)} }
+@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+
+:root {
+  --bg: #0F0C1F;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.06);
+  --text: #E5E7EB;
+  --text-dim: #9CA3AF;
+  --purple: #A855F7;
+  --pink: #EC4899;
+  --red: #EF4444;
+  --green: #22C55E;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0F0C1F 0%, #1A1025 30%, #0F1A2E 60%, #0F0C1F 100%);
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 20px;
+}
+
+.glass-card {
+  background: rgba(255,255,255,0.02);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 16px;
+}
+
+.hidden-section { display: none !important; }
+.slide-in { animation: slide-up 0.6s ease-out; }
+.slide-in-delay { animation: slide-up 0.6s ease-out 0.2s both; }
+.slide-in-delay-2 { animation: slide-up 0.6s ease-out 0.4s both; }
+
+.input-field {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s;
+}
+.input-field:focus {
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  border: none; border-radius: 14px;
+  color: white; font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 40px rgba(168,85,247,0.3); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.btn-secondary {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 12px 24px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: var(--text); font-size: 15px; font-weight: 500;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+.tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 6px 14px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 20px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.tag-purple { background: rgba(168,85,247,0.12); color: #C084FC; }
+
+.pillar-box {
+  text-align: center;
+  padding: 16px 12px;
+  border-radius: 14px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+}
+.pillar-box.self {
+  border-color: rgba(168,85,247,0.3);
+  background: rgba(168,85,247,0.08);
+}
+.pillar-box:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.stat-card {
+  text-align: center;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.chart-wrapper { position: relative; width: 100%; }
+.chart-wrapper canvas { width: 100% !important; }
+
+#paywall {
+  position: absolute; inset: 0;
+  display: flex; align-items: end; justify-content: center;
+  padding-bottom: 32px;
+  border-radius: 16px;
+  background: linear-gradient(to top, rgba(15,12,31,0.95) 0%, rgba(15,12,31,0.6) 50%, transparent 100%);
+  z-index: 10;
+}
+#paywall.hidden { display: none; }
+
+.wuxing-bar-bg { background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; height: 6px; }
+.wuxing-bar-fill { height: 100%; border-radius: 8px; transition: width 1s ease-out; }
+
+.phase-bar { position:relative; padding:12px 16px; border-radius:12px; border-left:3px solid; margin-bottom:8px; background:rgba(0,0,0,0.15); transition:all .3s; }
+.phase-bar:hover { background:rgba(0,0,0,0.25); transform:translateX(2px); }
+.phase-bar .phase-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+
+.interpret-block { padding:14px 18px; border-radius:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.04); }
+.interpret-block .interpret-icon { width:20px; height:20px; flex-shrink:0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .pillar-grid { grid-template-columns: repeat(2, 1fr); }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== Nav ==================== -->
+<nav class="flex justify-between items-center max-w-6xl mx-auto px-6 py-5">
+  <div class="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">
+    Nexus Ora
+  </div>
+  <div class="flex gap-3 items-center">
+    <span class="text-xs text-gray-500 hidden sm:inline">AI Soul Companion · 东方玄学 × AI</span>
+    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+    <span class="text-xs text-gray-500">Live</span>
+  </div>
+</nav>
+
+<!-- ==================== Section 0: Hero + Form ==================== -->
+<section id="section-hero" class="max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-12 text-center">
+    <!-- Icon -->
+    <div class="mb-6" style="animation: float 3s ease-in-out infinite">
+      <svg class="w-20 h-20 mx-auto" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#A855F7"/>
+            <stop offset="50%" stop-color="#EC4899"/>
+            <stop offset="100%" stop-color="#A855F7"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#icon-grad)" stroke-width="1.5" opacity="0.4"/>
+        <circle cx="40" cy="25" r="14" fill="none" stroke="url(#icon-grad)" stroke-width="1.5"/>
+        <circle cx="40" cy="25" r="6" fill="url(#icon-grad)" opacity="0.3"/>
+        <line x1="40" y1="11" x2="40" y2="4" stroke="#A855F7" stroke-width="2"/>
+        <line x1="40" y1="39" x2="40" y2="76" stroke="#A855F7" stroke-width="1.5" opacity="0.5" stroke-dasharray="4,3"/>
+        <circle cx="40" cy="68" r="2" fill="#EC4899"/>
+      </svg>
+    </div>
+
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-200 bg-clip-text text-transparent">
+        Discover Your Life K-Line
+      </span>
+    </h1>
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+      东方玄学智慧 × AI 科技<br>
+      让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>
+    </p>
+
+    <!-- Form -->
+    <form id="birth-form" class="max-w-md mx-auto space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生日期 <span class="text-purple-400">*</span></label>
+          <input type="date" id="birth-date" required value="1990-06-15" class="input-field">
+        </div>
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生时间</label>
+          <input type="time" id="birth-time" value="14:30" class="input-field">
+          <p class="text-xs text-gray-600 mt-1">未知可保留默认值</p>
+        </div>
+      </div>
+
+      <div class="text-left">
+        <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
+        <div class="flex gap-6">
+          <label class="flex items-center cursor-pointer group">
+            <input type="radio" name="gender" value="男" checked class="w-4 h-4 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
+            <span class="ml-2 text-gray-300 group-hover:text-white transition">男</span>
+          </label>
+          <label class="flex items-center cursor-pointer group">
+            <input type="radio" name="gender" value="女" class="w-4 h-4 text-pink-500 bg-gray-800 border-gray-600 focus:ring-pink-500">
+            <span class="ml-2 text-gray-300 group-hover:text-white transition">女</span>
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" id="submit-btn" class="btn-primary w-full" style="animation: pulse-ring 2s infinite">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Generate My Life K-Line
+      </button>
+    </form>
+
+    <!-- Trust badges -->
+    <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
+      <span class="flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        Secure & Private
+      </span>
+      <span class="flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        AI Powered
+      </span>
+      <span class="flex items-center gap-1">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        Shareable
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Section 1: Loading ==================== -->
+<section id="section-loading" class="hidden-section max-w-3xl mx-auto px-6 py-8">
+  <div class="glass p-12 text-center slide-in">
+    <!-- Spinner -->
+    <div class="relative w-24 h-24 mx-auto mb-8">
+      <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-500 border-r-pink-500 animate-spin"></div>
+      <div class="absolute inset-2 rounded-full border-2 border-transparent border-b-purple-400 border-l-pink-400 animate-spin" style="animation-direction:reverse;animation-duration:1.5s"></div>
+      <div class="absolute inset-4 rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center">
+        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+    </div>
+
+    <p class="text-xl font-semibold mb-2" id="loading-text">正在计算您的八字命盘...</p>
+    <p class="text-gray-500" id="loading-sub">Consulting ancient wisdom</p>
+
+    <!-- Progress steps -->
+    <div class="flex justify-center gap-3 mt-8" id="loading-steps">
+      <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
+      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
+      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
+      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Section 2: Results ==================== -->
+<section id="section-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- Bazi Pillars -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in">
+    <h2 class="text-xl md:text-2xl font-bold mb-6 text-center">
+      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+        Your Eight Characters (Bazi)
+      </span>
+    </h2>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="bazi-pillars">
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">Year Pillar · 年柱</div>
+        <div class="text-2xl md:text-3xl font-bold text-purple-400" id="bazi-year">--</div>
+        <div class="text-xs text-gray-600 mt-1" id="bazi-year-shishen">--</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">Month Pillar · 月柱</div>
+        <div class="text-2xl md:text-3xl font-bold text-blue-400" id="bazi-month">--</div>
+        <div class="text-xs text-gray-600 mt-1" id="bazi-month-shishen">--</div>
+      </div>
+      <div class="pillar-box self">
+        <div class="text-xs text-gray-500 mb-1">Day Pillar · 日柱</div>
+        <div class="text-2xl md:text-3xl font-bold text-amber-400" id="bazi-day">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-day-shishen">日元</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">Hour Pillar · 时柱</div>
+        <div class="text-2xl md:text-3xl font-bold text-green-400" id="bazi-hour">--</div>
+        <div class="text-xs text-gray-600 mt-1" id="bazi-hour-shishen">--</div>
+      </div>
+    </div>
+
+    <!-- Info tags -->
+    <div class="flex justify-center gap-3 flex-wrap" id="bazi-tags">
+      <span class="tag" id="bazi-animal">生肖: --</span>
+      <span class="tag" id="bazi-zodiac">星座: --</span>
+      <span class="tag tag-purple" id="bazi-strength">--</span>
+      <span class="tag" id="bazi-lunar">--</span>
+    </div>
+  </div>
+
+  <!-- Wuxing Balance -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
+    <h3 class="text-lg font-semibold mb-4">Five Elements Balance · 五行平衡</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="wuxing-bars"></div>
+  </div>
+
+  <!-- K-Line Chart -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+      <h2 class="text-xl md:text-2xl font-bold">
+        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
+          Your Life K-Line
+        </span>
+      </h2>
+      <div class="flex gap-3 items-center">
+        <span class="text-sm" id="chart-score">--</span>
+        <span class="text-xs tag tag-purple" id="chart-phase">--</span>
+      </div>
+    </div>
+    <p class="text-xs text-gray-600 mb-4">Hover over data points to see detailed fortune at each age.</p>
+
+    <div class="chart-wrapper">
+      <div id="chart-main" style="width:100%; height:420px;"></div>
+      <div id="paywall">
+        <div class="text-center px-6">
+          <svg class="w-10 h-10 mx-auto mb-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <p class="text-lg font-semibold mb-1">Unlock Full Report</p>
+          <p class="text-sm text-gray-400 mb-5">See your complete life journey with detailed analysis</p>
+          <div class="flex gap-3 justify-center flex-wrap">
+            <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-6 py-3">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Unlock ($9.99)
+            </button>
+            <button onclick="handleUnlock('share')" class="btn-secondary text-sm">
+              Share to Unlock
+            </button>
+          </div>
+          <p class="text-xs text-gray-600 mt-3">Share with friends for free access · Demo mode</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- K-Line Interpretation -->
+  <div id="kline-interpretation" class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
+    <div class="flex items-center gap-2 mb-5">
+      <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <h3 class="text-lg font-bold">K-Line Interpretation · K线解读</h3>
+    </div>
+    <div id="kline-interpret-content" class="space-y-4"></div>
+  </div>
+
+  <!-- Fortune Summary -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-delay-2" id="fortune-summary">
+    <div class="stat-card" style="border-color:rgba(239,68,68,0.15);">
+      <div class="text-xs text-gray-500 mb-1">Peak Years</div>
+      <div class="text-xl font-bold" style="color:#EF4444;" id="summary-peak">--</div>
+      <div class="text-xs text-gray-600">运势巅峰</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(34,197,94,0.15);">
+      <div class="text-xs text-gray-500 mb-1">Challenge Years</div>
+      <div class="text-xl font-bold" style="color:#22C55E;" id="summary-challenge">--</div>
+      <div class="text-xs text-gray-600">谨慎时期</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(59,130,246,0.15);">
+      <div class="text-xs text-gray-500 mb-1">Avg Score</div>
+      <div class="text-xl font-bold text-blue-400" id="summary-avg">--</div>
+      <div class="text-xs text-gray-600">/100</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(168,85,247,0.15);">
+      <div class="text-xs text-gray-500 mb-1">Body Type</div>
+      <div class="text-xl font-bold text-purple-400" id="summary-body">--</div>
+      <div class="text-xs text-gray-600" id="summary-body-sub">--</div>
+    </div>
+  </div>
+
+  <!-- AI Analysis -->
+  <div id="ai-section" class="glass-card p-6 md:p-8 mb-6 slide-in-delay-2 hidden-section">
+    <div class="flex items-center gap-3 mb-5">
+      <h3 class="text-lg font-bold">AI Wisdom · AI解读</h3>
+      <span class="tag tag-purple text-xs">Powered by DeepSeek</span>
+    </div>
+    <div id="ai-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="glass-card p-6 md:p-8 text-center slide-in-delay-2">
+    <h3 class="text-lg font-bold mb-4">Share Your Destiny Map</h3>
+    <p class="text-gray-400 text-sm mb-6">Let your friends discover your unique life pattern</p>
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleCopyLink()" class="btn-secondary" id="btn-copy">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span id="btn-copy-text">Copy Link</span>
+      </button>
+      <button onclick="handleNewReading()" class="btn-primary text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        New Reading
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="text-center py-8 text-xs text-gray-700">
+  Nexus Ora © 2026 · AI Soul Companion · Built with Eastern Wisdom & Modern AI
+</footer>
+
+<!-- ==================== Scripts ==================== -->
+<script>
+// ============ State ============
+const API_BASE = 'http://127.0.0.1:3000';
+let reportData = null;
+let isUnlocked = false;
+let isDemoMode = false;
+let chartInstance = null;
+let loadingTimer = null;
+
+// ============ Embedded Demo Data (serverless fallback) ============
+const DEMO_BAZI = {
+  "年柱": { ganzhi:"庚午", gan:"庚", zhi:"午", gan_wuxing:"金", zhi_wuxing:"火", shishen:"正官" },
+  "月柱": { ganzhi:"壬午", gan:"壬", zhi:"午", gan_wuxing:"水", zhi_wuxing:"火", shishen:"七杀" },
+  "日柱": { ganzhi:"辛亥", gan:"辛", zhi:"亥", gan_wuxing:"金", zhi_wuxing:"水", shishen:"日元" },
+  "时柱": { ganzhi:"乙未", gan:"乙", zhi:"未", gan_wuxing:"木", zhi_wuxing:"土", shishen:"偏财" }
+};
+const DEMO_WUXING = { "金":3, "水":2, "木":1, "火":2, "土":1 };
+const DEMO_INFO = { animal:"马", zodiac:"双子座", lunar_date:"1990年5月23日", gender:"女" };
+
+// Generate fortune curve from date seed
+function generateDemoFortune(y,m,d,h) {
+  const seed = y*10000 + m*100 + d + h;
+  const rng = (i) => { let x = Math.sin(seed*0.017 + i*0.73)*10000; return (x - Math.floor(x)); };
+  const phases = [
+    { name:"成长期",   start:0,  end:18 },
+    { name:"上升期",   start:19, end:30 },
+    { name:"黄金期",   start:31, end:45 },
+    { name:"稳固期",   start:46, end:60 },
+    { name:"智慧期",   start:61, end:75 },
+    { name:"颐养期",   start:76, end:100}
+  ];
+  const fortune = [];
+  for (let age = 0; age <= 100; age++) {
+    const phase = phases.find(p => age >= p.start && age <= p.end) || phases[0];
+    // Base curve: weak childhood, rise, peak 35-45, decline, wisdom bump, gentle decline
+    let base = 50;
+    if (age < 8) base = 40 + age*2;
+    else if (age < 18) base = 48 + (age-8)*0.5;
+    else if (age < 30) base = 53 + (age-18)*1.8;
+    else if (age < 45) base = 75 - (age-30)*0.3;
+    else if (age < 60) base = 68 - (age-45)*0.8;
+    else if (age < 75) base = 56 + (age-60)*0.6;
+    else base = Math.max(30, 60 - (age-75)*0.7);
+    const noise = (rng(age)-0.5)*20;
+    const score = Math.round(Math.max(20, Math.min(95, base + noise)));
+    const level = score>=75?'大吉':score>=60?'小吉':score>=45?'平稳':score>=30?'小凶':'大凶';
+    fortune.push({ age, score, level, phase:phase.name });
+  }
+  return fortune;
+}
+
+function buildDemoReport(y,m,d,h,g) {
+  const fortune = generateDemoFortune(y,m,d,h);
+  const scores = fortune.map(f=>f.score);
+  const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const bestAges = [...fortune].sort((a,b)=>b.score-a.score).slice(0,5).map(f=>f.age);
+  const worstAges = [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age);
+  return {
+    success:true,
+    demo:true,
+    report_id:'demo_' + Date.now(),
+    data: {
+      bazi: {
+        bazi: { year:DEMO_BAZI['年柱'].ganzhi, month:DEMO_BAZI['月柱'].ganzhi, day:DEMO_BAZI['日柱'].ganzhi, hour:DEMO_BAZI['时柱'].ganzhi, day_gan:DEMO_BAZI['日柱'].gan, day_wuxing:'金', body_strength:'中和', strength_score:50 },
+        pillars: [
+          { name:"年柱", ...DEMO_BAZI['年柱'] },
+          { name:"月柱", ...DEMO_BAZI['月柱'] },
+          { name:"日柱", ...DEMO_BAZI['日柱'] },
+          { name:"时柱", ...DEMO_BAZI['时柱'] }
+        ],
+        wuxing_balance: DEMO_WUXING,
+        info: DEMO_INFO
+      },
+      fortune,
+      summary: { body_strength:'中和', day_master:'辛', day_wuxing:'金', animal:DEMO_INFO.animal, best_ages:bestAges, challenging_ages:worstAges, average_score:avg },
+      ai_analysis: [
+        { name:"事业运势", advice:"日主辛金生于午月，火旺金弱，需水调候。中年行水运（30-45岁），事业将迎来黄金发展期。适合从事金融、法律、科技等需精密思维的行业。" },
+        { name:"财运分析", advice:"时柱乙未偏财透出，预示中晚年财运亨通。但需注意理财规划，避免因火旺冲动投资。45岁后宜稳健增值。" },
+        { name:"感情婚姻", advice:"年柱正官坐午火，配偶能力强但性格偏急躁。日支亥水为伤官，需注意沟通方式。建议30岁后婚配更稳定。" },
+        { name:"健康提醒", advice:"金弱火旺之命，需特别注意心脑血管和呼吸系统健康。建议定期体检，保持适度运动如游泳、太极。" },
+        { name:"流年关键期", advice:"2024-2026年为水旺流年，对日主辛金有利，适合求学进修、事业转型。2030-2032年火旺，需谨慎决策。" },
+        { name:"人生建议", advice:"整体命格中和偏弱，需借时运成就。人生K线呈「先抑后扬」形态：年轻时积累，35-45岁爆发，中年稳固，晚年智慧沉淀。" }
+      ],
+      ai_enhanced: true
+    }
+  };
+}
+
+// ============ Loading Animation ============
+const LOADING_STEPS = [
+  ['Calculating your Bazi chart...', 'Consulting ancient wisdom'],
+  ['Analyzing Five Elements balance...', 'Wood, Fire, Earth, Metal, Water'],
+  ['Mapping your life trajectory...', 'Every age tells a story'],
+  ['Generating K-Line visualization...', 'Making destiny beautiful'],
+  ['Finalizing your report...', 'Almost ready']
+];
+
+// ============ Form Submit ============
+document.getElementById('birth-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Calculating...';
+  
+  // Show loading
+  hideAll();
+  showSection('section-loading');
+  
+  // Animate loading
+  let step = 0;
+  updateLoadingStep(step);
+  loadingTimer = setInterval(() => {
+    step = (step + 1) % LOADING_STEPS.length;
+    updateLoadingStep(step);
+  }, 1500);
+  
+  // Parse inputs
+  const [y, m, d] = document.getElementById('birth-date').value.split('-').map(Number);
+  const [h, min] = (document.getElementById('birth-time').value || '12:00').split(':').map(Number);
+  const gender = document.querySelector('input[name="gender"]:checked')?.value || '男';
+  
+  // Try server first, fall back to demo
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 4000);
+    const res = await fetch(`${API_BASE}/api/fortune`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year: y, month: m, day: d, hour: h, minute: min, gender }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Unknown error');
+    
+    reportData = json;
+    isDemoMode = false;
+  } catch (_err) {
+    // Server unavailable — use embedded demo
+    reportData = buildDemoReport(y, m, d, h, gender);
+    isDemoMode = true;
+  }
+  
+  // Complete loading (min 2s)
+  updateLoadingStep(4);
+  await new Promise(r => setTimeout(r, 800));
+  
+  clearInterval(loadingTimer);
+  isUnlocked = false;
+  
+  hideAll();
+  showSection('section-results');
+  
+  renderAll();
+  
+  // Show demo badge
+  if (isDemoMode) {
+    const bar = document.createElement('div');
+    bar.id = 'demo-bar';
+    bar.className = 'max-w-6xl mx-auto px-6 mb-2 slide-in';
+    bar.innerHTML = '<div class="glass-card px-4 py-2.5 text-center text-xs text-amber-400/70 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Demo Mode · Start the server for AI-enhanced readings</div>';
+    document.getElementById('section-results').insertBefore(bar, document.getElementById('section-results').firstChild);
+  }
+  
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Generate My Life K-Line';
+});
+
+function updateLoadingStep(step) {
+  const [main, sub] = LOADING_STEPS[step];
+  document.getElementById('loading-text').textContent = main;
+  document.getElementById('loading-sub').textContent = sub;
+  
+  // Update dots
+  const dots = document.querySelectorAll('#loading-steps > div');
+  dots.forEach((dot, i) => {
+    if (i === step) dot.className = 'w-2 h-2 rounded-full bg-purple-500 animate-pulse';
+    else if (i < step) dot.className = 'w-2 h-2 rounded-full bg-purple-400';
+    else dot.className = 'w-2 h-2 rounded-full bg-gray-700';
+  });
+}
+
+// ============ Render All ============
+function renderAll() {
+  renderBazi();
+  renderWuxing();
+  renderChart();
+  renderKLineInterpretation();
+  renderSummary();
+  renderAI();
+}
+
+// ============ Bazi Pillars ============
+function renderBazi() {
+  const d = reportData.data;
+  const b = d.bazi;
+  if (!b?.bazi) return;
+  
+  document.getElementById('bazi-year').textContent = b.bazi.year || '--';
+  document.getElementById('bazi-month').textContent = b.bazi.month || '--';
+  document.getElementById('bazi-day').textContent = b.bazi.day || '--';
+  document.getElementById('bazi-hour').textContent = b.bazi.hour || '--';
+  
+  // Shishen
+  if (b.pillars) {
+    document.getElementById('bazi-year-shishen').textContent = b.pillars[0]?.shishen || '--';
+    document.getElementById('bazi-month-shishen').textContent = b.pillars[1]?.shishen || '--';
+    document.getElementById('bazi-hour-shishen').textContent = b.pillars[3]?.shishen || '--';
+  }
+  
+  // Tags
+  document.getElementById('bazi-animal').textContent = '生肖: ' + (b.info?.animal || '--');
+  document.getElementById('bazi-zodiac').textContent = '星座: ' + (b.info?.zodiac || '--');
+  document.getElementById('bazi-strength').textContent = b.bazi.body_strength + ' (' + (b.bazi.day_wuxing || '') + '命)';
+  document.getElementById('bazi-lunar').textContent = '农历: ' + (b.info?.lunar_date || '--');
+}
+
+// ============ Wuxing Balance ============
+function renderWuxing() {
+  const wb = reportData.data.bazi?.wuxing_balance;
+  if (!wb) return;
+  
+  const colors = {
+    '金': '#FBBF24', '木': '#34D399', '水': '#60A5FA',
+    '火': '#F87171', '土': '#A78BFA'
+  };
+  const labels = { '金': 'Metal 金', '木': 'Wood 木', '水': 'Water 水', '火': 'Fire 火', '土': 'Earth 土' };
+  const maxVal = Math.max(...Object.values(wb), 1);
+  
+  const container = document.getElementById('wuxing-bars');
+  container.innerHTML = Object.entries(wb).map(([k, v]) => {
+    const pct = Math.round(v / maxVal * 100);
+    return `<div class="p-3 rounded-xl bg-black/20">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-xs font-medium" style="color:${colors[k]}">${labels[k] || k}</span>
+        <span class="text-lg font-bold" style="color:${colors[k]}">${v}</span>
+      </div>
+      <div class="wuxing-bar-bg"><div class="wuxing-bar-fill" style="width:${pct}%;background:${colors[k]}"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ============ K-Line Chart ============
+function renderChart() {
+  const container = document.getElementById('chart-main');
+  if (chartInstance) chartInstance.dispose();
+  chartInstance = echarts.init(container);
+  
+  const fortune = reportData.data.fortune || [];
+  if (!fortune.length) return;
+  
+  const ages = fortune.map(f => f.age);
+  const scores = fortune.map(f => f.score);
+  const avgScore = reportData.data.summary?.average_score || 50;
+  
+  document.getElementById('chart-score').textContent = `Avg: ${avgScore}/100`;
+  
+  // Color mapping (Chinese convention: red = good)
+  const colorFunc = (score) => {
+    if (score >= 75) return '#EF4444';  // 大吉 = 红
+    if (score >= 60) return '#F59E0B';  // 小吉 = 橙
+    if (score >= 45) return '#3B82F6';  // 平稳 = 蓝
+    if (score >= 30) return '#6EE7B7';  // 小凶 = 浅绿
+    return '#22C55E';                    // 大凶 = 绿
+  };
+  
+  const option = {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(15,12,31,0.97)',
+      borderColor: 'rgba(168,85,247,0.3)',
+      textStyle: { color: '#E5E7EB', fontSize: 13 },
+      formatter: function(params) {
+        const d = fortune[params[0].dataIndex];
+        const c = colorFunc(d.score);
+        let html = `<div style="font-weight:600;margin-bottom:4px">Age ${d.age} · ${d.phase}</div>`;
+        html += `<div>Score: <strong style="color:${c};font-size:16px">${d.score}</strong> · ${d.level}</div>`;
+        if (d.milestones?.length) {
+          html += `<div style="margin-top:4px;color:#A855F7">Milestones: ${d.milestones.join(', ')}</div>`;
+        }
+        return html;
+      }
+    },
+    grid: { left: '3%', right: '5%', bottom: '8%', top: '5%', containLabel: true },
+    xAxis: {
+      type: 'category', data: ages,
+      axisLine: { lineStyle: { color: '#374151' } },
+      axisLabel: { color: '#6B7280', fontSize: 11, interval: 4 },
+      name: 'Age', nameTextStyle: { color: '#6B7280', fontSize: 12 },
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'value', min: 0, max: 100,
+      axisLine: { show: false },
+      axisLabel: { color: '#6B7280', fontSize: 11 },
+      splitLine: { lineStyle: { color: 'rgba(75,85,99,0.2)', type: 'dashed' } },
+      name: 'Fortune Score', nameTextStyle: { color: '#6B7280' }
+    },
+    series: [{
+      name: 'Fortune',
+      type: 'line',
+      data: scores,
+      smooth: 0.35,
+      symbol: 'circle',
+      symbolSize: function(val) {
+        if (val >= 75) return 8;
+        if (val < 35) return 7;
+        return 4;
+      },
+      lineStyle: { width: 2.5, color: '#A855F7' },
+      itemStyle: {
+        color: function(p) { return colorFunc(p.value); },
+        borderColor: 'rgba(255,255,255,0.8)',
+        borderWidth: 1
+      },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(168,85,247,0.35)' },
+          { offset: 0.5, color: 'rgba(168,85,247,0.1)' },
+          { offset: 1, color: 'rgba(168,85,247,0.02)' }
+        ])
+      },
+      markLine: {
+        silent: true, symbol: 'none',
+        data: [
+          { yAxis: avgScore, lineStyle: { color: '#A855F7', type: 'dashed', width: 1 },
+            label: { formatter: `Avg ${avgScore}`, color: '#A855F7', fontSize: 12 } }
+        ]
+      },
+      markPoint: {
+        data: [
+          { type: 'max', name: 'Peak',
+            symbol: 'pin', symbolSize: 40,
+            itemStyle: { color: '#EF4444' },
+            label: { color: '#fff', fontSize: 11 } },
+          { type: 'min', name: 'Valley',
+            symbol: 'pin', symbolSize: 35,
+            itemStyle: { color: '#22C55E' },
+            label: { color: '#fff', fontSize: 11 } }
+        ]
+      }
+    }]
+  };
+
+  // Add phase markAreas dynamically
+  const phases = [];
+  let curPhase = fortune[0]?.phase;
+  let phaseStart = 0;
+  const phaseColors = {
+    '成长期': 'rgba(59,130,246,0.06)',
+    '上升期': 'rgba(245,158,11,0.06)',
+    '黄金期': 'rgba(239,68,68,0.08)',
+    '稳固期': 'rgba(168,85,247,0.06)',
+    '智慧期': 'rgba(34,197,94,0.05)',
+    '颐养期': 'rgba(107,114,128,0.05)'
+  };
+  fortune.forEach((f, i) => {
+    if (f.phase !== curPhase || i === fortune.length - 1) {
+      phases.push({ name: curPhase, start: phaseStart, end: i === fortune.length - 1 ? i : i - 1, color: phaseColors[curPhase] || 'rgba(168,85,247,0.04)' });
+      curPhase = f.phase;
+      phaseStart = i;
+    }
+  });
+
+  // Build ECharts markArea data
+  option.series[0].markArea = {
+    silent: true,
+    label: { show: true, position: 'insideBottomLeft', color: '#6B7280', fontSize: 10 },
+    data: phases.map(p => [
+      { xAxis: String(ages[p.start]), yAxis: 0, itemStyle: { color: p.color } },
+      { xAxis: String(ages[p.end]), yAxis: 100, label: { formatter: p.name, position: 'insideTopRight', color: '#6B7280', fontSize: 10 } }
+    ])
+  };
+
+  chartInstance.setOption(option);
+  
+  // Click on chart points to show details
+  chartInstance.on('click', function(params) {
+    if (params.componentType === 'series') {
+      const d = fortune[params.dataIndex];
+      document.getElementById('chart-phase').textContent = `Age ${d.age} · ${d.level}`;
+    }
+  });
+  
+  window.addEventListener('resize', () => chartInstance?.resize());
+}
+
+// ============ K-Line Interpretation ============
+function renderKLineInterpretation() {
+  const fortune = reportData.data.fortune || [];
+  if (!fortune.length) return;
+
+  const scores = fortune.map(f => f.score);
+  const avgScore = reportData.data.summary?.average_score || 50;
+  const bodyStrength = reportData.data.summary?.body_strength || '中和';
+  const dayWuxing = reportData.data.summary?.day_wuxing || '';
+
+  // Analyze trajectory
+  const firstHalf = scores.slice(0, 35).reduce((a,b)=>a+b,0)/35;
+  const midSection = scores.slice(35, 55).reduce((a,b)=>a+b,0)/20;
+  const secondHalf = scores.slice(55).reduce((a,b)=>a+b,0)/46;
+  
+  const trend = midSection > firstHalf + 5 ? '先抑后扬'
+    : midSection < firstHalf - 5 ? '先扬后抑'
+    : Math.abs(firstHalf - secondHalf) < 5 ? '平稳持中'
+    : secondHalf > firstHalf ? '厚积薄发' : '早发晚收';
+
+  const peak = fortune.reduce((a,b) => a.score > b.score ? a : b);
+  const valley = fortune.reduce((a,b) => a.score < b.score ? a : b);
+  const volatility = Math.round(Math.sqrt(scores.reduce((s,v)=>s+(v-avgScore)**2,0)/scores.length));
+  
+  // Find best and worst periods
+  const phases = {};
+  fortune.forEach(f => { if (!phases[f.phase]) phases[f.phase] = []; phases[f.phase].push(f.score); });
+  const phaseAvgs = Object.entries(phases).map(([k,v]) => [k, Math.round(v.reduce((a,b)=>a+b,0)/v.length)]);
+  phaseAvgs.sort((a,b) => b[1] - a[1]);
+  const bestPhase = phaseAvgs[0];
+  const worstPhase = phaseAvgs[phaseAvgs.length-1];
+
+  // Life stage analysis
+  const stages = [
+    { name:'童年',  ages:[0,12],   icon:'seedling', color:'#60A5FA' },
+    { name:'青年',  ages:[13,29],  icon:'fire',     color:'#F59E0B' },
+    { name:'壮年',  ages:[30,49],  icon:'star',     color:'#EF4444' },
+    { name:'中年',  ages:[50,65],  icon:'shield',   color:'#A855F7' },
+    { name:'晚年',  ages:[66,100], icon:'moon',     color:'#34D399' }
+  ];
+  const stageData = stages.map(st => {
+    const relevant = fortune.filter(f => f.age >= st.ages[0] && f.age <= st.ages[1]);
+    const avg = Math.round(relevant.reduce((a,b)=>a+b.score,0)/relevant.length);
+    const peakIn = relevant.reduce((a,b) => a.score > b.score ? a : b, {score:0});
+    return { ...st, avg, peak: peakIn.score, peakAge: peakIn.age };
+  });
+
+  // Generate interpretation HTML
+  const trendMap = {
+    '先抑后扬': { desc:'早年运势平稳蓄力，中年后迎来强劲上升期。大器晚成之象，越晚越精彩。', icon:'📈' },
+    '厚积薄发': { desc:'青年平稳积累，壮年逐步走高，晚年持续向好。一步一个脚印的稳健人生。', icon:'🚀' },
+    '平稳持中': { desc:'一生运势波动较小，整体保持中上水平。不追求大起大落，贵在细水长流。', icon:'⚖️' },
+    '先扬后抑': { desc:'早年运势较好，后期需做好规划。建议壮年时期充分积累，为晚年做好准备。', icon:'🔻' },
+    '早发晚收': { desc:'早年即有亮眼表现，随后逐步回归常态。人生高峰期来得较早，后期宜稳中求进。', icon:'🌅' }
+  };
+
+  const trendInfo = trendMap[trend] || trendMap['平稳持中'];
+
+  let html = '';
+
+  // Overview
+  html += `<div class="interpret-block">
+    <div class="flex items-start gap-3">
+      <span class="text-2xl">${trendInfo.icon}</span>
+      <div>
+        <div class="font-semibold text-base mb-1">
+          整体走势：<span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">${trend}</span>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed">${trendInfo.desc}</p>
+        <div class="flex gap-4 mt-3 text-xs text-gray-500">
+          <span>波动率 <span class="text-purple-400 font-semibold">${volatility}%</span></span>
+          <span>均分 <span class="text-blue-400 font-semibold">${avgScore}</span></span>
+          <span>峰值 <span class="text-red-400 font-semibold">${peak.score}分 (${peak.age}岁)</span></span>
+          <span>低谷 <span class="text-green-400 font-semibold">${valley.score}分 (${valley.age}岁)</span></span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // Phase analysis - timeline
+  html += `<div class="interpret-block">
+    <div class="text-sm font-semibold text-gray-300 mb-3">生命阶段分析 · Life Stage Analysis</div>
+    <div class="space-y-2">`;
+  
+  stageData.forEach(st => {
+    const w = Math.max(5, Math.round((st.peak / 100) * 100));
+    html += `<div class="phase-bar" style="border-left-color:${st.color}">
+      <div class="flex items-center justify-between mb-1">
+        <span class="text-sm font-medium" style="color:${st.color}">${st.name} (${st.ages[0]}-${st.ages[1]}岁)</span>
+        <span class="text-xs text-gray-500">均分 ${st.avg} · 峰值 ${st.peak} (${st.peakAge}岁)</span>
+      </div>
+      <div class="wuxing-bar-bg" style="height:4px">
+        <div class="wuxing-bar-fill" style="width:${w}%;background:${st.color};height:4px;"></div>
+      </div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Best & worst periods comparison
+  html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="interpret-block" style="border-color:rgba(239,68,68,0.15)">
+      <div class="text-xs text-red-400 font-semibold mb-2">最佳阶段 · Best Period</div>
+      <div class="text-lg font-bold" style="color:#EF4444">${bestPhase[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${bestPhase[1]} · 人生黄金窗口</div>
+    </div>
+    <div class="interpret-block" style="border-color:rgba(34,197,94,0.15)">
+      <div class="text-xs text-green-400 font-semibold mb-2">挑战阶段 · Challenge Period</div>
+      <div class="text-lg font-bold" style="color:#22C55E">${worstPhase[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${worstPhase[1]} · 需谨慎规划</div>
+    </div>
+  </div>`;
+
+  // K-Line specific insight
+  html += `<div class="interpret-block">
+    <div class="text-sm font-semibold text-gray-300 mb-2">K线洞察 · K-Line Insight</div>
+    <p class="text-sm text-gray-400 leading-relaxed">
+      日主<strong class="text-purple-400">${reportData.data.summary?.day_master || '--'}${dayWuxing}</strong>命，身<strong class="text-amber-400">${bodyStrength}</strong>。${
+    volatility > 18
+      ? '人生K线波动较大，大吉大凶交替出现。建议顺势而为，在高峰时勇猛精进，低谷时韬光养晦。'
+      : volatility > 12
+      ? '人生K线波动适中，整体走势稳健。把握${bestPhase[0]}的上升趋势，在${worstPhase[0]}保持冷静。'
+      : '人生K线走势平稳，波幅较小。这是典型的稳健型命运曲线，适合长期主义策略。'
+    } 关键转折点在<strong class="text-red-400">${peak.age}岁</strong>（运势巅峰），以及<strong class="text-green-400">${valley.age}岁</strong>（人生低谷），这两处是命运线上最重要的节点。
+    </p>
+  </div>`;
+
+  document.getElementById('kline-interpret-content').innerHTML = html;
+}
+
+// ============ Fortune Summary ============
+function renderSummary() {
+  const s = reportData.data.summary;
+  if (!s) return;
+  
+  document.getElementById('summary-peak').textContent = (s.best_ages || []).slice(0, 3).join(', ') || '--';
+  document.getElementById('summary-challenge').textContent = (s.challenging_ages || []).slice(0, 3).join(', ') || '--';
+  document.getElementById('summary-avg').textContent = (s.average_score || '--') + '/100';
+  document.getElementById('summary-body').textContent = s.body_strength || '--';
+  document.getElementById('summary-body-sub').textContent = (s.day_wuxing || '') + '命 · ' + (s.day_master || '');
+}
+
+// ============ AI Analysis ============
+function renderAI() {
+  const ai = reportData.data.ai_analysis;
+  if (!ai || !ai.length) return;
+  
+  const section = document.getElementById('ai-section');
+  section.classList.remove('hidden-section');
+  
+  const container = document.getElementById('ai-content');
+  container.innerHTML = ai.map(p => `
+    <div class="p-4 rounded-xl bg-black/20 border border-white/5">
+      <div class="text-xs text-purple-400 font-semibold mb-2">${p.name || ''}</div>
+      <div class="text-sm text-gray-300 leading-relaxed">${p.advice || ''}</div>
+    </div>
+  `).join('');
+}
+
+// ============ Unlock ============
+async function handleUnlock(method) {
+  // Demo mode or server unavailable: instant unlock
+  if (isDemoMode) {
+    isUnlocked = true;
+    document.getElementById('paywall').classList.add('hidden');
+    chartInstance?.resize();
+    // Flash toast
+    showToast(method === 'share' ? 'Unlocked via Share! Enjoy your full report.' : 'Payment successful! Full report unlocked.');
+    return;
+  }
+  
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${API_BASE}/api/payment/create-checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId: reportData?.report_id, plan: 'report' }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    
+    const data = await res.json();
+    
+    if (data.demo) {
+      isUnlocked = true;
+      document.getElementById('paywall').classList.add('hidden');
+      chartInstance?.resize();
+      return;
+    }
+    
+    if (data.session_url) {
+      window.open(data.session_url, '_blank');
+    }
+  } catch (_err) {
+    // Fallback: demo unlock
+    isUnlocked = true;
+    document.getElementById('paywall').classList.add('hidden');
+    chartInstance?.resize();
+  }
+}
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 glass-card px-5 py-3 text-sm text-green-400 text-center slide-in';
+  toast.style.maxWidth = '400px';
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  setTimeout(() => { toast.remove(); }, 2500);
+}
+
+// ============ Copy Link ============
+async function handleCopyLink() {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    const el = document.getElementById('btn-copy-text');
+    el.textContent = 'Copied!';
+    setTimeout(() => { el.textContent = 'Copy Link'; }, 2000);
+  } catch {
+    document.getElementById('btn-copy-text').textContent = 'Failed';
+    setTimeout(() => { document.getElementById('btn-copy-text').textContent = 'Copy Link'; }, 2000);
+  }
+}
+
+// ============ New Reading ============
+function handleNewReading() {
+  reportData = null;
+  isUnlocked = false;
+  isDemoMode = false;
+  if (chartInstance) { chartInstance.dispose(); chartInstance = null; }
+  hideAll();
+  showSection('section-hero');
+  document.getElementById('birth-form').reset();
+  document.getElementById('chart-phase').textContent = '--';
+  // Clean up demo bar
+  const bar = document.getElementById('demo-bar');
+  if (bar) bar.remove();
+}
+
+// ============ Helpers ============
+function hideAll() {
+  ['section-hero', 'section-loading', 'section-results'].forEach(id => {
+    document.getElementById(id).classList.add('hidden-section');
+  });
+}
+
+function showSection(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('hidden-section');
+  el.classList.add('slide-in');
+}
+
+// ============ Init ============
+// Check if returning from payment
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('paid') === 'true') {
+  isUnlocked = true;
+  const reportId = urlParams.get('report');
+  if (reportId) {
+    fetch(`${API_BASE}/api/report/${reportId}`)
+      .then(r => {
+        if (!r.ok) throw new Error('not found');
+        return r.json();
+      })
+      .then(json => {
+        if (json.success) {
+          reportData = json;
+          isDemoMode = false;
+          hideAll();
+          showSection('section-results');
+          renderAll();
+          isUnlocked = true;
+        }
+      })
+      .catch(() => {
+        // Report not found — use demo
+        const now = new Date();
+        reportData = buildDemoReport(now.getFullYear()-30, 6, 15, 14, '女');
+        isDemoMode = true;
+        hideAll();
+        showSection('section-results');
+        renderAll();
+        isUnlocked = true;
+      });
+  }
+}
+</script>
+</body>
+</html>
