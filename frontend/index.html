@@ -92,6 +92,18 @@ body{
 /* ── overview card ── */
 .overview-card{padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(236,72,153,.06));border:1px solid rgba(168,85,247,.2);}
 
+/* ── module tabs ── */
+.module-tabs{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.03);border-radius:16px;max-width:360px;margin:0 auto;}
+.module-tab{flex:1;padding:12px 20px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;transition:all .35s;text-align:center;border:none;background:transparent;color:var(--dim);position:relative;}
+.module-tab.active{background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.1));color:#fff;box-shadow:0 4px 20px rgba(168,85,247,.15);}
+.module-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
+
+/* ── compatibility ── */
+.compat-hero-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.compat-vs{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#EC4899);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;flex-shrink:0;z-index:1;}
+.compat-score-ring-lg{width:120px;height:120px;position:relative;}
+.compat-score-ring-lg .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
+
 /* ── responsive ── */
 @media(max-width:640px){
   .pillar-tooltip{width:160px;left:0;transform:none;}
@@ -112,6 +124,18 @@ body{
     <span class="text-xs text-gray-500" id="server-label">connecting</span>
   </div>
 </nav>
+
+<!-- ── Module Switcher ── -->
+<div id="module-switcher" class="max-w-3xl mx-auto px-6 pb-2">
+  <div class="module-tabs">
+    <button class="module-tab active" onclick="switchModule('kline')" id="tab-kline">
+      <span class="mr-1.5">📈</span> 人生K线
+    </button>
+    <button class="module-tab" onclick="switchModule('compat')" id="tab-compat">
+      <span class="mr-1.5">💞</span> 缘分配对
+    </button>
+  </div>
+</div>
 
 <!-- ══════════════════ Section 0: Hero ══════════════════ -->
 <section id="section-hero" class="max-w-3xl mx-auto px-6 py-4 slide-in">
@@ -180,6 +204,109 @@ body{
       <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Secure & Private</span>
       <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI Powered</span>
       <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>Shareable</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section 0B: Compatibility Input ══════════════════ -->
+<section id="section-hero-compat" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10 text-center">
+    <div class="mb-6" style="animation:float 3s ease-in-out infinite">
+      <svg class="w-20 h-20 mx-auto" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F472B6"/>
+            <stop offset="50%" stop-color="#A855F7"/>
+            <stop offset="100%" stop-color="#F472B6"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#cg)" stroke-width="1.5" opacity=".4"/>
+        <circle cx="28" cy="30" r="10" fill="none" stroke="#F472B6" stroke-width="1.5"/>
+        <circle cx="28" cy="30" r="4" fill="#F472B6" opacity=".2"/>
+        <circle cx="52" cy="30" r="10" fill="none" stroke="#A855F7" stroke-width="1.5"/>
+        <circle cx="52" cy="30" r="4" fill="#A855F7" opacity=".2"/>
+        <path d="M38 34 Q40 40 42 34" fill="none" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <line x1="28" y1="40" x2="28" y2="68" stroke="#F472B6" stroke-width="1" opacity=".4"/>
+        <line x1="52" y1="40" x2="52" y2="68" stroke="#A855F7" stroke-width="1" opacity=".4"/>
+        <circle cx="40" cy="64" r="3" fill="#EC4899" opacity=".5"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+      <span class="bg-gradient-to-r from-pink-300 via-purple-300 to-pink-200 bg-clip-text text-transparent">
+        Soulmate Compatibility
+      </span>
+    </h1>
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+      输入两个人的出生信息<br>
+      用东方智慧<strong class="text-pink-300">解码</strong>你们的关系能量图谱
+    </p>
+    <form id="compat-form" class="max-w-2xl mx-auto space-y-6">
+      <!-- Person A -->
+      <div class="p-5 rounded-2xl" style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.15);">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="compat-hero-avatar" style="background:rgba(244,114,182,.12);width:36px;height:36px;font-size:18px;">🧑</span>
+          <span class="text-sm font-semibold" style="color:#F472B6">第一个人</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生日期 <span class="text-pink-400">*</span></label>
+            <input type="date" id="compat-a-date" required value="1990-06-15" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生时间</label>
+            <input type="time" id="compat-a-time" value="14:30" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">性别</label>
+            <select id="compat-a-gender" class="input-field" style="font-size:14px;padding:10px 12px;">
+              <option value="男">男</option>
+              <option value="女" selected>女</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- VS -->
+      <div class="flex justify-center">
+        <div class="compat-vs">VS</div>
+      </div>
+
+      <!-- Person B -->
+      <div class="p-5 rounded-2xl" style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="compat-hero-avatar" style="background:rgba(168,85,247,.12);width:36px;height:36px;font-size:18px;">👤</span>
+          <span class="text-sm font-semibold" style="color:#A855F7">第二个人</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生日期 <span class="text-purple-400">*</span></label>
+            <input type="date" id="compat-b-date" required value="1992-08-20" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生时间</label>
+            <input type="time" id="compat-b-time" value="10:00" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">性别</label>
+            <select id="compat-b-gender" class="input-field" style="font-size:14px;padding:10px 12px;">
+              <option value="男" selected>男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="compat-submit-btn" class="btn-primary w-full" style="background:linear-gradient(135deg,#EC4899 0%,#8B5CF6 100%);animation:pulse-ring 2s infinite;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        Analyze Compatibility
+      </button>
+    </form>
+    <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>隐私安全</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>东方玄学算法</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>一键分享</span>
     </div>
   </div>
 </section>
@@ -393,8 +520,119 @@ body{
   </div>
 </section>
 
+<!-- ══════════════════ Section 3: Compatibility Results ══════════════════ -->
+<section id="section-compat-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- ① 关系总评 -->
+  <div id="compat-overview-wrap" class="overview-card mb-6 slide-in" style="background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(168,85,247,.06));border-color:rgba(244,114,182,.2);">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1" id="compat-emoji">💞</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-pink-400 font-semibold tracking-wide">关系画像</span>
+          <span class="tag tag-purple text-xs" id="compat-relation-tag">--</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="compat-desc">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 总体分数 + 双人信息 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 slide-in">
+    <!-- Score Ring -->
+    <div class="glass-card p-6 flex flex-col items-center justify-center">
+      <p class="text-xs text-gray-500 mb-3">兼容指数</p>
+      <div class="compat-score-ring-lg mb-3">
+        <svg viewBox="0 0 140 140" style="width:120px;height:120px;">
+          <circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="url(#scoreGrad)" stroke-width="8"
+            stroke-dasharray="0 327" stroke-dashoffset="81.75"
+            stroke-linecap="round" transform="rotate(-90 70 70)" id="compat-score-circle"/>
+          <text x="70" y="66" text-anchor="middle" fill="#E5E7EB" font-size="28" font-weight="800" id="compat-score-text">--</text>
+          <text x="70" y="84" text-anchor="middle" fill="#9CA3AF" font-size="11" id="compat-score-label">/100</text>
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#F472B6"/>
+              <stop offset="100%" stop-color="#A855F7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <p class="text-sm font-semibold text-center" id="compat-type">--</p>
+    </div>
+    <!-- Person A -->
+    <div class="glass-card p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="compat-hero-avatar" style="background:rgba(244,114,182,.12);width:40px;height:40px;font-size:20px;">🧑</span>
+        <div>
+          <div class="text-sm font-semibold" id="compat-a-name">Person A</div>
+          <div class="text-xs text-gray-500" id="compat-a-dob">--</div>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap text-xs">
+        <span class="tag" id="compat-a-day">日元: --</span>
+        <span class="tag" id="compat-a-wx">五行: --</span>
+        <span class="tag tag-purple" id="compat-a-body">--</span>
+      </div>
+      <div class="mt-3 text-xs text-gray-500" id="compat-a-animal">--</div>
+    </div>
+    <!-- Person B -->
+    <div class="glass-card p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="compat-hero-avatar" style="background:rgba(168,85,247,.12);width:40px;height:40px;font-size:20px;">👤</span>
+        <div>
+          <div class="text-sm font-semibold" id="compat-b-name">Person B</div>
+          <div class="text-xs text-gray-500" id="compat-b-dob">--</div>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap text-xs">
+        <span class="tag" id="compat-b-day">日元: --</span>
+        <span class="tag" id="compat-b-wx">五行: --</span>
+        <span class="tag tag-purple" id="compat-b-body">--</span>
+      </div>
+      <div class="mt-3 text-xs text-gray-500" id="compat-b-animal">--</div>
+    </div>
+  </div>
+
+  <!-- ③ 五行对比雷达 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <h3 class="text-lg font-semibold mb-1">五行能量对比</h3>
+    <p class="text-xs text-gray-500 mb-4">两个人的五行分布叠加，看互补与冲突</p>
+    <div id="chart-compat-radar" style="width:100%;height:350px;"></div>
+  </div>
+
+  <!-- ④ 多维度评分 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d2">
+    <h3 class="text-lg font-semibold mb-4">五维兼容评分</h3>
+    <div class="space-y-4" id="compat-dim-bars"></div>
+  </div>
+
+  <!-- ⑤ 关系解读 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d2">
+    <div class="flex items-center gap-2 mb-5">
+      <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <h3 class="text-lg font-bold">命理深度解读</h3>
+    </div>
+    <div id="compat-advice" class="space-y-3"></div>
+  </div>
+
+  <!-- ⑥ 返回按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleCompatShare()" class="btn-secondary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        分享关系图谱
+      </button>
+      <button onclick="handleCompatReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重新配对
+      </button>
+    </div>
+  </div>
+</section>
+
 <footer class="text-center py-8 text-xs text-gray-700">
-  Nexus Ora © 2026 · AI Soul Companion · 东方玄学 × 现代AI
+  Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 · 东方玄学 × 现代AI
 </footer>
 
 <!-- ══════════════════ Scripts ══════════════════ -->
@@ -492,7 +730,6 @@ function buildDemoReport(y, m, d, h, gender) {
 }
 
 // ── UI helpers ─────────────────────────────────
-function hideAll()   { ['section-hero','section-loading','section-results'].forEach(id => document.getElementById(id).classList.add('hidden-section')); }
 function showSection(id) { document.getElementById(id).classList.remove('hidden-section'); }
 function show(id)    { document.getElementById(id).classList.remove('hidden-section'); }
 function hide(id)    { document.getElementById(id).classList.add('hidden-section'); }
@@ -1022,19 +1259,303 @@ function handleCopyLink() {
   }).catch(() => showToast('请手动复制地址栏链接'));
 }
 
-// ── New Reading ───────────────────────────────
+// ── Module Switching ──────────────────────────
+let currentModule = 'kline';
+
+function switchModule(module) {
+    currentModule = module;
+    // Tab styles
+    document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + module).classList.add('active');
+
+    // Hide all sections
+    hideAll();
+
+    if (module === 'kline') {
+        showSection('section-hero');
+    } else if (module === 'compat') {
+        showSection('section-hero-compat');
+    }
+
+    // Reset chart refs
+    chartCompatRadar?.dispose(); chartCompatRadar = null;
+}
+
+function hideAll() {
+    ['section-hero', 'section-hero-compat', 'section-loading', 'section-results', 'section-compat-results']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
+}
+
+// ── Compatibility Form ─────────────────────────
+document.getElementById('compat-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('compat-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 分析中...';
+
+    hideAll();
+    showSection('section-loading');
+    activateStep(0);
+    setText('loading-text', '正在计算双方八字命盘...');
+    setText('loading-sub', 'Analyzing two destinies');
+
+    const parsePerson = prefix => {
+        const [y, m, d] = document.getElementById(`compat-${prefix}-date`).value.split('-').map(Number);
+        const [h, min] = (document.getElementById(`compat-${prefix}-time`).value || '12:00').split(':').map(Number);
+        const gender = document.getElementById(`compat-${prefix}-gender`).value || '未知';
+        return { year: y, month: m, day: d, hour: h, minute: min, gender };
+    };
+
+    const personA = parsePerson('a');
+    const personB = parsePerson('b');
+
+    let result;
+    try {
+        activateStep(0); await delay(600);
+        activateStep(1); await delay(500);
+        activateStep(2); await delay(400);
+
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 30000);
+        const res = await fetch(API_BASE + '/api/compatibility', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ personA, personB }),
+            signal: ctrl.signal
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || 'server error');
+        result = json;
+        isDemoMode = false;
+        activateStep(3); await delay(400);
+        activateStep(4); await delay(300);
+    } catch (_err) {
+        activateStep(2); await delay(600);
+        activateStep(3); await delay(500);
+        activateStep(4); await delay(300);
+        result = buildDemoCompat(personA, personB);
+        isDemoMode = true;
+    }
+
+    compatData = result;
+    hideAll();
+    showSection('section-compat-results');
+    renderCompatAll();
+
+    if (isDemoMode) {
+        const bar = document.createElement('div');
+        bar.id = 'demo-bar';
+        bar.className = 'max-w-6xl mx-auto px-6 mb-3';
+        bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Demo 模式运行中 · 启动服务器可获得真实排盘分析</div>';
+        document.getElementById('section-compat-results').insertBefore(bar, document.getElementById('section-compat-results').firstChild);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> Analyze Compatibility';
+});
+
+// ── Compatibility State ────────────────────────
+let compatData = null;
+let chartCompatRadar = null;
+
+// ── Demo Compatibility ─────────────────────────
+function buildDemoCompat(pA, pB) {
+    const seed = pA.year * 100 + pB.year + pA.month * pB.month;
+    const rng = (i, offset) => { const x = Math.sin(seed * 0.017 + i * 0.73 + offset) * 10000; return x - Math.floor(x); };
+
+    const wxA = { '金': 2, '水': 1, '木': 1, '火': 1, '土': 3 };
+    const wxB = { '金': 1, '水': 3, '木': 2, '火': 1, '土': 1 };
+    const elements = ['金','木','水','火','土'];
+
+    const overall = Math.round(55 + rng(1, 0) * 40);
+    const dims = {
+        personality:  { score: Math.round(55 + rng(2, 0.3) * 40), label: '性格互补' },
+        career:       { score: Math.round(55 + rng(3, 0.5) * 40), label: '事业合作' },
+        romance:      { score: Math.round(55 + rng(4, 0.7) * 40), label: '感情契合' },
+        communicaton: { score: Math.round(55 + rng(5, 0.2) * 40), label: '沟通默契' },
+        long_term:    { score: overall, label: '长期发展' }
+    };
+
+    return {
+        success: true, demo: true,
+        personA: {
+            bazi: { day_gan: '辛', day_wuxing: '金', body_strength: '偏弱', day: '辛亥' },
+            info: { animal: '马', zodiac: '双子座', gender: pA.gender, birth_date: `${pA.year}-${pA.month}-${pA.day}` },
+            wuxing_balance: wxA
+        },
+        personB: {
+            bazi: { day_gan: '甲', day_wuxing: '木', body_strength: '身强', day: '甲寅' },
+            info: { animal: '猴', zodiac: '狮子座', gender: pB.gender, birth_date: `${pB.year}-${pB.month}-${pB.day}` },
+            wuxing_balance: wxB
+        },
+        compatibility: {
+            relation_type: overall >= 75 ? '天作之合' : overall >= 60 ? '五行相生' : '欢喜冤家',
+            relation_icon: overall >= 75 ? '✨' : overall >= 60 ? '💫' : '⚡',
+            relation_desc: '两人五行能量互补，一方金命配另一方木命，金克木但有水调候则成材。关系中需要中间人调和，但天生有吸引。',
+            wx_relation: '金克木',
+            wx_score: 45,
+            ss_a_to_b: '偏财',
+            ss_b_to_a: '偏印',
+            zhi_relation: '普通',
+            zhi_score: 55,
+            dimensions: dims,
+            overall_score: overall,
+            radar_data: elements.map(e => ({ element: e, personA: wxA[e] || 0, personB: wxB[e] || 0 })),
+            advice: [
+                '金克木的关系，需要水来调候——一起做一些创造性的事。',
+                '两人日柱无冲无合，平淡中需要更多主动经营。',
+                '关键提醒：金命果断、木命生长，你的执行力正是对方需要的动力。'
+            ]
+        }
+    };
+}
+
+// ── Render Compat ──────────────────────────────
+function renderCompatAll() {
+    const d = compatData?.compatibility;
+    const a = compatData?.personA;
+    const b = compatData?.personB;
+    if (!d || !a || !b) return;
+
+    // ① Overview
+    setText('compat-emoji', d.relation_icon || '💞');
+    setText('compat-relation-tag', d.relation_type || '--');
+    setText('compat-desc', d.relation_desc || '--');
+
+    // ② Score
+    const score = d.overall_score || 50;
+    const circ = 2 * Math.PI * 52; // ~327
+    const dash = Math.round(circ * score / 100);
+    const circle = document.getElementById('compat-score-circle');
+    if (circle) { circle.setAttribute('stroke-dasharray', dash + ' ' + circ); }
+    setText('compat-score-text', score);
+    setText('compat-type', d.relation_type || '--');
+    const scoreColor = score >= 75 ? '#EF4444' : score >= 60 ? '#F97316' : score >= 45 ? '#9CA3AF' : '#4ADE80';
+    if (circle) circle.setAttribute('stroke', scoreColor);
+
+    // Person A
+    setText('compat-a-name', `Person A (${a.info?.gender || '--'})`);
+    setText('compat-a-dob', a.info?.birth_date || '--');
+    setText('compat-a-day', '日元: ' + (a.bazi?.day_gan || '--'));
+    setText('compat-a-wx', '五行: ' + (a.bazi?.day_wuxing || '--'));
+    setText('compat-a-body', a.bazi?.body_strength || '--');
+    setText('compat-a-animal', `生肖: ${a.info?.animal||'--'} · 星座: ${a.info?.zodiac||'--'}`);
+
+    // Person B
+    setText('compat-b-name', `Person B (${b.info?.gender || '--'})`);
+    setText('compat-b-dob', b.info?.birth_date || '--');
+    setText('compat-b-day', '日元: ' + (b.bazi?.day_gan || '--'));
+    setText('compat-b-wx', '五行: ' + (b.bazi?.day_wuxing || '--'));
+    setText('compat-b-body', b.bazi?.body_strength || '--');
+    setText('compat-b-animal', `生肖: ${b.info?.animal||'--'} · 星座: ${b.info?.zodiac||'--'}`);
+
+    // ③ Radar
+    renderCompatRadar();
+
+    // ④ Dimensions
+    const dims = d.dimensions || {};
+    const dimEl = document.getElementById('compat-dim-bars');
+    const DIM_ORDER = ['personality','career','romance','communicaton','long_term'];
+    const DIM_ICONS = { personality:'🎭', career:'💼', romance:'💕', communicaton:'💬', long_term:'🏛️' };
+    dimEl.innerHTML = DIM_ORDER.filter(k => dims[k]).map(k => {
+        const dim = dims[k];
+        const sc = dim.score || 50;
+        const clr = sc >= 75 ? '#EF4444' : sc >= 60 ? '#F97316' : sc >= 45 ? '#9CA3AF' : '#4ADE80';
+        return `<div class="flex items-center gap-3">
+          <span class="text-sm w-20 flex-shrink-0 text-gray-300">${DIM_ICONS[k]||''} ${dim.label||k}</span>
+          <div class="flex-1 wx-bar-bg" style="height:10px;"><div class="wx-bar-fill" style="width:${sc}%;background:${clr};height:10px;"></div></div>
+          <span class="text-sm font-bold w-10 text-right" style="color:${clr}">${sc}</span>
+        </div>`;
+    }).join('');
+
+    // ⑤ Advice
+    const adviceEl = document.getElementById('compat-advice');
+    const advice = d.advice || [];
+    adviceEl.innerHTML = advice.map((tip, i) => `<div class="iblock flex items-start gap-3">
+      <span class="text-sm flex-shrink-0" style="color:${i === advice.length - 1 ? '#F472B6' : '#9CA3AF'}">${i === advice.length - 1 ? '🔑' : '•'}</span>
+      <p class="text-sm text-gray-400 leading-relaxed">${tip}</p>
+    </div>`).join('') + `
+    <div class="iblock mt-3" style="border-color:rgba(168,85,247,.15);">
+      <div class="flex items-center gap-2 mb-2"><span class="text-xs text-purple-400 font-semibold">⚡ 关系核心</span></div>
+      <p class="text-xs text-gray-500">十神关系: <strong class="text-purple-400">A→B: ${d.ss_a_to_b||'--'}</strong> · <strong class="text-pink-400">B→A: ${d.ss_b_to_a||'--'}</strong> · 五行: <strong class="text-amber-400">${d.wx_relation||'--'}</strong> · 日柱: <strong class="text-blue-400">${d.zhi_relation||'--'}</strong></p>
+    </div>`;
+}
+
+function renderCompatRadar() {
+    const radarData = compatData?.compatibility?.radar_data || [];
+    if (!radarData.length) return;
+
+    if (chartCompatRadar) { chartCompatRadar.dispose(); chartCompatRadar = null; }
+    chartCompatRadar = echarts.init(document.getElementById('chart-compat-radar'), null, { renderer: 'canvas' });
+
+    chartCompatRadar.setOption({
+        backgroundColor: 'transparent',
+        legend: { data: ['Person A', 'Person B'], bottom: 0, textStyle: { color: '#9CA3AF', fontSize: 11 } },
+        radar: {
+            indicator: radarData.map(d => ({ name: d.element, max: 5 })),
+            shape: 'polygon', splitNumber: 5,
+            center: ['50%', '50%'], radius: '65%',
+            name: { color: '#9CA3AF', fontSize: 13, fontWeight: 600 },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,.08)' } },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,.05)' } },
+            splitArea: { areaStyle: { color: ['rgba(255,255,255,.015)', 'transparent'] } }
+        },
+        series: [{
+            type: 'radar',
+            animation: true, animationDuration: 1000,
+            data: [
+                { value: radarData.map(d => d.personA), name: 'Person A',
+                  symbol: 'circle', symbolSize: 5,
+                  lineStyle: { color: '#F472B6', width: 2 },
+                  itemStyle: { color: '#F472B6', borderColor: '#FBCFE8', borderWidth: 2 },
+                  areaStyle: { color: 'rgba(244,114,182,.1)' } },
+                { value: radarData.map(d => d.personB), name: 'Person B',
+                  symbol: 'circle', symbolSize: 5,
+                  lineStyle: { color: '#A855F7', width: 2 },
+                  itemStyle: { color: '#A855F7', borderColor: '#DDD6FE', borderWidth: 2 },
+                  areaStyle: { color: 'rgba(168,85,247,.1)' } }
+            ]
+        }],
+        tooltip: {
+            backgroundColor: 'rgba(15,12,31,.95)',
+            borderColor: 'rgba(168,85,247,.3)',
+            formatter(p) { return radarData.map(d => `${d.element}: A=${d.personA} B=${d.personB}`).join('<br>'); }
+        }
+    });
+
+    window.addEventListener('resize', () => { chartCompatRadar?.resize(); });
+}
+
+function handleCompatShare() {
+    const url = window.location.href;
+    navigator.clipboard?.writeText(url).then(() => {
+        showToast('💞 关系图谱链接已复制到剪贴板', '#F472B6');
+    }).catch(() => showToast('请手动复制地址栏链接'));
+}
+
+function handleCompatReset() {
+    compatData = null;
+    chartCompatRadar?.dispose(); chartCompatRadar = null;
+    document.getElementById('demo-bar')?.remove();
+    hideAll();
+    showSection('section-hero-compat');
+    document.getElementById('compat-form').reset();
+}
+
+// ── K-Line New Reading (reuse) ────────────────
 function handleNewReading() {
-  reportData = null; isUnlocked = false; isDemoMode = false;
-  chartMain?.dispose();  chartMain  = null;
-  chartRadar?.dispose(); chartRadar = null;
-  hide('overview-card-wrap');
-  hide('kline-interp-wrap');
-  hide('dimensions-wrap');
-  document.getElementById('demo-bar')?.remove();
-  hideAll();
-  showSection('section-hero');
-  document.getElementById('birth-form').reset();
-  setText('chart-phase', '--');
+    reportData = null; isUnlocked = false; isDemoMode = false;
+    chartMain?.dispose();  chartMain  = null;
+    chartRadar?.dispose(); chartRadar = null;
+    hide('overview-card-wrap');
+    hide('kline-interp-wrap');
+    hide('dimensions-wrap');
+    document.getElementById('demo-bar')?.remove();
+    hideAll();
+    showSection('section-hero');
+    document.getElementById('birth-form').reset();
+    setText('chart-phase', '--');
 }
 
 // ── URL param: return from payment ────────────

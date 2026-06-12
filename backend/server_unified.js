@@ -11,7 +11,7 @@ const cors    = require('cors');
 const path    = require('path');
 const fs      = require('fs');
 const initSqlJs = require('sql.js');
-const { paipan } = require('./paipan_engine.js');
+const { paipan, getShishen } = require('./paipan_engine.js');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -428,6 +428,163 @@ app.post('/api/payment/create-checkout', async (req, res) => {
 });
 
 app.post('/api/payment/verify', (_req, res) => res.json({ success:true, unlocked:true }));
+
+// ══════════════════ 缘分配对 API ══════════════════
+
+// 五行相生相克映射
+const WX_RELATION = {
+    '木': { sheng:'火', ke:'土', beiSheng:'水', beiKe:'金' },
+    '火': { sheng:'土', ke:'金', beiSheng:'木', beiKe:'水' },
+    '土': { sheng:'金', ke:'水', beiSheng:'火', beiKe:'木' },
+    '金': { sheng:'水', ke:'木', beiSheng:'土', beiKe:'火' },
+    '水': { sheng:'木', ke:'火', beiSheng:'金', beiKe:'土' }
+};
+
+function calcCompatibility(a, b) {
+    const aWx = a.bazi.day_wuxing;
+    const bWx = b.bazi.day_wuxing;
+    const aGan = a.bazi.day_gan;
+    const bGan = b.bazi.day_gan;
+
+    // 五行匹配度
+    let wxScore = 0;
+    const rel = WX_RELATION[aWx];
+    if (!rel) { wxScore = 50; }
+    else if (aWx === bWx) { wxScore = 75; }           // 同五行：志趣相投
+    else if (rel.sheng === bWx) { wxScore = 85; }       // A生B：A滋养B
+    else if (rel.beiSheng === bWx) { wxScore = 90; }    // A被B生：A受益
+    else if (rel.ke === bWx) { wxScore = 45; }           // A克B：轻微冲突
+    else if (rel.beiKe === bWx) { wxScore = 40; }        // A被B克：受压
+    else { wxScore = 50; }
+
+    const wxLabel = aWx === bWx ? `${aWx}${bWx}同气` :
+        rel?.sheng === bWx ? `${aWx}生${bWx}` :
+        rel?.beiSheng === bWx ? `${bWx}生${aWx}` :
+        rel?.ke === bWx ? `${aWx}克${bWx}` :
+        rel?.beiKe === bWx ? `${bWx}克${aWx}` : '--';
+
+    // 十神关系
+    const ssAtoB = getShishen(aGan, bGan);
+    const ssBtoA = getShishen(bGan, aGan);
+
+    // 十神相合理想配对
+    const GOOD_SS_PAIRS = [
+        ['正官','正印'],['正官','正财'],['七杀','正印'],['食神','正财'],
+        ['比肩','劫财'],['正印','偏印'],['食神','伤官']
+    ];
+    let ssBonus = 0;
+    const sorted = [ssAtoB, ssBtoA].sort().join(',');
+    for (const [x,y] of GOOD_SS_PAIRS) {
+        if (sorted.includes(x) && sorted.includes(y)) { ssBonus = 15; break; }
+    }
+
+    // 日柱地支关系（夫妻宫）
+    const aDayZhi = a.pillars[2]?.zhi || '';
+    const bDayZhi = b.pillars[2]?.zhi || '';
+    const ZHI_HE = { '子丑':'合','寅亥':'合','卯戌':'合','辰酉':'合','巳申':'合','午未':'合' };
+    const ZHI_CHONG = { '子午':'冲','丑未':'冲','寅申':'冲','卯酉':'冲','辰戌':'冲','巳亥':'冲' };
+    const pair = [aDayZhi,bDayZhi].sort().join('');
+    let zhiScore = 50;
+    let zhiLabel = '普通';
+    if (ZHI_HE[pair]) { zhiScore = 90; zhiLabel = '六合（绝配）'; }
+    else if (ZHI_CHONG[pair]) { zhiScore = 30; zhiLabel = '六冲（需磨合）'; }
+
+    // 多维度计算
+    // 性格互补：五行相生 + 十神加分
+    const personality = Math.round(Math.min(95, wxScore * 0.6 + ssBonus * 1.2 + 20));
+    // 事业合作：十神关系为主
+    const career     = Math.round(Math.min(95, (ssBonus > 0 ? 60 + ssBonus * 1.5 : 40 + Math.random() * 20)));
+    // 感情契合：日柱地支 + 五行
+    const romance    = Math.round(Math.min(95, zhiScore * 0.55 + wxScore * 0.3 + 10));
+    // 沟通默契：五行相生
+    const commun     = Math.round(Math.min(95, wxScore * 0.7 + (aDayZhi && bDayZhi ? 15 : 0)));
+    // 长期发展：综合评分
+    const longTerm   = Math.round((personality + career + romance + commun) / 4);
+
+    // 五行对比雷达
+    const aBalance = a.wuxing_balance || {};
+    const bBalance = b.wuxing_balance || {};
+    const elements = ['金','木','水','火','土'];
+    const radarData = elements.map(e => ({
+        element: e,
+        personA: aBalance[e] || 0,
+        personB: bBalance[e] || 0
+    }));
+
+    // 关系解读
+    let relationType, relationIcon, relationDesc;
+    if (zhiScore >= 80) { relationType = '天作之合'; relationIcon = '✨'; relationDesc = '日柱六合，前世渊源深厚。两人相遇即感亲切，很可能是命中注定的伴侣或最佳拍档。'; }
+    else if (wxScore >= 80) { relationType = '五行相生'; relationIcon = '💫'; relationDesc = `五行${wxLabel}，能量流通顺畅。${aWx}命与${bWx}命天然互补，一方滋养另一方成长。`; }
+    else if (ssBonus >= 10) { relationType = '十神相合'; relationIcon = '🤝'; relationDesc = `十神搭配理想，${ssAtoB}与${ssBtoA}互为良配。在事业上可以形成互补，沟通效率高于常人。`; }
+    else if (zhiScore <= 35) { relationType = '欢喜冤家'; relationIcon = '⚡'; relationDesc = '日柱六冲，初见或有不和，但冲并非不好——冲则动，适当距离反而产生吸引力，需要更多耐心磨合。'; }
+    else if (wxScore <= 45) { relationType = '五行相克'; relationIcon = '🔥'; relationDesc = `五行${wxLabel}，一方克制另一方。初期可能感到压迫，但若能化克为用（如借助第三方元素调和），反能激发彼此成长。`; }
+    else { relationType = '平常之缘'; relationIcon = '🌸'; relationDesc = '不在最合的配置也不在最冲，中正平和。这类关系最考验双方真实付出，平淡中见真情。'; }
+
+    return {
+        success: true,
+        personA: { bazi: a.bazi, info: a.info, pillars: a.pillars, wuxing_balance: a.wuxing_balance },
+        personB: { bazi: b.bazi, info: b.info, pillars: b.pillars, wuxing_balance: b.wuxing_balance },
+        compatibility: {
+            relation_type:   relationType,
+            relation_icon:   relationIcon,
+            relation_desc:   relationDesc,
+            wx_relation:     wxLabel,
+            wx_score:        wxScore,
+            ss_a_to_b:       ssAtoB,
+            ss_b_to_a:       ssBtoA,
+            zhi_relation:    zhiLabel,
+            zhi_score:       zhiScore,
+            dimensions: {
+                personality:  { score: personality,  label: '性格互补' },
+                career:       { score: career,       label: '事业合作' },
+                romance:      { score: romance,      label: '感情契合' },
+                communicaton: { score: commun,       label: '沟通默契' },
+                long_term:    { score: longTerm,     label: '长期发展' }
+            },
+            overall_score:   longTerm,
+            radar_data:      radarData,
+            advice:          generateAdvice(wxScore, zhiScore, ssBonus, aWx, bWx, aGan, bGan)
+        }
+    };
+}
+
+function generateAdvice(wxScore, zhiScore, ssBonus, aWx, bWx, aGan, bGan) {
+    const tips = [];
+    if (wxScore >= 80) tips.push(`五行相生（${aWx}→${bWx}），多一起做创造性的事，能量会自然流动。`);
+    if (wxScore <= 45) tips.push(`五行相克（${aWx}↘${bWx}），建议在关系中引入第三方元素（如共同朋友/兴趣爱好）来调和。`);
+    if (zhiScore >= 80) tips.push('日柱六合是天赐良缘，前世今生的缘分，珍惜彼此。');
+    if (zhiScore <= 35) tips.push('日柱六冲需要各自保留独立空间，适当的距离让关系更持久。');
+    if (ssBonus >= 10) tips.push('十神搭配理想，在事业上可以成为最强拍档，沟通效率高。');
+    tips.push(`关键提醒：${aWx}命与${bWx}命的组合，${aWx === bWx ? '同类相求，理解彼此最深，但也容易因太像而产生摩擦。' : '互补性强，你的短板恰好是对方的优势，这是天然的搭档关系。'}`);
+    return tips;
+}
+
+app.post('/api/compatibility', (req, res) => {
+    console.log('[API] /api/compatibility body:', JSON.stringify(req.body));
+    const { personA, personB } = req.body;
+    if (!personA || !personB) return res.status(400).json({ success: false, error: '需要双方出生信息' });
+    if (!personA.year || !personA.month || !personA.day) return res.status(400).json({ success: false, error: '甲方缺少出生日期' });
+    if (!personB.year || !personB.month || !personB.day) return res.status(400).json({ success: false, error: '乙方缺少出生日期' });
+
+    try {
+        const aResult = paipan({
+            year: +personA.year, month: +personA.month, day: +personA.day,
+            hour: personA.hour || 12, minute: personA.minute || 0, gender: personA.gender || '未知'
+        });
+        const bResult = paipan({
+            year: +personB.year, month: +personB.month, day: +personB.day,
+            hour: personB.hour || 12, minute: personB.minute || 0, gender: personB.gender || '未知'
+        });
+        if (!aResult.success || !bResult.success) {
+            return res.status(500).json({ success: false, error: '排盘失败' });
+        }
+        const result = calcCompatibility(aResult, bResult);
+        res.json(result);
+    } catch (e) {
+        console.error('[Compatibility] error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
 
 // ───────────────────────── Start ──────────────────────────
 
