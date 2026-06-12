@@ -8,6 +8,11 @@ Nexus Ora - 八字排盘引擎
 
 import sys
 import json
+import io
+
+# 强制 stdout 使用 UTF-8 编码，避免 Windows GBK 编码导致 UnicodeEncodeError
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+
 from lunar_python import Solar
 
 # 五行对照表
@@ -125,16 +130,50 @@ def paipan(input_data):
     return result
 
 if __name__ == '__main__':
+    output_file = None
+    input_str = ''
+    
     try:
-        if len(sys.argv) > 1:
-            input_str = sys.argv[1]
-        else:
+        import traceback
+        import os as _os
+        
+        # 解析 --file 和 --output 参数
+        i = 1
+        while i < len(sys.argv):
+            if sys.argv[i] == '--file' and i+1 < len(sys.argv):
+                with open(sys.argv[i+1], 'r', encoding='utf-8') as f:
+                    input_str = f.read()
+                i += 2
+            elif sys.argv[i] == '--output' and i+1 < len(sys.argv):
+                output_file = sys.argv[i+1]
+                i += 2
+            else:
+                input_str = sys.argv[i]
+                i += 1
+        
+        if not input_str:
             input_str = sys.stdin.read()
         
         input_data = json.loads(input_str)
         result = paipan(input_data)
-        print(json.dumps(result, ensure_ascii=False))
+        result_json = json.dumps(result, ensure_ascii=False)
+        
+        # 写入输出文件或 stdout
+        if output_file:
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(result_json)
+        else:
+            print(result_json)
         
     except Exception as e:
-        print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False))
+        err_detail = traceback.format_exc()
+        err_json = json.dumps({"success": False, "error": str(e), "traceback": err_detail}, ensure_ascii=False)
+        if output_file:
+            try:
+                with open(output_file, 'w', encoding='utf-8') as f:
+                    f.write(err_json)
+            except:
+                pass
+        print(err_detail, file=sys.stderr, flush=True)
+        print(err_json, flush=True)
         sys.exit(1)

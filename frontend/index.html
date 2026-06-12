@@ -11,7 +11,7 @@ tailwind.config = {
   theme: {
     extend: {
       colors: {
-        cosmos: { 950: '#080618', 900: '#0F0C1F', 800: '#1A1630', 700: '#221D3E' }
+        cosmos: { 950:'#080618', 900:'#0F0C1F', 800:'#1A1630', 700:'#221D3E' }
       }
     }
   }
@@ -19,197 +19,120 @@ tailwind.config = {
 </script>
 <style>
 @keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-@keyframes slide-up { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-@keyframes pulse-ring { 0%{box-shadow:0 0 0 0 rgba(168,85,247,0.4)} 100%{box-shadow:0 0 0 20px rgba(168,85,247,0)} }
-@keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+@keyframes float         { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes slide-up      { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse-ring    { 0%{box-shadow:0 0 0 0 rgba(168,85,247,.4)} 100%{box-shadow:0 0 0 20px rgba(168,85,247,0)} }
+@keyframes spin-slow     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes blink         { 0%,100%{opacity:1} 50%{opacity:.3} }
 
 :root {
-  --bg: #0F0C1F;
-  --card: rgba(255,255,255,0.03);
-  --border: rgba(255,255,255,0.06);
-  --text: #E5E7EB;
-  --text-dim: #9CA3AF;
-  --purple: #A855F7;
-  --pink: #EC4899;
-  --red: #EF4444;
-  --green: #22C55E;
+  --bg:#0F0C1F; --card:rgba(255,255,255,.03); --border:rgba(255,255,255,.06);
+  --text:#E5E7EB; --dim:#9CA3AF;
+  --purple:#A855F7; --pink:#EC4899; --red:#EF4444; --green:#22C55E;
 }
-
-* { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #0F0C1F 0%, #1A1025 30%, #0F1A2E 60%, #0F0C1F 100%);
-  background-size: 400% 400%;
-  animation: gradient-shift 15s ease infinite;
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  -webkit-font-smoothing: antialiased;
+*{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh;
+  background:linear-gradient(135deg,#0F0C1F 0%,#1A1025 30%,#0F1A2E 60%,#0F0C1F 100%);
+  background-size:400% 400%;
+  animation:gradient-shift 18s ease infinite;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  -webkit-font-smoothing:antialiased;
 }
+.glass{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06);border-radius:20px;}
+.glass-card{background:rgba(255,255,255,.02);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.05);border-radius:16px;}
+.hidden-section{display:none!important;}
+.slide-in{animation:slide-up .5s ease-out;}
+.slide-in-d1{animation:slide-up .5s ease-out .15s both;}
+.slide-in-d2{animation:slide-up .5s ease-out .3s both;}
+.slide-in-d3{animation:slide-up .5s ease-out .45s both;}
 
-.glass {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 20px;
-}
+.input-field{width:100%;padding:12px 16px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);font-size:15px;outline:none;transition:all .3s;}
+.input-field:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(168,85,247,.15);}
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 40px rgba(168,85,247,.3);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:all .3s;}
+.btn-secondary:hover{background:rgba(255,255,255,.1);}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:rgba(255,255,255,.06);border-radius:20px;font-size:12px;color:var(--dim);}
+.tag-purple{background:rgba(168,85,247,.12);color:#C084FC;}
+.tag-green{background:rgba(34,197,94,.1);color:#4ADE80;}
+.tag-amber{background:rgba(245,158,11,.1);color:#FCD34D;}
 
-.glass-card {
-  background: rgba(255,255,255,0.02);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px;
-}
+/* ── 八字四柱 ── */
+.pillar-box{text-align:center;padding:16px 10px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);transition:all .3s;cursor:default;position:relative;}
+.pillar-box.self{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08);}
+.pillar-box:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.12);}
+.pillar-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(15,12,31,.97);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:10px 14px;width:200px;font-size:12px;line-height:1.6;color:#D1D5DB;z-index:50;pointer-events:none;opacity:0;transition:opacity .2s;white-space:normal;text-align:left;}
+.pillar-box:hover .pillar-tooltip{opacity:1;}
 
-.hidden-section { display: none !important; }
-.slide-in { animation: slide-up 0.6s ease-out; }
-.slide-in-delay { animation: slide-up 0.6s ease-out 0.2s both; }
-.slide-in-delay-2 { animation: slide-up 0.6s ease-out 0.4s both; }
+/* ── 五行条 ── */
+.wx-bar-bg{background:rgba(255,255,255,.05);border-radius:8px;overflow:hidden;height:6px;}
+.wx-bar-fill{height:100%;border-radius:8px;transition:width 1.2s ease-out;}
 
-.input-field {
-  width: 100%;
-  padding: 12px 16px;
-  background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 12px;
-  color: var(--text);
-  font-size: 15px;
-  outline: none;
-  transition: all 0.3s;
-}
-.input-field:focus {
-  border-color: var(--purple);
-  box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
-}
+/* ── stat cards ── */
+.stat-card{text-align:center;padding:18px 14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);}
 
-.btn-primary {
-  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  padding: 14px 32px;
-  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-  border: none; border-radius: 14px;
-  color: white; font-size: 16px; font-weight: 600;
-  cursor: pointer; transition: all 0.3s;
-}
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 10px 40px rgba(168,85,247,0.3); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* ── paywall ── */
+#paywall{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;border-radius:16px;background:linear-gradient(to top,rgba(15,12,31,.97) 0%,rgba(15,12,31,.55) 50%,transparent 100%);z-index:10;}
+#paywall.hidden{display:none;}
 
-.btn-secondary {
-  display: inline-flex; align-items: center; justify-content: center;
-  padding: 12px 24px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 12px;
-  color: var(--text); font-size: 15px; font-weight: 500;
-  cursor: pointer; transition: all 0.3s;
-}
-.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+/* ── 六维度 ── */
+.dim-card{padding:16px 18px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);transition:all .3s;}
+.dim-card:hover{background:rgba(0,0,0,.32);border-color:rgba(255,255,255,.08);}
+.dim-score-ring{width:48px;height:48px;flex-shrink:0;}
+.dim-score-text{fill:#E5E7EB;font-size:10px;font-weight:700;dominant-baseline:middle;text-anchor:middle;}
 
-.tag {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 6px 14px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 20px;
-  font-size: 13px;
-  color: var(--text-dim);
-}
+/* ── interpret block ── */
+.iblock{padding:14px 18px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);}
+.phase-row{padding:10px 14px;border-radius:12px;border-left:3px solid;margin-bottom:6px;background:rgba(0,0,0,.15);transition:all .3s;}
+.phase-row:hover{background:rgba(0,0,0,.28);transform:translateX(2px);}
 
-.tag-purple { background: rgba(168,85,247,0.12); color: #C084FC; }
+/* ── overview card ── */
+.overview-card{padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(236,72,153,.06));border:1px solid rgba(168,85,247,.2);}
 
-.pillar-box {
-  text-align: center;
-  padding: 16px 12px;
-  border-radius: 14px;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.05);
-  transition: all 0.3s;
-}
-.pillar-box.self {
-  border-color: rgba(168,85,247,0.3);
-  background: rgba(168,85,247,0.08);
-}
-.pillar-box:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255,255,255,0.12);
-}
-
-.stat-card {
-  text-align: center;
-  padding: 20px 16px;
-  border-radius: 16px;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.chart-wrapper { position: relative; width: 100%; }
-.chart-wrapper canvas { width: 100% !important; }
-
-#paywall {
-  position: absolute; inset: 0;
-  display: flex; align-items: end; justify-content: center;
-  padding-bottom: 32px;
-  border-radius: 16px;
-  background: linear-gradient(to top, rgba(15,12,31,0.95) 0%, rgba(15,12,31,0.6) 50%, transparent 100%);
-  z-index: 10;
-}
-#paywall.hidden { display: none; }
-
-.wuxing-bar-bg { background: rgba(255,255,255,0.05); border-radius: 8px; overflow: hidden; height: 6px; }
-.wuxing-bar-fill { height: 100%; border-radius: 8px; transition: width 1s ease-out; }
-
-.phase-bar { position:relative; padding:12px 16px; border-radius:12px; border-left:3px solid; margin-bottom:8px; background:rgba(0,0,0,0.15); transition:all .3s; }
-.phase-bar:hover { background:rgba(0,0,0,0.25); transform:translateX(2px); }
-.phase-bar .phase-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
-
-.interpret-block { padding:14px 18px; border-radius:14px; background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.04); }
-.interpret-block .interpret-icon { width:20px; height:20px; flex-shrink:0; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .pillar-grid { grid-template-columns: repeat(2, 1fr); }
-  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+/* ── responsive ── */
+@media(max-width:640px){
+  .pillar-tooltip{width:160px;left:0;transform:none;}
+  .grid-bazi{grid-template-columns:repeat(2,1fr)!important;}
 }
 </style>
 </head>
 <body>
 
-<!-- ==================== Nav ==================== -->
+<!-- ── Nav ── -->
 <nav class="flex justify-between items-center max-w-6xl mx-auto px-6 py-5">
   <div class="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">
     Nexus Ora
   </div>
   <div class="flex gap-3 items-center">
     <span class="text-xs text-gray-500 hidden sm:inline">AI Soul Companion · 东方玄学 × AI</span>
-    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-    <span class="text-xs text-gray-500">Live</span>
+    <span id="server-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
+    <span class="text-xs text-gray-500" id="server-label">connecting</span>
   </div>
 </nav>
 
-<!-- ==================== Section 0: Hero + Form ==================== -->
+<!-- ══════════════════ Section 0: Hero ══════════════════ -->
 <section id="section-hero" class="max-w-3xl mx-auto px-6 py-4 slide-in">
   <div class="glass p-8 md:p-12 text-center">
-    <!-- Icon -->
-    <div class="mb-6" style="animation: float 3s ease-in-out infinite">
+    <div class="mb-6" style="animation:float 3s ease-in-out infinite">
       <svg class="w-20 h-20 mx-auto" viewBox="0 0 80 80">
         <defs>
-          <linearGradient id="icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient id="ig" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#A855F7"/>
             <stop offset="50%" stop-color="#EC4899"/>
             <stop offset="100%" stop-color="#A855F7"/>
           </linearGradient>
         </defs>
-        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#icon-grad)" stroke-width="1.5" opacity="0.4"/>
-        <circle cx="40" cy="25" r="14" fill="none" stroke="url(#icon-grad)" stroke-width="1.5"/>
-        <circle cx="40" cy="25" r="6" fill="url(#icon-grad)" opacity="0.3"/>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#ig)" stroke-width="1.5" opacity=".4"/>
+        <circle cx="40" cy="25" r="14" fill="none" stroke="url(#ig)" stroke-width="1.5"/>
+        <circle cx="40" cy="25" r="6" fill="url(#ig)" opacity=".3"/>
         <line x1="40" y1="11" x2="40" y2="4" stroke="#A855F7" stroke-width="2"/>
-        <line x1="40" y1="39" x2="40" y2="76" stroke="#A855F7" stroke-width="1.5" opacity="0.5" stroke-dasharray="4,3"/>
+        <line x1="40" y1="39" x2="40" y2="76" stroke="#A855F7" stroke-width="1.5" opacity=".5" stroke-dasharray="4,3"/>
         <circle cx="40" cy="68" r="2" fill="#EC4899"/>
       </svg>
     </div>
-
     <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
       <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-200 bg-clip-text text-transparent">
         Discover Your Life K-Line
@@ -220,7 +143,6 @@ body {
       让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>
     </p>
 
-    <!-- Form -->
     <form id="birth-form" class="max-w-md mx-auto space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="text-left">
@@ -233,7 +155,6 @@ body {
           <p class="text-xs text-gray-600 mt-1">未知可保留默认值</p>
         </div>
       </div>
-
       <div class="text-left">
         <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
         <div class="flex gap-6">
@@ -247,8 +168,7 @@ body {
           </label>
         </div>
       </div>
-
-      <button type="submit" id="submit-btn" class="btn-primary w-full" style="animation: pulse-ring 2s infinite">
+      <button type="submit" id="submit-btn" class="btn-primary w-full" style="animation:pulse-ring 2s infinite">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
@@ -256,28 +176,17 @@ body {
       </button>
     </form>
 
-    <!-- Trust badges -->
     <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
-      <span class="flex items-center gap-1">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        Secure & Private
-      </span>
-      <span class="flex items-center gap-1">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-        AI Powered
-      </span>
-      <span class="flex items-center gap-1">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-        Shareable
-      </span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Secure & Private</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI Powered</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>Shareable</span>
     </div>
   </div>
 </section>
 
-<!-- ==================== Section 1: Loading ==================== -->
+<!-- ══════════════════ Section 1: Loading ══════════════════ -->
 <section id="section-loading" class="hidden-section max-w-3xl mx-auto px-6 py-8">
-  <div class="glass p-12 text-center slide-in">
-    <!-- Spinner -->
+  <div class="glass p-10 text-center slide-in">
     <div class="relative w-24 h-24 mx-auto mb-8">
       <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-500 border-r-pink-500 animate-spin"></div>
       <div class="absolute inset-2 rounded-full border-2 border-transparent border-b-purple-400 border-l-pink-400 animate-spin" style="animation-direction:reverse;animation-duration:1.5s"></div>
@@ -287,56 +196,87 @@ body {
         </svg>
       </div>
     </div>
-
     <p class="text-xl font-semibold mb-2" id="loading-text">正在计算您的八字命盘...</p>
-    <p class="text-gray-500" id="loading-sub">Consulting ancient wisdom</p>
-
-    <!-- Progress steps -->
-    <div class="flex justify-center gap-3 mt-8" id="loading-steps">
-      <div class="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></div>
-      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
-      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
-      <div class="w-2 h-2 rounded-full bg-gray-700"></div>
+    <p class="text-sm text-gray-500 mb-6" id="loading-sub">Consulting ancient wisdom</p>
+    <!-- Step indicators -->
+    <div id="loading-steps" class="flex flex-col gap-2 max-w-xs mx-auto text-left">
+      <div class="step-item flex items-center gap-3 text-sm" id="step-0">
+        <span class="step-dot w-2 h-2 rounded-full bg-purple-500 animate-pulse flex-shrink-0"></span>
+        <span class="step-label text-gray-400">排盘引擎计算八字四柱...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-1">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">分析五行平衡与身强身弱...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-2">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">AI大师预测100年运势曲线...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-3">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">生成六维度深度解读...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-4">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">绘制人生K线图谱...</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ==================== Section 2: Results ==================== -->
+<!-- ══════════════════ Section 2: Results ══════════════════ -->
 <section id="section-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
 
-  <!-- Bazi Pillars -->
-  <div class="glass-card p-6 md:p-8 mb-6 slide-in">
-    <h2 class="text-xl md:text-2xl font-bold mb-6 text-center">
-      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
-        Your Eight Characters (Bazi)
-      </span>
-    </h2>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="bazi-pillars">
-      <div class="pillar-box">
-        <div class="text-xs text-gray-500 mb-1">Year Pillar · 年柱</div>
-        <div class="text-2xl md:text-3xl font-bold text-purple-400" id="bazi-year">--</div>
-        <div class="text-xs text-gray-600 mt-1" id="bazi-year-shishen">--</div>
-      </div>
-      <div class="pillar-box">
-        <div class="text-xs text-gray-500 mb-1">Month Pillar · 月柱</div>
-        <div class="text-2xl md:text-3xl font-bold text-blue-400" id="bazi-month">--</div>
-        <div class="text-xs text-gray-600 mt-1" id="bazi-month-shishen">--</div>
-      </div>
-      <div class="pillar-box self">
-        <div class="text-xs text-gray-500 mb-1">Day Pillar · 日柱</div>
-        <div class="text-2xl md:text-3xl font-bold text-amber-400" id="bazi-day">--</div>
-        <div class="text-xs text-gray-500 mt-1" id="bazi-day-shishen">日元</div>
-      </div>
-      <div class="pillar-box">
-        <div class="text-xs text-gray-500 mb-1">Hour Pillar · 时柱</div>
-        <div class="text-2xl md:text-3xl font-bold text-green-400" id="bazi-hour">--</div>
-        <div class="text-xs text-gray-600 mt-1" id="bazi-hour-shishen">--</div>
+  <!-- ① 命理摘要 Overview Card -->
+  <div id="overview-card-wrap" class="overview-card mb-6 slide-in hidden-section">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1" id="overview-emoji">🔮</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-purple-400 font-semibold tracking-wide">命理画像</span>
+          <span class="tag tag-purple text-xs" id="overview-mode-tag">Algorithm</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="overview-text">--</p>
       </div>
     </div>
+  </div>
 
-    <!-- Info tags -->
-    <div class="flex justify-center gap-3 flex-wrap" id="bazi-tags">
+  <!-- ② 八字四柱 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in">
+    <h2 class="text-xl md:text-2xl font-bold mb-5 text-center">
+      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">八字四柱 · Eight Characters</span>
+    </h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 grid-bazi">
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">年柱 Year</div>
+        <div class="text-2xl md:text-3xl font-bold text-purple-400" id="bazi-year">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-year-wx">--</div>
+        <div class="text-xs text-purple-400/70 mt-0.5" id="bazi-year-ss">--</div>
+        <div class="pillar-tooltip" id="tt-year">年柱代表先天根基与祖业。天干为<span id="tt-y-gan">--</span>（<span id="tt-y-gwx">--</span>），地支为<span id="tt-y-zhi">--</span>（<span id="tt-y-zwx">--</span>），十神：<span id="tt-y-ss">--</span>。</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">月柱 Month</div>
+        <div class="text-2xl md:text-3xl font-bold text-blue-400" id="bazi-month">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-month-wx">--</div>
+        <div class="text-xs text-blue-400/70 mt-0.5" id="bazi-month-ss">--</div>
+        <div class="pillar-tooltip" id="tt-month">月柱代表父母缘分与青年运。天干为<span id="tt-m-gan">--</span>（<span id="tt-m-gwx">--</span>），地支为<span id="tt-m-zhi">--</span>（<span id="tt-m-zwx">--</span>），十神：<span id="tt-m-ss">--</span>。</div>
+      </div>
+      <div class="pillar-box self">
+        <div class="text-xs text-gray-500 mb-1">日柱 Day（日元）</div>
+        <div class="text-2xl md:text-3xl font-bold text-amber-400" id="bazi-day">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-day-wx">--</div>
+        <div class="text-xs text-amber-400/70 mt-0.5">自我·日主</div>
+        <div class="pillar-tooltip" id="tt-day">日柱是命局核心，天干（日主）代表自我本性。天干<span id="tt-d-gan">--</span>五行属<span id="tt-d-gwx">--</span>，地支<span id="tt-d-zhi">--</span>（<span id="tt-d-zwx">--</span>）为日元配偶宫。</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">时柱 Hour</div>
+        <div class="text-2xl md:text-3xl font-bold text-green-400" id="bazi-hour">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-hour-wx">--</div>
+        <div class="text-xs text-green-400/70 mt-0.5" id="bazi-hour-ss">--</div>
+        <div class="pillar-tooltip" id="tt-hour">时柱代表子女缘与晚年运。天干为<span id="tt-h-gan">--</span>（<span id="tt-h-gwx">--</span>），地支为<span id="tt-h-zhi">--</span>（<span id="tt-h-zwx">--</span>），十神：<span id="tt-h-ss">--</span>。</div>
+      </div>
+    </div>
+    <div class="flex justify-center gap-2 flex-wrap" id="bazi-tags">
       <span class="tag" id="bazi-animal">生肖: --</span>
       <span class="tag" id="bazi-zodiac">星座: --</span>
       <span class="tag tag-purple" id="bazi-strength">--</span>
@@ -344,790 +284,768 @@ body {
     </div>
   </div>
 
-  <!-- Wuxing Balance -->
-  <div class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
-    <h3 class="text-lg font-semibold mb-4">Five Elements Balance · 五行平衡</h3>
+  <!-- ③ 五行平衡 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <h3 class="text-lg font-semibold mb-4">五行平衡 · Five Elements Balance</h3>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="wuxing-bars"></div>
   </div>
 
-  <!-- K-Line Chart -->
-  <div class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
-    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+  <!-- ④ 人生K线图 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
       <h2 class="text-xl md:text-2xl font-bold">
-        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">
-          Your Life K-Line
-        </span>
+        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">人生K线 · Life K-Line</span>
       </h2>
-      <div class="flex gap-3 items-center">
-        <span class="text-sm" id="chart-score">--</span>
-        <span class="text-xs tag tag-purple" id="chart-phase">--</span>
+      <div class="flex gap-2 items-center flex-wrap">
+        <span class="text-xs text-gray-500">跳转到</span>
+        <input type="number" id="age-jump" min="0" max="100" placeholder="岁" class="w-16 text-center text-sm rounded-lg border border-gray-700 bg-black/30 text-white px-2 py-1 outline-none focus:border-purple-500">
+        <span class="tag tag-purple text-xs" id="chart-phase">--</span>
       </div>
     </div>
-    <p class="text-xs text-gray-600 mb-4">Hover over data points to see detailed fortune at each age.</p>
-
-    <div class="chart-wrapper">
-      <div id="chart-main" style="width:100%; height:420px;"></div>
+    <p class="text-xs text-gray-600 mb-4">悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）</p>
+    <div style="position:relative;">
+      <div id="chart-main" style="width:100%;height:400px;"></div>
       <div id="paywall">
         <div class="text-center px-6">
           <svg class="w-10 h-10 mx-auto mb-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
           </svg>
-          <p class="text-lg font-semibold mb-1">Unlock Full Report</p>
-          <p class="text-sm text-gray-400 mb-5">See your complete life journey with detailed analysis</p>
+          <p class="text-lg font-semibold mb-1">解锁完整报告</p>
+          <p class="text-sm text-gray-400 mb-5">查看完整百年运势曲线与六维深度解读</p>
           <div class="flex gap-3 justify-center flex-wrap">
-            <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-6 py-3">
+            <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-5 py-2.5">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              Unlock ($9.99)
+              解锁报告 (¥9.99)
             </button>
             <button onclick="handleUnlock('share')" class="btn-secondary text-sm">
-              Share to Unlock
+              分享解锁
             </button>
           </div>
-          <p class="text-xs text-gray-600 mt-3">Share with friends for free access · Demo mode</p>
+          <p class="text-xs text-gray-600 mt-3">Demo模式 · 分享给好友即可免费解锁</p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- K-Line Interpretation -->
-  <div id="kline-interpretation" class="glass-card p-6 md:p-8 mb-6 slide-in-delay">
+  <!-- ⑤ K线走势解读 -->
+  <div id="kline-interp-wrap" class="glass-card p-6 md:p-8 mb-6 slide-in-d2 hidden-section">
     <div class="flex items-center gap-2 mb-5">
       <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-      <h3 class="text-lg font-bold">K-Line Interpretation · K线解读</h3>
+      <h3 class="text-lg font-bold">K线走势解读</h3>
     </div>
-    <div id="kline-interpret-content" class="space-y-4"></div>
+    <div id="kline-interp-content" class="space-y-3"></div>
   </div>
 
-  <!-- Fortune Summary -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-delay-2" id="fortune-summary">
-    <div class="stat-card" style="border-color:rgba(239,68,68,0.15);">
-      <div class="text-xs text-gray-500 mb-1">Peak Years</div>
-      <div class="text-xl font-bold" style="color:#EF4444;" id="summary-peak">--</div>
-      <div class="text-xs text-gray-600">运势巅峰</div>
+  <!-- ⑥ 运势摘要数字卡 -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-d2" id="fortune-summary">
+    <div class="stat-card" style="border-color:rgba(239,68,68,.15);">
+      <div class="text-xs text-gray-500 mb-1">峰值年龄</div>
+      <div class="text-2xl font-bold text-red-400" id="sum-peak">--</div>
+      <div class="text-xs text-gray-600" id="sum-peak-score">运势巅峰</div>
     </div>
-    <div class="stat-card" style="border-color:rgba(34,197,94,0.15);">
-      <div class="text-xs text-gray-500 mb-1">Challenge Years</div>
-      <div class="text-xl font-bold" style="color:#22C55E;" id="summary-challenge">--</div>
-      <div class="text-xs text-gray-600">谨慎时期</div>
+    <div class="stat-card" style="border-color:rgba(34,197,94,.15);">
+      <div class="text-xs text-gray-500 mb-1">低谷年龄</div>
+      <div class="text-2xl font-bold text-green-400" id="sum-valley">--</div>
+      <div class="text-xs text-gray-600" id="sum-valley-score">谨慎时期</div>
     </div>
-    <div class="stat-card" style="border-color:rgba(59,130,246,0.15);">
-      <div class="text-xs text-gray-500 mb-1">Avg Score</div>
-      <div class="text-xl font-bold text-blue-400" id="summary-avg">--</div>
+    <div class="stat-card" style="border-color:rgba(59,130,246,.15);">
+      <div class="text-xs text-gray-500 mb-1">命运均分</div>
+      <div class="text-2xl font-bold text-blue-400" id="sum-avg">--</div>
       <div class="text-xs text-gray-600">/100</div>
     </div>
-    <div class="stat-card" style="border-color:rgba(168,85,247,0.15);">
-      <div class="text-xs text-gray-500 mb-1">Body Type</div>
-      <div class="text-xl font-bold text-purple-400" id="summary-body">--</div>
-      <div class="text-xs text-gray-600" id="summary-body-sub">--</div>
+    <div class="stat-card" style="border-color:rgba(168,85,247,.15);">
+      <div class="text-xs text-gray-500 mb-1">日主类型</div>
+      <div class="text-xl font-bold text-purple-400" id="sum-body">--</div>
+      <div class="text-xs text-gray-600" id="sum-body-sub">--</div>
     </div>
   </div>
 
-  <!-- AI Analysis -->
-  <div id="ai-section" class="glass-card p-6 md:p-8 mb-6 slide-in-delay-2 hidden-section">
-    <div class="flex items-center gap-3 mb-5">
-      <h3 class="text-lg font-bold">AI Wisdom · AI解读</h3>
-      <span class="tag tag-purple text-xs">Powered by DeepSeek</span>
+  <!-- ⑦ 六维度解读（雷达图 + 卡片） -->
+  <div id="dimensions-wrap" class="glass-card p-6 md:p-8 mb-6 slide-in-d3 hidden-section">
+    <div class="flex items-center gap-3 mb-5 flex-wrap">
+      <h3 class="text-lg font-bold">六维度深度解读</h3>
+      <span id="dim-ai-tag" class="tag tag-purple text-xs hidden-section">AI Enhanced</span>
     </div>
-    <div id="ai-content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- 雷达图 -->
+      <div>
+        <div id="chart-radar" style="width:100%;height:300px;"></div>
+      </div>
+      <!-- 维度卡片 -->
+      <div class="space-y-3" id="dim-cards"></div>
+    </div>
   </div>
 
-  <!-- Action Buttons -->
-  <div class="glass-card p-6 md:p-8 text-center slide-in-delay-2">
-    <h3 class="text-lg font-bold mb-4">Share Your Destiny Map</h3>
-    <p class="text-gray-400 text-sm mb-6">Let your friends discover your unique life pattern</p>
+  <!-- ⑧ 操作按钮 -->
+  <div class="glass-card p-6 md:p-8 text-center slide-in-d3">
+    <h3 class="text-lg font-bold mb-2">分享你的命运图谱</h3>
+    <p class="text-gray-400 text-sm mb-5">让朋友一起探索独特的人生K线</p>
     <div class="flex justify-center gap-3 flex-wrap">
       <button onclick="handleCopyLink()" class="btn-secondary" id="btn-copy">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        <span id="btn-copy-text">Copy Link</span>
+        <span id="btn-copy-text">复制链接</span>
       </button>
       <button onclick="handleNewReading()" class="btn-primary text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        New Reading
+        重新测算
       </button>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
 <footer class="text-center py-8 text-xs text-gray-700">
-  Nexus Ora © 2026 · AI Soul Companion · Built with Eastern Wisdom & Modern AI
+  Nexus Ora © 2026 · AI Soul Companion · 东方玄学 × 现代AI
 </footer>
 
-<!-- ==================== Scripts ==================== -->
+<!-- ══════════════════ Scripts ══════════════════ -->
 <script>
-// ============ State ============
+// ── State ──────────────────────────────────────
 const API_BASE = 'http://127.0.0.1:3000';
-let reportData = null;
-let isUnlocked = false;
-let isDemoMode = false;
-let chartInstance = null;
-let loadingTimer = null;
+let reportData  = null;
+let isUnlocked  = false;
+let isDemoMode  = false;
+let chartMain   = null;
+let chartRadar  = null;
 
-// ============ Embedded Demo Data (serverless fallback) ============
-const DEMO_BAZI = {
-  "年柱": { ganzhi:"庚午", gan:"庚", zhi:"午", gan_wuxing:"金", zhi_wuxing:"火", shishen:"正官" },
-  "月柱": { ganzhi:"壬午", gan:"壬", zhi:"午", gan_wuxing:"水", zhi_wuxing:"火", shishen:"七杀" },
-  "日柱": { ganzhi:"辛亥", gan:"辛", zhi:"亥", gan_wuxing:"金", zhi_wuxing:"水", shishen:"日元" },
-  "时柱": { ganzhi:"乙未", gan:"乙", zhi:"未", gan_wuxing:"木", zhi_wuxing:"土", shishen:"偏财" }
-};
-const DEMO_WUXING = { "金":3, "水":2, "木":1, "火":2, "土":1 };
-const DEMO_INFO = { animal:"马", zodiac:"双子座", lunar_date:"1990年5月23日", gender:"女" };
-
-// Generate fortune curve from date seed
-function generateDemoFortune(y,m,d,h) {
-  const seed = y*10000 + m*100 + d + h;
-  const rng = (i) => { let x = Math.sin(seed*0.017 + i*0.73)*10000; return (x - Math.floor(x)); };
-  const phases = [
-    { name:"成长期",   start:0,  end:18 },
-    { name:"上升期",   start:19, end:30 },
-    { name:"黄金期",   start:31, end:45 },
-    { name:"稳固期",   start:46, end:60 },
-    { name:"智慧期",   start:61, end:75 },
-    { name:"颐养期",   start:76, end:100}
-  ];
-  const fortune = [];
-  for (let age = 0; age <= 100; age++) {
-    const phase = phases.find(p => age >= p.start && age <= p.end) || phases[0];
-    // Base curve: weak childhood, rise, peak 35-45, decline, wisdom bump, gentle decline
-    let base = 50;
-    if (age < 8) base = 40 + age*2;
-    else if (age < 18) base = 48 + (age-8)*0.5;
-    else if (age < 30) base = 53 + (age-18)*1.8;
-    else if (age < 45) base = 75 - (age-30)*0.3;
-    else if (age < 60) base = 68 - (age-45)*0.8;
-    else if (age < 75) base = 56 + (age-60)*0.6;
-    else base = Math.max(30, 60 - (age-75)*0.7);
-    const noise = (rng(age)-0.5)*20;
-    const score = Math.round(Math.max(20, Math.min(95, base + noise)));
-    const level = score>=75?'大吉':score>=60?'小吉':score>=45?'平稳':score>=30?'小凶':'大凶';
-    fortune.push({ age, score, level, phase:phase.name });
+// ── Server ping ────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) });
+    const j = await r.json();
+    document.getElementById('server-dot').className   = 'w-2 h-2 rounded-full bg-green-500 animate-pulse';
+    document.getElementById('server-label').textContent = j.llm ? 'AI Ready' : 'Online (Demo AI)';
+  } catch {
+    document.getElementById('server-dot').className   = 'w-2 h-2 rounded-full bg-amber-500';
+    document.getElementById('server-label').textContent = 'Offline Mode';
   }
-  return fortune;
-}
+})();
 
-function buildDemoReport(y,m,d,h,g) {
-  const fortune = generateDemoFortune(y,m,d,h);
-  const scores = fortune.map(f=>f.score);
-  const avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-  const bestAges = [...fortune].sort((a,b)=>b.score-a.score).slice(0,5).map(f=>f.age);
-  const worstAges = [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age);
+// ── Demo Data (offline fallback) ───────────────
+const DEMO_PAIPAN = {
+  success: true,
+  bazi: { year:'庚午', month:'壬午', day:'辛亥', hour:'乙未',
+          day_gan:'辛', day_wuxing:'金', body_strength:'偏弱', strength_score:38 },
+  pillars: [
+    { name:'年柱', ganzhi:'庚午', gan:'庚', zhi:'午', gan_wuxing:'金', zhi_wuxing:'火', shishen:'劫财' },
+    { name:'月柱', ganzhi:'壬午', gan:'壬', zhi:'午', gan_wuxing:'水', zhi_wuxing:'火', shishen:'伤官' },
+    { name:'日柱', ganzhi:'辛亥', gan:'辛', zhi:'亥', gan_wuxing:'金', zhi_wuxing:'水', shishen:'日元' },
+    { name:'时柱', ganzhi:'乙未', gan:'乙', zhi:'未', gan_wuxing:'木', zhi_wuxing:'土', shishen:'偏财' }
+  ],
+  wuxing_balance: { '金':3, '水':2, '木':1, '火':2, '土':1 },
+  info: { animal:'马', zodiac:'双子座', lunar_date:'1990年5月23日', gender:'女', birth_date:'1990-06-15' }
+};
+
+function buildDemoReport(y, m, d, h, gender) {
+  const paipan = { ...DEMO_PAIPAN, info: { ...DEMO_PAIPAN.info, gender, birth_date:`${y}-${m}-${d}` } };
+  const seed   = y * 10000 + m * 100 + d + h;
+  const rng    = i => { const x = Math.sin(seed * 0.017 + i * 0.73) * 10000; return x - Math.floor(x); };
+
+  const fortune = Array.from({ length: 101 }, (_, age) => {
+    const phases = [
+      { n:'成长期',s:0,e:18,b:44 }, { n:'上升期',s:19,e:30,b:57 },
+      { n:'黄金期',s:31,e:45,b:65 }, { n:'稳固期',s:46,e:60,b:55 },
+      { n:'智慧期',s:61,e:75,b:60 }, { n:'颐养期',s:76,e:100,b:47 }
+    ];
+    const ph = phases.find(p => age >= p.s && age <= p.e) || phases[0];
+    const noise = (rng(age) - .5) * 22;
+    const base  = ph.b;
+    let extra   = 0;
+    if (age >= 33 && age <= 43) extra += 12;
+    if (age >= 50 && age <= 52) extra -= 10;
+    const sc = Math.round(Math.max(15, Math.min(96, base + noise + extra)));
+    const lv = sc >= 75 ? '大吉' : sc >= 60 ? '小吉' : sc >= 45 ? '平稳' : sc >= 30 ? '小凶' : '大凶';
+    const EVTS = { 6:'小学入学',12:'初中升学',18:'成年/高考',22:'大学毕业',30:'而立之年',40:'不惑之年',50:'知天命',60:'退休节点' };
+    return { age, score: sc, level: lv, phase: ph.n, event: EVTS[age] || '' };
+  });
+
+  const avg = Math.round(fortune.reduce((s, f) => s + f.score, 0) / 101);
+  const peak   = fortune.reduce((a, b) => a.score > b.score ? a : b);
+  const valley = fortune.reduce((a, b) => a.score < b.score ? a : b);
+
+  const dims = {
+    career:        { score: 72, summary:'逻辑严谨，适合金融、法律、科技精密行业', advice:'日主辛金，适合金融投资、法务、IT架构。身偏弱建议先在大平台积累，行水运（壬癸年）事业最顺。' },
+    wealth:        { score: 67, summary:'中年后财运亨通，理财能力强', advice:'金生水，偏财格局好。建议长线价值投资，45岁后进入财富积累高峰，40-50岁是转折点。' },
+    relationships: { score: 63, summary:'感情细腻但不善表达，30岁后稳定', advice:'辛金感情严肃认真，偏内敛。25-30岁变化多，30岁后稳定。伴侣往往能力突出，需学会欣赏差异。' },
+    health:        { score: 70, summary:'注意呼吸系统与心肺健康', advice:'金主肺，注意呼吸道健康。秋季最佳调养，建议每日有氧30分钟。火旺年（丙丁年）防心肺问题。' },
+    mentors:       { score: 74, summary:'贵人缘好，30-45岁引路人最多', advice:'行业圈子活动要积极参与，维护职场关系网络。午年/马年遇贵人概率高，把握关键引荐机会。' },
+    challenges:    { score: 57, summary:'挑战主要在青年和中年初期', advice:'低谷期是蜕变最佳时机，提前2-3年储备资金（6个月生活费）+深化技能。身弱命注意低谷年份健康。' }
+  };
+
   return {
-    success:true,
-    demo:true,
-    report_id:'demo_' + Date.now(),
+    success: true, demo: true,
     data: {
-      bazi: {
-        bazi: { year:DEMO_BAZI['年柱'].ganzhi, month:DEMO_BAZI['月柱'].ganzhi, day:DEMO_BAZI['日柱'].ganzhi, hour:DEMO_BAZI['时柱'].ganzhi, day_gan:DEMO_BAZI['日柱'].gan, day_wuxing:'金', body_strength:'中和', strength_score:50 },
-        pillars: [
-          { name:"年柱", ...DEMO_BAZI['年柱'] },
-          { name:"月柱", ...DEMO_BAZI['月柱'] },
-          { name:"日柱", ...DEMO_BAZI['日柱'] },
-          { name:"时柱", ...DEMO_BAZI['时柱'] }
-        ],
-        wuxing_balance: DEMO_WUXING,
-        info: DEMO_INFO
-      },
+      bazi: paipan,
       fortune,
-      summary: { body_strength:'中和', day_master:'辛', day_wuxing:'金', animal:DEMO_INFO.animal, best_ages:bestAges, challenging_ages:worstAges, average_score:avg },
-      ai_analysis: [
-        { name:"事业运势", advice:"日主辛金生于午月，火旺金弱，需水调候。中年行水运（30-45岁），事业将迎来黄金发展期。适合从事金融、法律、科技等需精密思维的行业。" },
-        { name:"财运分析", advice:"时柱乙未偏财透出，预示中晚年财运亨通。但需注意理财规划，避免因火旺冲动投资。45岁后宜稳健增值。" },
-        { name:"感情婚姻", advice:"年柱正官坐午火，配偶能力强但性格偏急躁。日支亥水为伤官，需注意沟通方式。建议30岁后婚配更稳定。" },
-        { name:"健康提醒", advice:"金弱火旺之命，需特别注意心脑血管和呼吸系统健康。建议定期体检，保持适度运动如游泳、太极。" },
-        { name:"流年关键期", advice:"2024-2026年为水旺流年，对日主辛金有利，适合求学进修、事业转型。2030-2032年火旺，需谨慎决策。" },
-        { name:"人生建议", advice:"整体命格中和偏弱，需借时运成就。人生K线呈「先抑后扬」形态：年轻时积累，35-45岁爆发，中年稳固，晚年智慧沉淀。" }
-      ],
-      ai_enhanced: true
+      dimensions: dims,
+      summary: {
+        body_strength: '偏弱', day_master: '辛', day_wuxing: '金',
+        animal: '马', average_score: avg,
+        peak_age: peak.age, peak_score: peak.score,
+        valley_age: valley.age, valley_score: valley.score,
+        best_ages: [...fortune].sort((a,b)=>b.score-a.score).slice(0,5).map(f=>f.age),
+        caution_ages: [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age),
+        overview: '辛金偏弱之命，大器晚成，35岁后厚积薄发，中年行水运时人生K线强劲上扬。'
+      },
+      ai_enhanced: false
     }
   };
 }
 
-// ============ Loading Animation ============
-const LOADING_STEPS = [
-  ['Calculating your Bazi chart...', 'Consulting ancient wisdom'],
-  ['Analyzing Five Elements balance...', 'Wood, Fire, Earth, Metal, Water'],
-  ['Mapping your life trajectory...', 'Every age tells a story'],
-  ['Generating K-Line visualization...', 'Making destiny beautiful'],
-  ['Finalizing your report...', 'Almost ready']
-];
+// ── UI helpers ─────────────────────────────────
+function hideAll()   { ['section-hero','section-loading','section-results'].forEach(id => document.getElementById(id).classList.add('hidden-section')); }
+function showSection(id) { document.getElementById(id).classList.remove('hidden-section'); }
+function show(id)    { document.getElementById(id).classList.remove('hidden-section'); }
+function hide(id)    { document.getElementById(id).classList.add('hidden-section'); }
+function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+function setHtml(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 
-// ============ Form Submit ============
-document.getElementById('birth-form').addEventListener('submit', async (e) => {
+function showToast(msg, color = '#4ADE80') {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(15,12,31,.97);border:1px solid ${color}33;border-radius:12px;padding:10px 20px;font-size:13px;color:${color};max-width:340px;text-align:center;animation:slide-up .3s ease-out;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ── Loading step animation ─────────────────────
+function activateStep(i) {
+  for (let k = 0; k < 5; k++) {
+    const el = document.getElementById('step-' + k);
+    if (!el) continue;
+    if (k < i) {
+      el.style.opacity = '.5';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-purple-500 flex-shrink-0';
+      el.querySelector('.step-label').style.textDecoration = 'line-through';
+    } else if (k === i) {
+      el.style.opacity = '1';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-purple-400 animate-pulse flex-shrink-0';
+      el.querySelector('.step-label').style.textDecoration = '';
+    } else {
+      el.style.opacity = '.3';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0';
+    }
+  }
+}
+
+// ── Form submit ────────────────────────────────
+document.getElementById('birth-form').addEventListener('submit', async e => {
   e.preventDefault();
-  
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Calculating...';
-  
-  // Show loading
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 计算中...';
+
   hideAll();
   showSection('section-loading');
-  
-  // Animate loading
-  let step = 0;
-  updateLoadingStep(step);
-  loadingTimer = setInterval(() => {
-    step = (step + 1) % LOADING_STEPS.length;
-    updateLoadingStep(step);
-  }, 1500);
-  
-  // Parse inputs
+  activateStep(0);
+
   const [y, m, d] = document.getElementById('birth-date').value.split('-').map(Number);
-  const [h, min] = (document.getElementById('birth-time').value || '12:00').split(':').map(Number);
-  const gender = document.querySelector('input[name="gender"]:checked')?.value || '男';
-  
-  // Try server first, fall back to demo
+  const [h, min]  = (document.getElementById('birth-time').value || '12:00').split(':').map(Number);
+  const gender    = document.querySelector('input[name="gender"]:checked')?.value || '男';
+
+  let result;
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
-    const res = await fetch(`${API_BASE}/api/fortune`, {
+    activateStep(0);
+    await delay(600);
+    activateStep(1);
+    await delay(500);
+    activateStep(2);
+
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 90000); // 90s for LLM
+
+    const res = await fetch(API_BASE + '/api/fortune', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ year: y, month: m, day: d, hour: h, minute: min, gender }),
-      signal: controller.signal
+      signal: ctrl.signal
     });
-    clearTimeout(timeout);
-    
-    if (!res.ok) throw new Error(`Server error: ${res.status}`);
+    clearTimeout(tid);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
     const json = await res.json();
-    if (!json.success) throw new Error(json.error || 'Unknown error');
-    
-    reportData = json;
+    if (!json.success) throw new Error(json.error || 'server error');
+
+    result     = json;
     isDemoMode = false;
+    activateStep(3);
+    await delay(400);
+    activateStep(4);
+    await delay(400);
+
   } catch (_err) {
-    // Server unavailable — use embedded demo
-    reportData = buildDemoReport(y, m, d, h, gender);
+    activateStep(2);
+    await delay(800);
+    activateStep(3);
+    await delay(600);
+    activateStep(4);
+    await delay(400);
+    result     = buildDemoReport(y, m, d, h, gender);
     isDemoMode = true;
   }
-  
-  // Complete loading (min 2s)
-  updateLoadingStep(4);
-  await new Promise(r => setTimeout(r, 800));
-  
-  clearInterval(loadingTimer);
+
+  reportData = result;
   isUnlocked = false;
-  
+
   hideAll();
   showSection('section-results');
-  
   renderAll();
-  
-  // Show demo badge
+
   if (isDemoMode) {
     const bar = document.createElement('div');
     bar.id = 'demo-bar';
-    bar.className = 'max-w-6xl mx-auto px-6 mb-2 slide-in';
-    bar.innerHTML = '<div class="glass-card px-4 py-2.5 text-center text-xs text-amber-400/70 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Demo Mode · Start the server for AI-enhanced readings</div>';
+    bar.className = 'max-w-6xl mx-auto px-6 mb-3';
+    bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Demo 模式运行中 · 启动服务器可获得 AI 大师真实推演</div>';
     document.getElementById('section-results').insertBefore(bar, document.getElementById('section-results').firstChild);
   }
-  
+
   btn.disabled = false;
   btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Generate My Life K-Line';
 });
 
-function updateLoadingStep(step) {
-  const [main, sub] = LOADING_STEPS[step];
-  document.getElementById('loading-text').textContent = main;
-  document.getElementById('loading-sub').textContent = sub;
-  
-  // Update dots
-  const dots = document.querySelectorAll('#loading-steps > div');
-  dots.forEach((dot, i) => {
-    if (i === step) dot.className = 'w-2 h-2 rounded-full bg-purple-500 animate-pulse';
-    else if (i < step) dot.className = 'w-2 h-2 rounded-full bg-purple-400';
-    else dot.className = 'w-2 h-2 rounded-full bg-gray-700';
-  });
-}
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-// ============ Render All ============
+// ── Render orchestrator ────────────────────────
 function renderAll() {
+  renderOverview();
   renderBazi();
   renderWuxing();
   renderChart();
-  renderKLineInterpretation();
+  renderKLineInterp();
   renderSummary();
-  renderAI();
+  renderDimensions();
 }
 
-// ============ Bazi Pillars ============
+// ── ① Overview ────────────────────────────────
+function renderOverview() {
+  const s = reportData?.data?.summary || {};
+  const text = s.overview || `日主${s.day_master||''}${s.day_wuxing||''}，身${s.body_strength||'中和'}，人生K线均分 ${s.average_score||'--'}，峰值在 ${s.peak_age||'--'} 岁。`;
+  setText('overview-text', text);
+  setText('overview-mode-tag', reportData?.data?.ai_enhanced ? '🤖 AI Enhanced' : '⚙️ Algorithm');
+  const EMOJIS = { '金':'⚔️', '木':'🌿', '水':'💧', '火':'🔥', '土':'🏔️' };
+  setText('overview-emoji', EMOJIS[s.day_wuxing] || '🔮');
+  show('overview-card-wrap');
+}
+
+// ── ② Bazi ─────────────────────────────────────
+const SHISHEN_DESC = {
+  '比肩':'与日主同性同行，代表兄弟朋友，喜合作', '劫财':'与日主同性异行，代表竞争压力',
+  '食神':'日主所生同性，代表才华表达、温和进取', '伤官':'日主所生异性，代表聪明才智，需谨慎',
+  '正财':'日主所克异性，代表稳定收入、配偶', '偏财':'日主所克同性，代表机遇财富、父亲',
+  '正官':'克日主异性，代表事业规范、配偶（女）', '七杀':'克日主同性，代表压力权威',
+  '正印':'生日主异性，代表贵人文书、母亲', '偏印':'生日主同性，代表技艺智慧'
+};
+
 function renderBazi() {
-  const d = reportData.data;
-  const b = d.bazi;
-  if (!b?.bazi) return;
-  
-  document.getElementById('bazi-year').textContent = b.bazi.year || '--';
-  document.getElementById('bazi-month').textContent = b.bazi.month || '--';
-  document.getElementById('bazi-day').textContent = b.bazi.day || '--';
-  document.getElementById('bazi-hour').textContent = b.bazi.hour || '--';
-  
-  // Shishen
-  if (b.pillars) {
-    document.getElementById('bazi-year-shishen').textContent = b.pillars[0]?.shishen || '--';
-    document.getElementById('bazi-month-shishen').textContent = b.pillars[1]?.shishen || '--';
-    document.getElementById('bazi-hour-shishen').textContent = b.pillars[3]?.shishen || '--';
-  }
-  
-  // Tags
-  document.getElementById('bazi-animal').textContent = '生肖: ' + (b.info?.animal || '--');
-  document.getElementById('bazi-zodiac').textContent = '星座: ' + (b.info?.zodiac || '--');
-  document.getElementById('bazi-strength').textContent = b.bazi.body_strength + ' (' + (b.bazi.day_wuxing || '') + '命)';
-  document.getElementById('bazi-lunar').textContent = '农历: ' + (b.info?.lunar_date || '--');
+  const p = reportData?.data?.bazi || {};
+  const pillars = p.pillars || [];
+  const ids = ['year','month','day','hour'];
+  const colors = ['text-purple-400','text-blue-400','text-amber-400','text-green-400'];
+  const ttPfx = ['y','m','d','h'];
+
+  pillars.forEach((pl, i) => {
+    const pid = ids[i];
+    setText(`bazi-${pid}`, pl.ganzhi);
+    setText(`bazi-${pid}-wx`, `${pl.gan_wuxing||''}·${pl.zhi_wuxing||''}`);
+    if (pid !== 'day') setText(`bazi-${pid}-ss`, pl.shishen || '');
+    // tooltip
+    setText(`tt-${ttPfx[i]}-gan`, pl.gan);   setText(`tt-${ttPfx[i]}-gwx`, pl.gan_wuxing||'');
+    setText(`tt-${ttPfx[i]}-zhi`, pl.zhi);   setText(`tt-${ttPfx[i]}-zwx`, pl.zhi_wuxing||'');
+    if (document.getElementById(`tt-${ttPfx[i]}-ss`)) setText(`tt-${ttPfx[i]}-ss`, pl.shishen || '日元');
+  });
+
+  const info = p.info || {};
+  setText('bazi-animal',   '生肖: ' + (info.animal  || '--'));
+  setText('bazi-zodiac',   '星座: ' + (info.zodiac  || '--'));
+  setText('bazi-strength',  (p.bazi?.body_strength || '--') + ' · ' + (p.bazi?.day_wuxing || '') + '命');
+  setText('bazi-lunar',    info.lunar_date || info.birth_date || '--');
 }
 
-// ============ Wuxing Balance ============
+// ── ③ Wuxing ──────────────────────────────────
 function renderWuxing() {
-  const wb = reportData.data.bazi?.wuxing_balance;
-  if (!wb) return;
-  
-  const colors = {
-    '金': '#FBBF24', '木': '#34D399', '水': '#60A5FA',
-    '火': '#F87171', '土': '#A78BFA'
+  const wx = reportData?.data?.bazi?.wuxing_balance || {};
+  const total = Math.max(1, Object.values(wx).reduce((a, b) => a + b, 0));
+  const WX_CFG = {
+    '金': { color: '#A0AEC0', bg: '#A0AEC020', emoji: '⚔️' },
+    '木': { color: '#48BB78', bg: '#48BB7820', emoji: '🌿' },
+    '水': { color: '#63B3ED', bg: '#63B3ED20', emoji: '💧' },
+    '火': { color: '#FC8181', bg: '#FC818120', emoji: '🔥' },
+    '土': { color: '#ED8936', bg: '#ED893620', emoji: '🏔️' }
   };
-  const labels = { '金': 'Metal 金', '木': 'Wood 木', '水': 'Water 水', '火': 'Fire 火', '土': 'Earth 土' };
-  const maxVal = Math.max(...Object.values(wb), 1);
-  
-  const container = document.getElementById('wuxing-bars');
-  container.innerHTML = Object.entries(wb).map(([k, v]) => {
-    const pct = Math.round(v / maxVal * 100);
-    return `<div class="p-3 rounded-xl bg-black/20">
-      <div class="flex justify-between items-center mb-2">
-        <span class="text-xs font-medium" style="color:${colors[k]}">${labels[k] || k}</span>
-        <span class="text-lg font-bold" style="color:${colors[k]}">${v}</span>
-      </div>
-      <div class="wuxing-bar-bg"><div class="wuxing-bar-fill" style="width:${pct}%;background:${colors[k]}"></div></div>
+  const el = document.getElementById('wuxing-bars');
+  el.innerHTML = Object.entries(wx).map(([name, cnt]) => {
+    const cfg = WX_CFG[name] || { color:'#A855F7', bg:'#A855F720', emoji:'✨' };
+    const pct = Math.round((cnt / total) * 100);
+    return `<div style="padding:14px;border-radius:14px;background:${cfg.bg};border:1px solid ${cfg.color}22;text-align:center;">
+      <div class="text-xl mb-1">${cfg.emoji}</div>
+      <div class="text-sm font-semibold" style="color:${cfg.color}">${name}</div>
+      <div class="text-2xl font-bold mt-1" style="color:${cfg.color}">${cnt}</div>
+      <div class="wx-bar-bg mt-2"><div class="wx-bar-fill" style="width:${pct}%;background:${cfg.color};"></div></div>
+      <div class="text-xs text-gray-500 mt-1">${pct}%</div>
     </div>`;
   }).join('');
 }
 
-// ============ K-Line Chart ============
+// ── ④ K-Line Chart ─────────────────────────────
 function renderChart() {
-  const container = document.getElementById('chart-main');
-  if (chartInstance) chartInstance.dispose();
-  chartInstance = echarts.init(container);
-  
-  const fortune = reportData.data.fortune || [];
+  const fortune = reportData?.data?.fortune || [];
   if (!fortune.length) return;
-  
-  const ages = fortune.map(f => f.age);
-  const scores = fortune.map(f => f.score);
-  const avgScore = reportData.data.summary?.average_score || 50;
-  
-  document.getElementById('chart-score').textContent = `Avg: ${avgScore}/100`;
-  
-  // Color mapping (Chinese convention: red = good)
-  const colorFunc = (score) => {
-    if (score >= 75) return '#EF4444';  // 大吉 = 红
-    if (score >= 60) return '#F59E0B';  // 小吉 = 橙
-    if (score >= 45) return '#3B82F6';  // 平稳 = 蓝
-    if (score >= 30) return '#6EE7B7';  // 小凶 = 浅绿
-    return '#22C55E';                    // 大凶 = 绿
-  };
-  
-  const option = {
-    backgroundColor: 'transparent',
-    tooltip: {
-      trigger: 'axis',
-      backgroundColor: 'rgba(15,12,31,0.97)',
-      borderColor: 'rgba(168,85,247,0.3)',
-      textStyle: { color: '#E5E7EB', fontSize: 13 },
-      formatter: function(params) {
-        const d = fortune[params[0].dataIndex];
-        const c = colorFunc(d.score);
-        let html = `<div style="font-weight:600;margin-bottom:4px">Age ${d.age} · ${d.phase}</div>`;
-        html += `<div>Score: <strong style="color:${c};font-size:16px">${d.score}</strong> · ${d.level}</div>`;
-        if (d.milestones?.length) {
-          html += `<div style="margin-top:4px;color:#A855F7">Milestones: ${d.milestones.join(', ')}</div>`;
-        }
-        return html;
-      }
-    },
-    grid: { left: '3%', right: '5%', bottom: '8%', top: '5%', containLabel: true },
-    xAxis: {
-      type: 'category', data: ages,
-      axisLine: { lineStyle: { color: '#374151' } },
-      axisLabel: { color: '#6B7280', fontSize: 11, interval: 4 },
-      name: 'Age', nameTextStyle: { color: '#6B7280', fontSize: 12 },
-      splitLine: { show: false }
-    },
-    yAxis: {
-      type: 'value', min: 0, max: 100,
-      axisLine: { show: false },
-      axisLabel: { color: '#6B7280', fontSize: 11 },
-      splitLine: { lineStyle: { color: 'rgba(75,85,99,0.2)', type: 'dashed' } },
-      name: 'Fortune Score', nameTextStyle: { color: '#6B7280' }
-    },
-    series: [{
-      name: 'Fortune',
-      type: 'line',
-      data: scores,
-      smooth: 0.35,
-      symbol: 'circle',
-      symbolSize: function(val) {
-        if (val >= 75) return 8;
-        if (val < 35) return 7;
-        return 4;
-      },
-      lineStyle: { width: 2.5, color: '#A855F7' },
-      itemStyle: {
-        color: function(p) { return colorFunc(p.value); },
-        borderColor: 'rgba(255,255,255,0.8)',
-        borderWidth: 1
-      },
-      areaStyle: {
-        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-          { offset: 0, color: 'rgba(168,85,247,0.35)' },
-          { offset: 0.5, color: 'rgba(168,85,247,0.1)' },
-          { offset: 1, color: 'rgba(168,85,247,0.02)' }
-        ])
-      },
-      markLine: {
-        silent: true, symbol: 'none',
-        data: [
-          { yAxis: avgScore, lineStyle: { color: '#A855F7', type: 'dashed', width: 1 },
-            label: { formatter: `Avg ${avgScore}`, color: '#A855F7', fontSize: 12 } }
-        ]
-      },
-      markPoint: {
-        data: [
-          { type: 'max', name: 'Peak',
-            symbol: 'pin', symbolSize: 40,
-            itemStyle: { color: '#EF4444' },
-            label: { color: '#fff', fontSize: 11 } },
-          { type: 'min', name: 'Valley',
-            symbol: 'pin', symbolSize: 35,
-            itemStyle: { color: '#22C55E' },
-            label: { color: '#fff', fontSize: 11 } }
-        ]
-      }
-    }]
-  };
 
-  // Add phase markAreas dynamically
-  const phases = [];
-  let curPhase = fortune[0]?.phase;
-  let phaseStart = 0;
-  const phaseColors = {
-    '成长期': 'rgba(59,130,246,0.06)',
-    '上升期': 'rgba(245,158,11,0.06)',
-    '黄金期': 'rgba(239,68,68,0.08)',
-    '稳固期': 'rgba(168,85,247,0.06)',
-    '智慧期': 'rgba(34,197,94,0.05)',
-    '颐养期': 'rgba(107,114,128,0.05)'
-  };
+  const ages   = fortune.map(f => f.age);
+  const scores = fortune.map(f => f.score);
+  const avg    = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+  const colorFn = v => v >= 75 ? '#EF4444' : v >= 60 ? '#F97316' : v >= 45 ? '#9CA3AF' : v >= 30 ? '#4ADE80' : '#16A34A';
+
+  if (chartMain) { chartMain.dispose(); chartMain = null; }
+  chartMain = echarts.init(document.getElementById('chart-main'), null, { renderer: 'canvas' });
+
+  // Phase bands
+  const PHASE_COLORS = { '成长期':'rgba(59,130,246,.06)', '上升期':'rgba(245,158,11,.06)', '黄金期':'rgba(239,68,68,.07)', '稳固期':'rgba(168,85,247,.05)', '智慧期':'rgba(34,197,94,.05)', '颐养期':'rgba(107,114,128,.04)' };
+  const bands = [];
+  let curPhase = fortune[0]?.phase, ps = 0;
   fortune.forEach((f, i) => {
     if (f.phase !== curPhase || i === fortune.length - 1) {
-      phases.push({ name: curPhase, start: phaseStart, end: i === fortune.length - 1 ? i : i - 1, color: phaseColors[curPhase] || 'rgba(168,85,247,0.04)' });
-      curPhase = f.phase;
-      phaseStart = i;
+      bands.push({ phase: curPhase, start: ages[ps], end: ages[i === fortune.length - 1 ? i : i - 1], color: PHASE_COLORS[curPhase] || 'transparent' });
+      curPhase = f.phase; ps = i;
     }
   });
 
-  // Build ECharts markArea data
-  option.series[0].markArea = {
-    silent: true,
-    label: { show: true, position: 'insideBottomLeft', color: '#6B7280', fontSize: 10 },
-    data: phases.map(p => [
-      { xAxis: String(ages[p.start]), yAxis: 0, itemStyle: { color: p.color } },
-      { xAxis: String(ages[p.end]), yAxis: 100, label: { formatter: p.name, position: 'insideTopRight', color: '#6B7280', fontSize: 10 } }
-    ])
-  };
+  const markAreaData = bands.map(b => [
+    { xAxis: String(b.start), itemStyle: { color: b.color }, label: { formatter: b.phase, color: '#6B7280', fontSize: 10 } },
+    { xAxis: String(b.end) }
+  ]);
 
-  chartInstance.setOption(option);
-  
-  // Click on chart points to show details
-  chartInstance.on('click', function(params) {
-    if (params.componentType === 'series') {
-      const d = fortune[params.dataIndex];
-      document.getElementById('chart-phase').textContent = `Age ${d.age} · ${d.level}`;
+  chartMain.setOption({
+    backgroundColor: 'transparent',
+    animation: true, animationDuration: 1200,
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(15,12,31,.95)',
+      borderColor: 'rgba(168,85,247,.3)',
+      borderWidth: 1,
+      formatter(params) {
+        const f = fortune[params[0].dataIndex];
+        if (!f) return '';
+        const clr = colorFn(f.score);
+        return `<div style="padding:4px 0">
+          <div style="font-weight:700;color:#E5E7EB;margin-bottom:4px">${f.age} 岁 · ${f.phase}</div>
+          <div style="color:${clr};font-size:18px;font-weight:800">${f.score} <span style="font-size:12px">/100</span></div>
+          <div style="color:${clr};font-size:12px;margin-top:2px">${f.level}</div>
+          ${f.event ? `<div style="color:#9CA3AF;font-size:11px;margin-top:4px">📌 ${f.event}</div>` : ''}
+        </div>`;
+      }
+    },
+    grid: { top: 30, right: 20, bottom: 36, left: 46 },
+    xAxis: { type: 'category', data: ages.map(String), boundaryGap: false,
+      axisLabel: { color: '#6B7280', fontSize: 10, interval: 9 },
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,.06)' } },
+      splitLine: { show: false } },
+    yAxis: { type: 'value', min: 0, max: 100,
+      axisLabel: { color: '#6B7280', fontSize: 10 },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,.04)' } } },
+    series: [{
+      type: 'line',
+      data: scores,
+      smooth: 0.3,
+      symbol: 'circle',
+      symbolSize: p => p >= 75 ? 8 : p < 35 ? 7 : 3,
+      lineStyle: { width: 2.5, color: '#A855F7' },
+      itemStyle: { color: p => colorFn(p.value), borderWidth: 1, borderColor: 'rgba(255,255,255,.7)' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(168,85,247,.3)'},{offset:.5,color:'rgba(168,85,247,.08)'},{offset:1,color:'rgba(168,85,247,.01)'}]) },
+      markLine: { silent: true, symbol: 'none', data: [{ yAxis: avg, lineStyle: { color: '#A855F7', type: 'dashed', width: 1 }, label: { formatter: `均 ${avg}`, color: '#A855F7', fontSize: 11 } }] },
+      markPoint: {
+        data: [
+          { type: 'max', name:'峰值', symbol:'pin', symbolSize:42, itemStyle:{color:'#EF4444'}, label:{color:'#fff',fontSize:10} },
+          { type: 'min', name:'低谷', symbol:'pin', symbolSize:36, itemStyle:{color:'#22C55E'}, label:{color:'#fff',fontSize:10} }
+        ]
+      },
+      markArea: { silent: true, label: { show: true, position: 'insideTopLeft', color: '#6B7280', fontSize: 10 }, data: markAreaData }
+    }]
+  });
+
+  // 年龄快速跳转
+  document.getElementById('age-jump').addEventListener('change', function () {
+    const age = +this.value;
+    if (age >= 0 && age <= 100) {
+      chartMain.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex: age });
+      const f = fortune[age];
+      if (f) document.getElementById('chart-phase').textContent = `${age}岁 · ${f.level} (${f.score})`;
     }
   });
-  
-  window.addEventListener('resize', () => chartInstance?.resize());
+
+  chartMain.on('mousemove', p => {
+    if (p.dataIndex !== undefined) {
+      const f = fortune[p.dataIndex];
+      if (f) document.getElementById('chart-phase').textContent = `${f.age}岁 · ${f.phase} · ${f.level}`;
+    }
+  });
+
+  window.addEventListener('resize', () => { chartMain?.resize(); chartRadar?.resize(); });
 }
 
-// ============ K-Line Interpretation ============
-function renderKLineInterpretation() {
-  const fortune = reportData.data.fortune || [];
+// ── ⑤ K-Line Interpretation ───────────────────
+function renderKLineInterp() {
+  const fortune = reportData?.data?.fortune || [];
+  const s       = reportData?.data?.summary || {};
   if (!fortune.length) return;
 
-  const scores = fortune.map(f => f.score);
-  const avgScore = reportData.data.summary?.average_score || 50;
-  const bodyStrength = reportData.data.summary?.body_strength || '中和';
-  const dayWuxing = reportData.data.summary?.day_wuxing || '';
+  const scores  = fortune.map(f => f.score);
+  const avg     = s.average_score || Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const peak    = fortune.reduce((a,b)=>a.score>b.score?a:b);
+  const valley  = fortune.reduce((a,b)=>a.score<b.score?a:b);
+  const vol     = Math.round(Math.sqrt(scores.reduce((s,v)=>s+(v-avg)**2,0)/scores.length));
 
-  // Analyze trajectory
-  const firstHalf = scores.slice(0, 35).reduce((a,b)=>a+b,0)/35;
-  const midSection = scores.slice(35, 55).reduce((a,b)=>a+b,0)/20;
-  const secondHalf = scores.slice(55).reduce((a,b)=>a+b,0)/46;
-  
-  const trend = midSection > firstHalf + 5 ? '先抑后扬'
-    : midSection < firstHalf - 5 ? '先扬后抑'
-    : Math.abs(firstHalf - secondHalf) < 5 ? '平稳持中'
-    : secondHalf > firstHalf ? '厚积薄发' : '早发晚收';
+  const f1 = scores.slice(0,35).reduce((a,b)=>a+b,0)/35;
+  const f2 = scores.slice(35,55).reduce((a,b)=>a+b,0)/20;
+  const f3 = scores.slice(55).reduce((a,b)=>a+b,0)/46;
 
-  const peak = fortune.reduce((a,b) => a.score > b.score ? a : b);
-  const valley = fortune.reduce((a,b) => a.score < b.score ? a : b);
-  const volatility = Math.round(Math.sqrt(scores.reduce((s,v)=>s+(v-avgScore)**2,0)/scores.length));
-  
-  // Find best and worst periods
-  const phases = {};
-  fortune.forEach(f => { if (!phases[f.phase]) phases[f.phase] = []; phases[f.phase].push(f.score); });
-  const phaseAvgs = Object.entries(phases).map(([k,v]) => [k, Math.round(v.reduce((a,b)=>a+b,0)/v.length)]);
-  phaseAvgs.sort((a,b) => b[1] - a[1]);
-  const bestPhase = phaseAvgs[0];
-  const worstPhase = phaseAvgs[phaseAvgs.length-1];
-
-  // Life stage analysis
-  const stages = [
-    { name:'童年',  ages:[0,12],   icon:'seedling', color:'#60A5FA' },
-    { name:'青年',  ages:[13,29],  icon:'fire',     color:'#F59E0B' },
-    { name:'壮年',  ages:[30,49],  icon:'star',     color:'#EF4444' },
-    { name:'中年',  ages:[50,65],  icon:'shield',   color:'#A855F7' },
-    { name:'晚年',  ages:[66,100], icon:'moon',     color:'#34D399' }
-  ];
-  const stageData = stages.map(st => {
-    const relevant = fortune.filter(f => f.age >= st.ages[0] && f.age <= st.ages[1]);
-    const avg = Math.round(relevant.reduce((a,b)=>a+b.score,0)/relevant.length);
-    const peakIn = relevant.reduce((a,b) => a.score > b.score ? a : b, {score:0});
-    return { ...st, avg, peak: peakIn.score, peakAge: peakIn.age };
-  });
-
-  // Generate interpretation HTML
-  const trendMap = {
-    '先抑后扬': { desc:'早年运势平稳蓄力，中年后迎来强劲上升期。大器晚成之象，越晚越精彩。', icon:'📈' },
-    '厚积薄发': { desc:'青年平稳积累，壮年逐步走高，晚年持续向好。一步一个脚印的稳健人生。', icon:'🚀' },
-    '平稳持中': { desc:'一生运势波动较小，整体保持中上水平。不追求大起大落，贵在细水长流。', icon:'⚖️' },
-    '先扬后抑': { desc:'早年运势较好，后期需做好规划。建议壮年时期充分积累，为晚年做好准备。', icon:'🔻' },
-    '早发晚收': { desc:'早年即有亮眼表现，随后逐步回归常态。人生高峰期来得较早，后期宜稳中求进。', icon:'🌅' }
+  const trend = f2 > f1+5 ? '先抑后扬' : f2 < f1-5 ? '先扬后抑' : Math.abs(f1-f3)<5 ? '平稳持中' : f3>f1 ? '厚积薄发' : '早发晚收';
+  const TMAP = {
+    '先抑后扬':{ ic:'📈', desc:'早年蓄力，中年后运势强劲上扬。大器晚成，越晚越精彩。' },
+    '厚积薄发':{ ic:'🚀', desc:'青年积累，壮年走高，晚年持续向好。稳健人生，一步一个脚印。' },
+    '平稳持中':{ ic:'⚖️', desc:'一生运势波动小，整体中上水平。不追大起大落，贵在细水长流。' },
+    '先扬后抑':{ ic:'🔻', desc:'早年运势好，后期需提前规划与积累，为晚年做好准备。' },
+    '早发晚收':{ ic:'🌅', desc:'早年亮眼，随后回归常态。高峰期来得早，后期宜稳中求进。' }
   };
+  const ti = TMAP[trend] || TMAP['平稳持中'];
 
-  const trendInfo = trendMap[trend] || trendMap['平稳持中'];
+  const phaseMap = {};
+  fortune.forEach(f => { if (!phaseMap[f.phase]) phaseMap[f.phase] = []; phaseMap[f.phase].push(f.score); });
+  const phaseAvgs = Object.entries(phaseMap).map(([k,v]) => [k, Math.round(v.reduce((a,b)=>a+b,0)/v.length)]).sort((a,b)=>b[1]-a[1]);
+  const best  = phaseAvgs[0];
+  const worst = phaseAvgs[phaseAvgs.length-1];
+
+  const stages = [
+    { n:'童年',  r:[0,12],  c:'#60A5FA' }, { n:'青年',  r:[13,29], c:'#F59E0B' },
+    { n:'壮年',  r:[30,49], c:'#EF4444' }, { n:'中年',  r:[50,65], c:'#A855F7' },
+    { n:'晚年',  r:[66,100],c:'#34D399' }
+  ];
 
   let html = '';
-
-  // Overview
-  html += `<div class="interpret-block">
-    <div class="flex items-start gap-3">
-      <span class="text-2xl">${trendInfo.icon}</span>
-      <div>
-        <div class="font-semibold text-base mb-1">
-          整体走势：<span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">${trend}</span>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed">${trendInfo.desc}</p>
-        <div class="flex gap-4 mt-3 text-xs text-gray-500">
-          <span>波动率 <span class="text-purple-400 font-semibold">${volatility}%</span></span>
-          <span>均分 <span class="text-blue-400 font-semibold">${avgScore}</span></span>
-          <span>峰值 <span class="text-red-400 font-semibold">${peak.score}分 (${peak.age}岁)</span></span>
-          <span>低谷 <span class="text-green-400 font-semibold">${valley.score}分 (${valley.age}岁)</span></span>
-        </div>
+  // Trend block
+  html += `<div class="iblock flex items-start gap-3">
+    <span class="text-2xl">${ti.ic}</span>
+    <div class="flex-1">
+      <div class="font-semibold mb-1">整体走势：<span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">${trend}</span></div>
+      <p class="text-sm text-gray-400 leading-relaxed mb-3">${ti.desc}</p>
+      <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+        <span>波动率 <strong class="text-purple-400">${vol}%</strong></span>
+        <span>均分 <strong class="text-blue-400">${avg}</strong></span>
+        <span>峰值 <strong class="text-red-400">${peak.score}分 @ ${peak.age}岁</strong></span>
+        <span>低谷 <strong class="text-green-400">${valley.score}分 @ ${valley.age}岁</strong></span>
       </div>
     </div>
   </div>`;
 
-  // Phase analysis - timeline
-  html += `<div class="interpret-block">
-    <div class="text-sm font-semibold text-gray-300 mb-3">生命阶段分析 · Life Stage Analysis</div>
+  // Life stages
+  html += `<div class="iblock">
+    <div class="text-sm font-semibold text-gray-300 mb-3">生命阶段均分</div>
     <div class="space-y-2">`;
-  
-  stageData.forEach(st => {
-    const w = Math.max(5, Math.round((st.peak / 100) * 100));
-    html += `<div class="phase-bar" style="border-left-color:${st.color}">
-      <div class="flex items-center justify-between mb-1">
-        <span class="text-sm font-medium" style="color:${st.color}">${st.name} (${st.ages[0]}-${st.ages[1]}岁)</span>
-        <span class="text-xs text-gray-500">均分 ${st.avg} · 峰值 ${st.peak} (${st.peakAge}岁)</span>
+  stages.forEach(st => {
+    const rel = fortune.filter(f => f.age >= st.r[0] && f.age <= st.r[1]);
+    const stAvg = rel.length ? Math.round(rel.reduce((a,b)=>a+b.score,0)/rel.length) : avg;
+    const stPk  = rel.length ? rel.reduce((a,b)=>a.score>b.score?a:b) : { score: avg, age: '--' };
+    html += `<div class="phase-row" style="border-left-color:${st.c}">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-medium" style="color:${st.c}">${st.n} (${st.r[0]}-${st.r[1]}岁)</span>
+        <span class="text-xs text-gray-500">均${stAvg} · 峰${stPk.score}@${stPk.age}岁</span>
       </div>
-      <div class="wuxing-bar-bg" style="height:4px">
-        <div class="wuxing-bar-fill" style="width:${w}%;background:${st.color};height:4px;"></div>
-      </div>
+      <div class="wx-bar-bg" style="height:4px"><div class="wx-bar-fill" style="width:${stAvg}%;background:${st.c};height:4px;"></div></div>
     </div>`;
   });
   html += `</div></div>`;
 
-  // Best & worst periods comparison
+  // Best/worst
   html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-    <div class="interpret-block" style="border-color:rgba(239,68,68,0.15)">
-      <div class="text-xs text-red-400 font-semibold mb-2">最佳阶段 · Best Period</div>
-      <div class="text-lg font-bold" style="color:#EF4444">${bestPhase[0]}</div>
-      <div class="text-xs text-gray-500 mt-1">阶段均分 ${bestPhase[1]} · 人生黄金窗口</div>
+    <div class="iblock" style="border-color:rgba(239,68,68,.15)">
+      <div class="text-xs text-red-400 font-semibold mb-1">🌟 最佳阶段</div>
+      <div class="text-lg font-bold text-red-400">${best[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${best[1]} · 人生黄金窗口</div>
     </div>
-    <div class="interpret-block" style="border-color:rgba(34,197,94,0.15)">
-      <div class="text-xs text-green-400 font-semibold mb-2">挑战阶段 · Challenge Period</div>
-      <div class="text-lg font-bold" style="color:#22C55E">${worstPhase[0]}</div>
-      <div class="text-xs text-gray-500 mt-1">阶段均分 ${worstPhase[1]} · 需谨慎规划</div>
+    <div class="iblock" style="border-color:rgba(34,197,94,.15)">
+      <div class="text-xs text-green-400 font-semibold mb-1">⚠️ 挑战阶段</div>
+      <div class="text-lg font-bold text-green-400">${worst[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${worst[1]} · 韬光养晦时期</div>
     </div>
   </div>`;
 
-  // K-Line specific insight
-  html += `<div class="interpret-block">
-    <div class="text-sm font-semibold text-gray-300 mb-2">K线洞察 · K-Line Insight</div>
-    <p class="text-sm text-gray-400 leading-relaxed">
-      日主<strong class="text-purple-400">${reportData.data.summary?.day_master || '--'}${dayWuxing}</strong>命，身<strong class="text-amber-400">${bodyStrength}</strong>。${
-    volatility > 18
-      ? '人生K线波动较大，大吉大凶交替出现。建议顺势而为，在高峰时勇猛精进，低谷时韬光养晦。'
-      : volatility > 12
-      ? '人生K线波动适中，整体走势稳健。把握${bestPhase[0]}的上升趋势，在${worstPhase[0]}保持冷静。'
-      : '人生K线走势平稳，波幅较小。这是典型的稳健型命运曲线，适合长期主义策略。'
-    } 关键转折点在<strong class="text-red-400">${peak.age}岁</strong>（运势巅峰），以及<strong class="text-green-400">${valley.age}岁</strong>（人生低谷），这两处是命运线上最重要的节点。
-    </p>
+  // K-line insight
+  const insightText = vol > 18 ? '人生K线波动大，大吉大凶交替。顺势而为：高峰勇猛精进，低谷韬光养晦。'
+    : vol > 12 ? '人生K线波动适中，整体稳健。把握最佳阶段上升趋势，在挑战期保持冷静。'
+    : '人生K线走势平稳，波幅小。典型稳健型命运曲线，适合长期主义策略。';
+
+  html += `<div class="iblock">
+    <div class="text-sm font-semibold text-gray-300 mb-2">🔍 K线洞察</div>
+    <p class="text-sm text-gray-400 leading-relaxed">${insightText} 关键节点：峰值 <strong class="text-red-400">${peak.age}岁</strong>，低谷 <strong class="text-green-400">${valley.age}岁</strong>。</p>
   </div>`;
 
-  document.getElementById('kline-interpret-content').innerHTML = html;
+  setHtml('kline-interp-content', html);
+  show('kline-interp-wrap');
 }
 
-// ============ Fortune Summary ============
+// ── ⑥ Summary Cards ──────────────────────────
 function renderSummary() {
-  const s = reportData.data.summary;
-  if (!s) return;
-  
-  document.getElementById('summary-peak').textContent = (s.best_ages || []).slice(0, 3).join(', ') || '--';
-  document.getElementById('summary-challenge').textContent = (s.challenging_ages || []).slice(0, 3).join(', ') || '--';
-  document.getElementById('summary-avg').textContent = (s.average_score || '--') + '/100';
-  document.getElementById('summary-body').textContent = s.body_strength || '--';
-  document.getElementById('summary-body-sub').textContent = (s.day_wuxing || '') + '命 · ' + (s.day_master || '');
+  const s = reportData?.data?.summary || {};
+  setText('sum-peak',       (s.peak_age ?? '--') + ' 岁');
+  setText('sum-peak-score', `得分 ${s.peak_score ?? '--'}`);
+  setText('sum-valley',     (s.valley_age ?? '--') + ' 岁');
+  setText('sum-valley-score', `得分 ${s.valley_score ?? '--'}`);
+  setText('sum-avg',        s.average_score ?? '--');
+  setText('sum-body',       `${s.day_master || '--'}${s.day_wuxing || ''}日`);
+  setText('sum-body-sub',   s.body_strength || '--');
 }
 
-// ============ AI Analysis ============
-function renderAI() {
-  const ai = reportData.data.ai_analysis;
-  if (!ai || !ai.length) return;
-  
-  const section = document.getElementById('ai-section');
-  section.classList.remove('hidden-section');
-  
-  const container = document.getElementById('ai-content');
-  container.innerHTML = ai.map(p => `
-    <div class="p-4 rounded-xl bg-black/20 border border-white/5">
-      <div class="text-xs text-purple-400 font-semibold mb-2">${p.name || ''}</div>
-      <div class="text-sm text-gray-300 leading-relaxed">${p.advice || ''}</div>
-    </div>
-  `).join('');
+// ── ⑦ Dimensions (radar + cards) ──────────────
+function renderDimensions() {
+  const dims = reportData?.data?.dimensions;
+  if (!dims) return;
+
+  const DIM_CFG = [
+    { key:'career',        label:'事业', color:'#60A5FA', icon:'💼' },
+    { key:'wealth',        label:'财运', color:'#FBBF24', icon:'💰' },
+    { key:'relationships', label:'感情', color:'#F472B6', icon:'💕' },
+    { key:'health',        label:'健康', color:'#34D399', icon:'🌿' },
+    { key:'mentors',       label:'贵人', color:'#A78BFA', icon:'⭐' },
+    { key:'challenges',    label:'挑战', color:'#FB7185', icon:'🛡️' }
+  ];
+
+  // Radar chart
+  if (chartRadar) { chartRadar.dispose(); chartRadar = null; }
+  chartRadar = echarts.init(document.getElementById('chart-radar'), null, { renderer: 'canvas' });
+  chartRadar.setOption({
+    backgroundColor: 'transparent',
+    radar: {
+      indicator: DIM_CFG.map(d => ({ name: d.label, max: 100 })),
+      shape: 'polygon',
+      splitNumber: 4,
+      center: ['50%', '50%'],
+      radius: '68%',
+      nameGap: 8,
+      name: { color: '#9CA3AF', fontSize: 13, fontWeight: 600 },
+      axisLine:  { lineStyle: { color: 'rgba(255,255,255,.08)' } },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,.05)' } },
+      splitArea: { areaStyle: { color: ['rgba(255,255,255,.015)', 'transparent', 'rgba(255,255,255,.01)', 'transparent'] } }
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: DIM_CFG.map(d => dims[d.key]?.score || 60),
+        name: '六维度',
+        symbol: 'circle', symbolSize: 6,
+        lineStyle:  { color: '#A855F7', width: 2 },
+        itemStyle:  { color: '#A855F7', borderColor: '#E9D5FF', borderWidth: 2 },
+        areaStyle:  { color: 'rgba(168,85,247,.15)' }
+      }]
+    }],
+    tooltip: {
+      backgroundColor: 'rgba(15,12,31,.95)',
+      borderColor: 'rgba(168,85,247,.3)',
+      formatter(p) {
+        return DIM_CFG.map(d => `<span style="color:${d.color}">${d.icon} ${d.label}</span>: ${dims[d.key]?.score||'--'}`).join('<br>');
+      }
+    }
+  });
+
+  // Dim cards
+  const cardsEl = document.getElementById('dim-cards');
+  cardsEl.innerHTML = DIM_CFG.map(d => {
+    const dim  = dims[d.key] || {};
+    const sc   = dim.score || 60;
+    const pct  = Math.round(2 * Math.PI * 18 * sc / 100);
+    const circ = Math.round(2 * Math.PI * 18);
+    return `<div class="dim-card flex items-start gap-3">
+      <div class="flex-shrink-0">
+        <svg class="dim-score-ring" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/>
+          <circle cx="24" cy="24" r="18" fill="none" stroke="${d.color}" stroke-width="3"
+            stroke-dasharray="${pct} ${circ}" stroke-dashoffset="${circ/4}"
+            stroke-linecap="round" transform="rotate(-90 24 24)"/>
+          <text x="24" y="24" class="dim-score-text" style="font-size:9px;fill:#E5E7EB;font-weight:700;dominant-baseline:middle;text-anchor:middle;">${sc}</text>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sm font-semibold" style="color:${d.color}">${d.icon} ${d.label}</span>
+        </div>
+        <p class="text-xs text-gray-400 leading-relaxed">${dim.advice || dim.summary || '--'}</p>
+      </div>
+    </div>`;
+  }).join('');
+
+  show('dimensions-wrap');
+  if (reportData?.data?.ai_enhanced) show('dim-ai-tag');
 }
 
-// ============ Unlock ============
+// ── Unlock ────────────────────────────────────
 async function handleUnlock(method) {
-  // Demo mode or server unavailable: instant unlock
   if (isDemoMode) {
     isUnlocked = true;
     document.getElementById('paywall').classList.add('hidden');
-    chartInstance?.resize();
-    // Flash toast
-    showToast(method === 'share' ? 'Unlocked via Share! Enjoy your full report.' : 'Payment successful! Full report unlocked.');
+    chartMain?.resize();
+    showToast(method === 'share' ? '🎉 分享解锁成功！享受完整报告' : '✅ 解锁成功！完整报告已开放', '#A855F7');
     return;
   }
-  
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-    const res = await fetch(`${API_BASE}/api/payment/create-checkout`, {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000);
+    const res  = await fetch(API_BASE + '/api/payment/create-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reportId: reportData?.report_id, plan: 'report' }),
-      signal: controller.signal
+      signal: ctrl.signal
     });
-    clearTimeout(timeout);
-    
     const data = await res.json();
-    
-    if (data.demo) {
+    if (data.demo || !data.session_url) {
       isUnlocked = true;
       document.getElementById('paywall').classList.add('hidden');
-      chartInstance?.resize();
-      return;
-    }
-    
-    if (data.session_url) {
+      chartMain?.resize();
+      showToast('✅ 解锁成功！', '#A855F7');
+    } else {
       window.open(data.session_url, '_blank');
     }
-  } catch (_err) {
-    // Fallback: demo unlock
+  } catch {
     isUnlocked = true;
     document.getElementById('paywall').classList.add('hidden');
-    chartInstance?.resize();
+    chartMain?.resize();
   }
 }
 
-function showToast(msg) {
-  const toast = document.createElement('div');
-  toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 glass-card px-5 py-3 text-sm text-green-400 text-center slide-in';
-  toast.style.maxWidth = '400px';
-  toast.textContent = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => { toast.remove(); }, 2500);
+// ── Copy Link ─────────────────────────────────
+function handleCopyLink() {
+  const url = reportData?.report_id
+    ? `${window.location.origin}${window.location.pathname}?report=${reportData.report_id}`
+    : window.location.href;
+  navigator.clipboard?.writeText(url).then(() => {
+    setText('btn-copy-text', '✓ 已复制');
+    showToast('🔗 链接已复制到剪贴板', '#60A5FA');
+    setTimeout(() => setText('btn-copy-text', '复制链接'), 2000);
+  }).catch(() => showToast('请手动复制地址栏链接'));
 }
 
-// ============ Copy Link ============
-async function handleCopyLink() {
-  try {
-    await navigator.clipboard.writeText(window.location.href);
-    const el = document.getElementById('btn-copy-text');
-    el.textContent = 'Copied!';
-    setTimeout(() => { el.textContent = 'Copy Link'; }, 2000);
-  } catch {
-    document.getElementById('btn-copy-text').textContent = 'Failed';
-    setTimeout(() => { document.getElementById('btn-copy-text').textContent = 'Copy Link'; }, 2000);
-  }
-}
-
-// ============ New Reading ============
+// ── New Reading ───────────────────────────────
 function handleNewReading() {
-  reportData = null;
-  isUnlocked = false;
-  isDemoMode = false;
-  if (chartInstance) { chartInstance.dispose(); chartInstance = null; }
+  reportData = null; isUnlocked = false; isDemoMode = false;
+  chartMain?.dispose();  chartMain  = null;
+  chartRadar?.dispose(); chartRadar = null;
+  hide('overview-card-wrap');
+  hide('kline-interp-wrap');
+  hide('dimensions-wrap');
+  document.getElementById('demo-bar')?.remove();
   hideAll();
   showSection('section-hero');
   document.getElementById('birth-form').reset();
-  document.getElementById('chart-phase').textContent = '--';
-  // Clean up demo bar
-  const bar = document.getElementById('demo-bar');
-  if (bar) bar.remove();
+  setText('chart-phase', '--');
 }
 
-// ============ Helpers ============
-function hideAll() {
-  ['section-hero', 'section-loading', 'section-results'].forEach(id => {
-    document.getElementById(id).classList.add('hidden-section');
-  });
-}
-
-function showSection(id) {
-  const el = document.getElementById(id);
-  el.classList.remove('hidden-section');
-  el.classList.add('slide-in');
-}
-
-// ============ Init ============
-// Check if returning from payment
-const urlParams = new URLSearchParams(window.location.search);
-if (urlParams.get('paid') === 'true') {
+// ── URL param: return from payment ────────────
+const params = new URLSearchParams(window.location.search);
+if (params.get('paid') === 'true') {
   isUnlocked = true;
-  const reportId = urlParams.get('report');
-  if (reportId) {
-    fetch(`${API_BASE}/api/report/${reportId}`)
-      .then(r => {
-        if (!r.ok) throw new Error('not found');
-        return r.json();
-      })
-      .then(json => {
-        if (json.success) {
-          reportData = json;
-          isDemoMode = false;
-          hideAll();
-          showSection('section-results');
-          renderAll();
-          isUnlocked = true;
-        }
-      })
-      .catch(() => {
-        // Report not found — use demo
-        const now = new Date();
-        reportData = buildDemoReport(now.getFullYear()-30, 6, 15, 14, '女');
-        isDemoMode = true;
-        hideAll();
-        showSection('section-results');
-        renderAll();
-        isUnlocked = true;
-      });
+  const rid  = params.get('report');
+  if (rid) {
+    fetch(API_BASE + '/api/report/' + rid).then(r => r.json()).then(j => {
+      if (j.success) { reportData = { data: j.data, report_id: rid }; isDemoMode = false; hideAll(); showSection('section-results'); renderAll(); isUnlocked = true; }
+    }).catch(() => {});
   }
 }
 </script>

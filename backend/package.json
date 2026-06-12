@@ -20,6 +20,7 @@
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^4.22.2",
+    "lunar-typescript": "^1.8.6",
     "node-fetch": "^3.3.2",
     "pg": "^8.11.3",
     "sql.js": "^1.14.1",

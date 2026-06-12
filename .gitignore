@@ -38,3 +38,13 @@ logs/
 test_result.json
 engine_test.json
 sample_report.json
+
+# Debug temp files
+backend/.paipan_*.json
+backend/py_stdout.txt
+backend/py_stderr.txt
+backend/r*.json
+backend/resp*.json
+backend/t.json
+backend/test_*.js
+backend/test_*.json
