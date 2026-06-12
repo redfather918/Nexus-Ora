@@ -1,6 +1,6 @@
 # Nexus Ora — 技术需求文档 (TRD)
 
-> 版本：v3.0 | 更新日期：2026-06-12
+> 版本：v3.1 | 更新日期：2026-06-12
 
 ---
 
@@ -14,18 +14,19 @@
 │  ┌─────────────────────────────────────────────────┐ │
 │  │         frontend/index.html (SPA)                │ │
 │  │   Tailwind CSS (CDN) + ECharts (CDN)            │ │
-│  │   Zero-build, single file, offline-capable      │ │
+│  │   Zero-build, 双模块入口（人生K线 + 缘分配对）    │ │
 │  └──────────────────┬──────────────────────────────┘ │
 └─────────────────────┼────────────────────────────────┘
-                      │ HTTP POST /api/fortune
+                      │ HTTP POST
+                      │ /api/fortune · /api/compatibility
                       ▼
 ┌─────────────────────────────────────────────────────┐
 │              Node.js Express Server                   │
 │              (server_unified.js)                      │
-│  ┌───────────────┬──────────────┬──────────────────┐ │
-│  │ Paipan Engine │  LLM Client  │  Algorithm Fall. │ │
-│  │ (纯 JS)       │ (DeepSeek)   │  (五行算法)       │ │
-│  └───────────────┴──────────────┴──────────────────┘ │
+│  ┌─────────────┬──────────────┬────────────────────┐ │
+│  │ Paipan Engine│  LLM Client  │  Compatibility    │ │
+│  │ (纯 JS)      │ (DeepSeek)   │  Engine (v3.1)    │ │
+│  └─────────────┴──────────────┴────────────────────┘ │
 │  ┌──────────────────────────────────────────────────┐ │
 │  │              sql.js (WASM SQLite)                │ │
 │  │        users / fortune_reports / orders          │ │
@@ -111,7 +112,53 @@ score = phase.base + wuxing_bonus + balance_bonus + sin_wave + strength_adjust
 - 评分 = 基础分 + 运势均分修正
 - 贵人和挑战维度根据运势均分动态生成
 
-### 3.4 数据库设计
+### 3.5 缘分配对引擎 (`calcCompatibility`) — v3.1 新增
+
+**算法流程**：
+
+```
+输入双方出生信息
+    ↓
+paipan(personA) + paipan(personB)   # 独立排盘
+    ↓
+┌── 五行分析 ──────────────────────┐
+│ 日干五行生克关系（WX_RELATION）   │
+│ 相生: 75-90 分（⽣我 / 我⽣）     │
+│ 同气: 75 分（同五行）             │
+│ 相克: 40-45 分（克我 / 我克）     │
+└──────────────────────────────────┘
+    ↓
+┌── 十神分析 ──────────────────────┐
+│ getShishen(dayGan, targetGan)    │
+│ A→B + B→A 双向计算               │
+│ 理想搭配（正官+正印等 7 组）→ +15 │
+└──────────────────────────────────┘
+    ↓
+┌── 日柱地支 ──────────────────────┐
+│ 六合: 90 分（子丑/寅亥/卯戌...）  │
+│ 六冲: 30 分（子午/丑未/寅申...）  │
+│ 普通: 50 分                       │
+└──────────────────────────────────┘
+    ↓
+┌── 五维评分 ──────────────────────┐
+│ personality = wx*0.6 + ss*1.2 + 20│
+│ career      = ss为主 + 波动       │
+│ romance     = zhi*0.55 + wx*0.3   │
+│ communicaton= wx*0.7 + 15         │
+│ long_term   = 四维均值            │
+└──────────────────────────────────┘
+    ↓
+五维雷达图 + 五行对比图 + 关系解读
+```
+
+**核心映射表**：
+- `WX_RELATION`: 五行 → `{ sheng, ke, beiSheng, beiKe }`（生克关系）
+- `ZHI_HE`: 6 组地支六合对 → "合"
+- `ZHI_CHONG`: 6 组地支六冲对 → "冲"
+- `GOOD_SS_PAIRS`: 7 组理想十神配对 → +15 加分
+- `getShishen()`: 复用车公排盘引擎的十神计算
+
+### 3.6 数据库设计
 
 **Schema**（sql.js WASM SQLite，零安装）：
 
@@ -160,6 +207,40 @@ POST /api/payment/create-checkout   # 创建支付会话
 POST /api/payment/verify            # 验证支付状态
 ```
 
+### 4.5 缘分配对（v3.1 新增）
+```
+POST /api/compatibility
+Body: {
+    personA: { year, month, day, hour?, minute?, gender? },
+    personB: { year, month, day, hour?, minute?, gender? }
+}
+Response: {
+    success: true,
+    personA: { bazi, info, pillars, wuxing_balance },
+    personB: { bazi, info, pillars, wuxing_balance },
+    compatibility: {
+        relation_type: "天作之合" | "五行相生" | "十神相合" | "欢喜冤家" | "平常之缘",
+        relation_icon, relation_desc,
+        wx_relation: "木生火" | "金克木" 等,
+        wx_score: number,           // 五行匹配度 0-100
+        ss_a_to_b: string,          // A对B的十神关系
+        ss_b_to_a: string,          // B对A的十神关系
+        zhi_relation: "六合" | "六冲" | "普通",
+        zhi_score: number,          // 日柱地支匹配度
+        dimensions: {
+            personality:  { score, label: "性格互补" },
+            career:       { score, label: "事业合作" },
+            romance:      { score, label: "感情契合" },
+            communicaton: { score, label: "沟通默契" },
+            long_term:    { score, label: "长期发展" }
+        },
+        overall_score: number,
+        radar_data: [{ element, personA, personB }],
+        advice: string[]
+    }
+}
+```
+
 ---
 
 ## 5. 文件结构
@@ -169,8 +250,8 @@ nexus-ora-mvp/
 ├── frontend/
 │   └── index.html              # 单页应用 (2480+ 行)
 ├── backend/
-│   ├── server_unified.js       # Express 服务器 (480+ 行)
-│   ├── paipan_engine.js        # JS 排盘引擎 (100+ 行)   ← v3.0 新增
+│   ├── server_unified.js       # Express 服务器 (640+ 行)
+│   ├── paipan_engine.js        # JS 排盘引擎 (130+ 行)
 │   ├── paipan_engine.py        # Python 排盘引擎 (保留参考)
 │   ├── verify.js               # 全链路验证测试
 │   ├── package.json            # Node.js 依赖
@@ -237,6 +318,12 @@ node server_unified.js
 - **决策**：所有付费功能在无 API Key 时自动启用 Demo 模式
 - **理由**：降低使用门槛，任何人都可零配置体验完整功能
 - **影响**：需在 UI 中明确标注 Demo 模式状态
+
+### ADR-006: 缘分配对纯算法实现 (v3.1)
+- **决策**：合盘计算完全基于排盘引擎输出的五行/十神/地支数据，不依赖 LLM
+- **理由**：排盘引擎提供足够精确的结构化数据（干支五行十神），算法计算的确定性优于 LLM 的随机性
+- **影响**：响应速度极快（<100ms），结果可复现；未来可通过 LLM 增强关系解读文案
+- **关键组件**：五行生克映射表 (WX_RELATION)、地支六合六冲表、理想十神配对表
 
 ---
 
