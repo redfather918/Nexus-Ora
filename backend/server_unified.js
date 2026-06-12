@@ -15,7 +15,7 @@ const { paipan, getShishen } = require('./paipan_engine.js');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const HOST = '127.0.0.1';   // bind 本地，避免 Windows 防火墙弹窗
+const HOST = process.env.HOST || '127.0.0.1';   // 本地用 127.0.0.1 避免防火墙弹窗；部署时设 HOST=0.0.0.0
 
 // ───────────────────────── Config ─────────────────────────
 
