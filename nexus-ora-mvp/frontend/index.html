@@ -1,0 +1,3187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Ora - Your Life K-Line | AI玄学平台</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cosmos: { 950:'#080618', 900:'#0F0C1F', 800:'#1A1630', 700:'#221D3E' }
+      }
+    }
+  }
+}
+</script>
+<style>
+@keyframes gradient-shift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+@keyframes float         { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+@keyframes slide-up      { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes pulse-ring    { 0%{box-shadow:0 0 0 0 rgba(168,85,247,.4)} 100%{box-shadow:0 0 0 20px rgba(168,85,247,0)} }
+@keyframes spin-slow     { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+@keyframes blink         { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+:root {
+  --bg:#0F0C1F; --card:rgba(255,255,255,.03); --border:rgba(255,255,255,.06);
+  --text:#E5E7EB; --dim:#9CA3AF;
+  --purple:#A855F7; --pink:#EC4899; --red:#EF4444; --green:#22C55E;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; min-height:100vh;
+  background:linear-gradient(135deg,#0F0C1F 0%,#1A1025 30%,#0F1A2E 60%,#0F0C1F 100%);
+  background-size:400% 400%;
+  animation:gradient-shift 18s ease infinite;
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.glass{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.06);border-radius:20px;}
+.glass-card{background:rgba(255,255,255,.02);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.05);border-radius:16px;}
+.hidden-section{display:none!important;}
+.slide-in{animation:slide-up .5s ease-out;}
+.slide-in-d1{animation:slide-up .5s ease-out .15s both;}
+.slide-in-d2{animation:slide-up .5s ease-out .3s both;}
+.slide-in-d3{animation:slide-up .5s ease-out .45s both;}
+
+.input-field{width:100%;padding:12px 16px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:12px;color:var(--text);font-size:15px;outline:none;transition:all .3s;}
+.input-field:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(168,85,247,.15);}
+.btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 32px;background:linear-gradient(135deg,#8B5CF6 0%,#EC4899 100%);border:none;border-radius:14px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 40px rgba(168,85,247,.3);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.btn-secondary{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 22px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;transition:all .3s;}
+.btn-secondary:hover{background:rgba(255,255,255,.1);}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;background:rgba(255,255,255,.06);border-radius:20px;font-size:12px;color:var(--dim);}
+.tag-purple{background:rgba(168,85,247,.12);color:#C084FC;}
+.tag-green{background:rgba(34,197,94,.1);color:#4ADE80;}
+.tag-amber{background:rgba(245,158,11,.1);color:#FCD34D;}
+
+/* ── 梦境情绪选择器 ── */
+.mood-btn{display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;}
+.mood-btn:hover{background:rgba(255,255,255,.08);}
+.mood-btn.active{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#A5B4FC;}
+
+/* ── 梦境历史条目 ── */
+.dream-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.05);transition:all .2s;cursor:pointer;}
+.dream-item:hover{background:rgba(0,0,0,.25);border-color:rgba(99,102,241,.2);}
+.dream-score-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+
+/* ── 八字四柱 ── */
+.pillar-box{text-align:center;padding:16px 10px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);transition:all .3s;cursor:default;position:relative;}
+.pillar-box.self{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08);}
+.pillar-box:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.12);}
+.pillar-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:rgba(15,12,31,.97);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:10px 14px;width:200px;font-size:12px;line-height:1.6;color:#D1D5DB;z-index:50;pointer-events:none;opacity:0;transition:opacity .2s;white-space:normal;text-align:left;}
+.pillar-box:hover .pillar-tooltip{opacity:1;}
+
+/* ── 五行条 ── */
+.wx-bar-bg{background:rgba(255,255,255,.05);border-radius:8px;overflow:hidden;height:6px;}
+.wx-bar-fill{height:100%;border-radius:8px;transition:width 1.2s ease-out;}
+
+/* ── stat cards ── */
+.stat-card{text-align:center;padding:18px 14px;border-radius:16px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);}
+
+/* ── paywall ── */
+#paywall{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;border-radius:16px;background:linear-gradient(to top,rgba(15,12,31,.97) 0%,rgba(15,12,31,.55) 50%,transparent 100%);z-index:10;}
+#paywall.hidden{display:none;}
+
+/* ── 六维度 ── */
+.dim-card{padding:16px 18px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);transition:all .3s;}
+.dim-card:hover{background:rgba(0,0,0,.32);border-color:rgba(255,255,255,.08);}
+.dim-score-ring{width:48px;height:48px;flex-shrink:0;}
+.dim-score-text{fill:#E5E7EB;font-size:10px;font-weight:700;dominant-baseline:middle;text-anchor:middle;}
+
+/* ── interpret block ── */
+.iblock{padding:14px 18px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);}
+.phase-row{padding:10px 14px;border-radius:12px;border-left:3px solid;margin-bottom:6px;background:rgba(0,0,0,.15);transition:all .3s;}
+.phase-row:hover{background:rgba(0,0,0,.28);transform:translateX(2px);}
+
+/* ── overview card ── */
+.overview-card{padding:20px 24px;border-radius:16px;background:linear-gradient(135deg,rgba(168,85,247,.1),rgba(236,72,153,.06));border:1px solid rgba(168,85,247,.2);}
+
+/* ── module tabs ── */
+.module-tabs{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.03);border-radius:16px;max-width:360px;margin:0 auto;}
+.module-tab{flex:1;padding:12px 20px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;transition:all .35s;text-align:center;border:none;background:transparent;color:var(--dim);position:relative;}
+.module-tab.active{background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.1));color:#fff;box-shadow:0 4px 20px rgba(168,85,247,.15);}
+.module-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
+
+/* ── compatibility ── */
+.compat-hero-avatar{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;}
+.compat-vs{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#8B5CF6,#EC4899);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800;flex-shrink:0;z-index:1;}
+.compat-score-ring-lg{width:120px;height:120px;position:relative;}
+.compat-score-ring-lg .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
+
+/* ── responsive ── */
+@media(max-width:640px){
+  .pillar-tooltip{width:160px;left:0;transform:none;}
+  .grid-bazi{grid-template-columns:repeat(2,1fr)!important;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav class="flex justify-between items-center max-w-6xl mx-auto px-6 py-5">
+  <div class="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-300 bg-clip-text text-transparent">
+    Nexus Ora
+  </div>
+  <div class="flex gap-3 items-center">
+    <span class="text-xs text-gray-500 hidden sm:inline">AI Soul Companion · 东方玄学 × AI</span>
+    <span id="server-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
+    <span class="text-xs text-gray-500" id="server-label">connecting</span>
+  </div>
+</nav>
+
+<!-- ── Module Switcher ── -->
+<div id="module-switcher" class="max-w-5xl mx-auto px-6 pb-2">
+  <div class="module-tabs" style="max-width:780px; flex-wrap:wrap;">
+    <button class="module-tab active" onclick="switchModule('kline')" id="tab-kline">
+      <span class="mr-1.5">📈</span> 灵境图谱
+    </button>
+    <button class="module-tab" onclick="switchModule('persona')" id="tab-persona">
+      <span class="mr-1.5">💞</span> 灵境人格
+    </button>
+    <button class="module-tab" onclick="switchModule('dream')" id="tab-dream">
+      <span class="mr-1.5">🌙</span> 梦境回廊
+    </button>
+    <button class="module-tab" onclick="switchModule('compat')" id="tab-compat">
+      <span class="mr-1.5">💫</span> 缘分配对
+    </button>
+    <button class="module-tab" onclick="switchModule('divination')" id="tab-divination">
+      <span class="mr-1.5">🃏</span> 灵境占卜
+    </button>
+    <button class="module-tab" onclick="switchModule('cultivation')" id="tab-cultivation">
+      <span class="mr-1.5">🧘</span> 灵境修行
+    </button>
+    <button class="module-tab" onclick="switchModule('market')" id="tab-market">
+      <span class="mr-1.5">🛍️</span> 灵境市集
+    </button>
+    <button class="module-tab" onclick="switchModule('ziwei')" id="tab-ziwei">
+      <span class="mr-1.5">🌟</span> 紫微斗数
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ Section 0: Hero ══════════════════ -->
+<section id="section-hero" class="max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-12 text-center">
+    <div class="mb-6" style="animation:float 3s ease-in-out infinite">
+      <svg class="w-20 h-20 mx-auto" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="ig" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#A855F7"/>
+            <stop offset="50%" stop-color="#EC4899"/>
+            <stop offset="100%" stop-color="#A855F7"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#ig)" stroke-width="1.5" opacity=".4"/>
+        <circle cx="40" cy="25" r="14" fill="none" stroke="url(#ig)" stroke-width="1.5"/>
+        <circle cx="40" cy="25" r="6" fill="url(#ig)" opacity=".3"/>
+        <line x1="40" y1="11" x2="40" y2="4" stroke="#A855F7" stroke-width="2"/>
+        <line x1="40" y1="39" x2="40" y2="76" stroke="#A855F7" stroke-width="1.5" opacity=".5" stroke-dasharray="4,3"/>
+        <circle cx="40" cy="68" r="2" fill="#EC4899"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-200 bg-clip-text text-transparent">
+        Discover Your Life K-Line
+      </span>
+    </h1>
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+      东方玄学智慧 × AI 科技<br>
+      让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>
+    </p>
+
+    <form id="birth-form" class="max-w-md mx-auto space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生日期 <span class="text-purple-400">*</span></label>
+          <input type="date" id="birth-date" required value="1990-06-15" class="input-field">
+        </div>
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生时间</label>
+          <input type="time" id="birth-time" value="14:30" class="input-field">
+          <p class="text-xs text-gray-600 mt-1">未知可保留默认值</p>
+        </div>
+      </div>
+      <div class="text-left">
+        <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
+        <div class="flex gap-6">
+          <label class="flex items-center cursor-pointer group">
+            <input type="radio" name="gender" value="男" checked class="w-4 h-4 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
+            <span class="ml-2 text-gray-300 group-hover:text-white transition">男</span>
+          </label>
+          <label class="flex items-center cursor-pointer group">
+            <input type="radio" name="gender" value="女" class="w-4 h-4 text-pink-500 bg-gray-800 border-gray-600 focus:ring-pink-500">
+            <span class="ml-2 text-gray-300 group-hover:text-white transition">女</span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" id="submit-btn" class="btn-primary w-full" style="animation:pulse-ring 2s infinite">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Generate My Life K-Line
+      </button>
+    </form>
+
+    <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Secure & Private</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI Powered</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>Shareable</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section 0B: Compatibility Input ══════════════════ -->
+<section id="section-hero-compat" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10 text-center">
+    <div class="mb-6" style="animation:float 3s ease-in-out infinite">
+      <svg class="w-20 h-20 mx-auto" viewBox="0 0 80 80">
+        <defs>
+          <linearGradient id="cg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#F472B6"/>
+            <stop offset="50%" stop-color="#A855F7"/>
+            <stop offset="100%" stop-color="#F472B6"/>
+          </linearGradient>
+        </defs>
+        <circle cx="40" cy="40" r="36" fill="none" stroke="url(#cg)" stroke-width="1.5" opacity=".4"/>
+        <circle cx="28" cy="30" r="10" fill="none" stroke="#F472B6" stroke-width="1.5"/>
+        <circle cx="28" cy="30" r="4" fill="#F472B6" opacity=".2"/>
+        <circle cx="52" cy="30" r="10" fill="none" stroke="#A855F7" stroke-width="1.5"/>
+        <circle cx="52" cy="30" r="4" fill="#A855F7" opacity=".2"/>
+        <path d="M38 34 Q40 40 42 34" fill="none" stroke="#F472B6" stroke-width="1.5" stroke-dasharray="3,2"/>
+        <line x1="28" y1="40" x2="28" y2="68" stroke="#F472B6" stroke-width="1" opacity=".4"/>
+        <line x1="52" y1="40" x2="52" y2="68" stroke="#A855F7" stroke-width="1" opacity=".4"/>
+        <circle cx="40" cy="64" r="3" fill="#EC4899" opacity=".5"/>
+      </svg>
+    </div>
+    <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+      <span class="bg-gradient-to-r from-pink-300 via-purple-300 to-pink-200 bg-clip-text text-transparent">
+        Soulmate Compatibility
+      </span>
+    </h1>
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+      输入两个人的出生信息<br>
+      用东方智慧<strong class="text-pink-300">解码</strong>你们的关系能量图谱
+    </p>
+    <form id="compat-form" class="max-w-2xl mx-auto space-y-6">
+      <!-- Person A -->
+      <div class="p-5 rounded-2xl" style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.15);">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="compat-hero-avatar" style="background:rgba(244,114,182,.12);width:36px;height:36px;font-size:18px;">🧑</span>
+          <span class="text-sm font-semibold" style="color:#F472B6">第一个人</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生日期 <span class="text-pink-400">*</span></label>
+            <input type="date" id="compat-a-date" required value="1990-06-15" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生时间</label>
+            <input type="time" id="compat-a-time" value="14:30" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">性别</label>
+            <select id="compat-a-gender" class="input-field" style="font-size:14px;padding:10px 12px;">
+              <option value="男">男</option>
+              <option value="女" selected>女</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- VS -->
+      <div class="flex justify-center">
+        <div class="compat-vs">VS</div>
+      </div>
+
+      <!-- Person B -->
+      <div class="p-5 rounded-2xl" style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="compat-hero-avatar" style="background:rgba(168,85,247,.12);width:36px;height:36px;font-size:18px;">👤</span>
+          <span class="text-sm font-semibold" style="color:#A855F7">第二个人</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生日期 <span class="text-purple-400">*</span></label>
+            <input type="date" id="compat-b-date" required value="1992-08-20" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">出生时间</label>
+            <input type="time" id="compat-b-time" value="10:00" class="input-field" style="font-size:14px;padding:10px 12px;">
+          </div>
+          <div class="text-left">
+            <label class="block text-xs font-medium text-gray-400 mb-1">性别</label>
+            <select id="compat-b-gender" class="input-field" style="font-size:14px;padding:10px 12px;">
+              <option value="男" selected>男</option>
+              <option value="女">女</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" id="compat-submit-btn" class="btn-primary w-full" style="background:linear-gradient(135deg,#EC4899 0%,#8B5CF6 100%);animation:pulse-ring 2s infinite;">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        Analyze Compatibility
+      </button>
+    </form>
+    <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>隐私安全</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>东方玄学算法</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>一键分享</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section 1: Loading ══════════════════ -->
+<section id="section-loading" class="hidden-section max-w-3xl mx-auto px-6 py-8">
+  <div class="glass p-10 text-center slide-in">
+    <div class="relative w-24 h-24 mx-auto mb-8">
+      <div class="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-500 border-r-pink-500 animate-spin"></div>
+      <div class="absolute inset-2 rounded-full border-2 border-transparent border-b-purple-400 border-l-pink-400 animate-spin" style="animation-direction:reverse;animation-duration:1.5s"></div>
+      <div class="absolute inset-4 rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 flex items-center justify-center">
+        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+    </div>
+    <p class="text-xl font-semibold mb-2" id="loading-text">正在计算您的八字命盘...</p>
+    <p class="text-sm text-gray-500 mb-6" id="loading-sub">Consulting ancient wisdom</p>
+    <!-- Step indicators -->
+    <div id="loading-steps" class="flex flex-col gap-2 max-w-xs mx-auto text-left">
+      <div class="step-item flex items-center gap-3 text-sm" id="step-0">
+        <span class="step-dot w-2 h-2 rounded-full bg-purple-500 animate-pulse flex-shrink-0"></span>
+        <span class="step-label text-gray-400">排盘引擎计算八字四柱...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-1">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">分析五行平衡与身强身弱...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-2">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">AI大师预测100年运势曲线...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-3">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">生成六维度深度解读...</span>
+      </div>
+      <div class="step-item flex items-center gap-3 text-sm opacity-30" id="step-4">
+        <span class="step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0"></span>
+        <span class="step-label text-gray-600">绘制人生K线图谱...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section 2: Results ══════════════════ -->
+<section id="section-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- ① 命理摘要 Overview Card -->
+  <div id="overview-card-wrap" class="overview-card mb-6 slide-in hidden-section">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1" id="overview-emoji">🔮</div>
+      <div>
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-purple-400 font-semibold tracking-wide">命理画像</span>
+          <span class="tag tag-purple text-xs" id="overview-mode-tag">Algorithm</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="overview-text">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 八字四柱 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in">
+    <h2 class="text-xl md:text-2xl font-bold mb-5 text-center">
+      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">八字四柱 · Eight Characters</span>
+    </h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 grid-bazi">
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">年柱 Year</div>
+        <div class="text-2xl md:text-3xl font-bold text-purple-400" id="bazi-year">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-year-wx">--</div>
+        <div class="text-xs text-purple-400/70 mt-0.5" id="bazi-year-ss">--</div>
+        <div class="pillar-tooltip" id="tt-year">年柱代表先天根基与祖业。天干为<span id="tt-y-gan">--</span>（<span id="tt-y-gwx">--</span>），地支为<span id="tt-y-zhi">--</span>（<span id="tt-y-zwx">--</span>），十神：<span id="tt-y-ss">--</span>。</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">月柱 Month</div>
+        <div class="text-2xl md:text-3xl font-bold text-blue-400" id="bazi-month">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-month-wx">--</div>
+        <div class="text-xs text-blue-400/70 mt-0.5" id="bazi-month-ss">--</div>
+        <div class="pillar-tooltip" id="tt-month">月柱代表父母缘分与青年运。天干为<span id="tt-m-gan">--</span>（<span id="tt-m-gwx">--</span>），地支为<span id="tt-m-zhi">--</span>（<span id="tt-m-zwx">--</span>），十神：<span id="tt-m-ss">--</span>。</div>
+      </div>
+      <div class="pillar-box self">
+        <div class="text-xs text-gray-500 mb-1">日柱 Day（日元）</div>
+        <div class="text-2xl md:text-3xl font-bold text-amber-400" id="bazi-day">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-day-wx">--</div>
+        <div class="text-xs text-amber-400/70 mt-0.5">自我·日主</div>
+        <div class="pillar-tooltip" id="tt-day">日柱是命局核心，天干（日主）代表自我本性。天干<span id="tt-d-gan">--</span>五行属<span id="tt-d-gwx">--</span>，地支<span id="tt-d-zhi">--</span>（<span id="tt-d-zwx">--</span>）为日元配偶宫。</div>
+      </div>
+      <div class="pillar-box">
+        <div class="text-xs text-gray-500 mb-1">时柱 Hour</div>
+        <div class="text-2xl md:text-3xl font-bold text-green-400" id="bazi-hour">--</div>
+        <div class="text-xs text-gray-500 mt-1" id="bazi-hour-wx">--</div>
+        <div class="text-xs text-green-400/70 mt-0.5" id="bazi-hour-ss">--</div>
+        <div class="pillar-tooltip" id="tt-hour">时柱代表子女缘与晚年运。天干为<span id="tt-h-gan">--</span>（<span id="tt-h-gwx">--</span>），地支为<span id="tt-h-zhi">--</span>（<span id="tt-h-zwx">--</span>），十神：<span id="tt-h-ss">--</span>。</div>
+      </div>
+    </div>
+    <div class="flex justify-center gap-2 flex-wrap" id="bazi-tags">
+      <span class="tag" id="bazi-animal">生肖: --</span>
+      <span class="tag" id="bazi-zodiac">星座: --</span>
+      <span class="tag tag-purple" id="bazi-strength">--</span>
+      <span class="tag" id="bazi-lunar">--</span>
+    </div>
+  </div>
+
+  <!-- ③ 五行平衡 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <h3 class="text-lg font-semibold mb-4">五行平衡 · Five Elements Balance</h3>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="wuxing-bars"></div>
+  </div>
+
+  <!-- ④ 人生K线图 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
+      <h2 class="text-xl md:text-2xl font-bold">
+        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">人生K线 · Life K-Line</span>
+      </h2>
+      <div class="flex gap-2 items-center flex-wrap">
+        <span class="text-xs text-gray-500">跳转到</span>
+        <input type="number" id="age-jump" min="0" max="100" placeholder="岁" class="w-16 text-center text-sm rounded-lg border border-gray-700 bg-black/30 text-white px-2 py-1 outline-none focus:border-purple-500">
+        <span class="tag tag-purple text-xs" id="chart-phase">--</span>
+      </div>
+    </div>
+    <p class="text-xs text-gray-600 mb-4">悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）</p>
+    <div style="position:relative;">
+      <div id="chart-main" style="width:100%;height:400px;"></div>
+      <div id="paywall">
+        <div class="text-center px-6">
+          <svg class="w-10 h-10 mx-auto mb-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <p class="text-lg font-semibold mb-1">解锁完整报告</p>
+          <p class="text-sm text-gray-400 mb-5">查看完整百年运势曲线与六维深度解读</p>
+          <div class="flex gap-3 justify-center flex-wrap">
+            <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-5 py-2.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              解锁报告 (¥9.99)
+            </button>
+            <button onclick="handleUnlock('share')" class="btn-secondary text-sm">
+              分享解锁
+            </button>
+          </div>
+          <p class="text-xs text-gray-600 mt-3">Demo模式 · 分享给好友即可免费解锁</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ K线走势解读 -->
+  <div id="kline-interp-wrap" class="glass-card p-6 md:p-8 mb-6 slide-in-d2 hidden-section">
+    <div class="flex items-center gap-2 mb-5">
+      <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <h3 class="text-lg font-bold">K线走势解读</h3>
+    </div>
+    <div id="kline-interp-content" class="space-y-3"></div>
+  </div>
+
+  <!-- ⑥ 运势摘要数字卡 -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-d2" id="fortune-summary">
+    <div class="stat-card" style="border-color:rgba(239,68,68,.15);">
+      <div class="text-xs text-gray-500 mb-1">峰值年龄</div>
+      <div class="text-2xl font-bold text-red-400" id="sum-peak">--</div>
+      <div class="text-xs text-gray-600" id="sum-peak-score">运势巅峰</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(34,197,94,.15);">
+      <div class="text-xs text-gray-500 mb-1">低谷年龄</div>
+      <div class="text-2xl font-bold text-green-400" id="sum-valley">--</div>
+      <div class="text-xs text-gray-600" id="sum-valley-score">谨慎时期</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(59,130,246,.15);">
+      <div class="text-xs text-gray-500 mb-1">命运均分</div>
+      <div class="text-2xl font-bold text-blue-400" id="sum-avg">--</div>
+      <div class="text-xs text-gray-600">/100</div>
+    </div>
+    <div class="stat-card" style="border-color:rgba(168,85,247,.15);">
+      <div class="text-xs text-gray-500 mb-1">日主类型</div>
+      <div class="text-xl font-bold text-purple-400" id="sum-body">--</div>
+      <div class="text-xs text-gray-600" id="sum-body-sub">--</div>
+    </div>
+  </div>
+
+  <!-- ⑦ 六维度解读（雷达图 + 卡片） -->
+  <div id="dimensions-wrap" class="glass-card p-6 md:p-8 mb-6 slide-in-d3 hidden-section">
+    <div class="flex items-center gap-3 mb-5 flex-wrap">
+      <h3 class="text-lg font-bold">六维度深度解读</h3>
+      <span id="dim-ai-tag" class="tag tag-purple text-xs hidden-section">AI Enhanced</span>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- 雷达图 -->
+      <div>
+        <div id="chart-radar" style="width:100%;height:300px;"></div>
+      </div>
+      <!-- 维度卡片 -->
+      <div class="space-y-3" id="dim-cards"></div>
+    </div>
+  </div>
+
+  <!-- ⑧ 操作按钮 -->
+  <div class="glass-card p-6 md:p-8 text-center slide-in-d3">
+    <h3 class="text-lg font-bold mb-2">分享你的命运图谱</h3>
+    <p class="text-gray-400 text-sm mb-5">让朋友一起探索独特的人生K线</p>
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleCopyLink()" class="btn-secondary" id="btn-copy">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+        <span id="btn-copy-text">复制链接</span>
+      </button>
+      <button onclick="handleNewReading()" class="btn-primary text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重新测算
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section 3: Compatibility Results ══════════════════ -->
+<section id="section-compat-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- ① 关系总评 -->
+  <div id="compat-overview-wrap" class="overview-card mb-6 slide-in" style="background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(168,85,247,.06));border-color:rgba(244,114,182,.2);">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1" id="compat-emoji">💞</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-pink-400 font-semibold tracking-wide">关系画像</span>
+          <span class="tag tag-purple text-xs" id="compat-relation-tag">--</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="compat-desc">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 总体分数 + 双人信息 -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 slide-in">
+    <!-- Score Ring -->
+    <div class="glass-card p-6 flex flex-col items-center justify-center">
+      <p class="text-xs text-gray-500 mb-3">兼容指数</p>
+      <div class="compat-score-ring-lg mb-3">
+        <svg viewBox="0 0 140 140" style="width:120px;height:120px;">
+          <circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="8"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="url(#scoreGrad)" stroke-width="8"
+            stroke-dasharray="0 327" stroke-dashoffset="81.75"
+            stroke-linecap="round" transform="rotate(-90 70 70)" id="compat-score-circle"/>
+          <text x="70" y="66" text-anchor="middle" fill="#E5E7EB" font-size="28" font-weight="800" id="compat-score-text">--</text>
+          <text x="70" y="84" text-anchor="middle" fill="#9CA3AF" font-size="11" id="compat-score-label">/100</text>
+          <defs>
+            <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#F472B6"/>
+              <stop offset="100%" stop-color="#A855F7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <p class="text-sm font-semibold text-center" id="compat-type">--</p>
+    </div>
+    <!-- Person A -->
+    <div class="glass-card p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="compat-hero-avatar" style="background:rgba(244,114,182,.12);width:40px;height:40px;font-size:20px;">🧑</span>
+        <div>
+          <div class="text-sm font-semibold" id="compat-a-name">Person A</div>
+          <div class="text-xs text-gray-500" id="compat-a-dob">--</div>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap text-xs">
+        <span class="tag" id="compat-a-day">日元: --</span>
+        <span class="tag" id="compat-a-wx">五行: --</span>
+        <span class="tag tag-purple" id="compat-a-body">--</span>
+      </div>
+      <div class="mt-3 text-xs text-gray-500" id="compat-a-animal">--</div>
+    </div>
+    <!-- Person B -->
+    <div class="glass-card p-5">
+      <div class="flex items-center gap-3 mb-3">
+        <span class="compat-hero-avatar" style="background:rgba(168,85,247,.12);width:40px;height:40px;font-size:20px;">👤</span>
+        <div>
+          <div class="text-sm font-semibold" id="compat-b-name">Person B</div>
+          <div class="text-xs text-gray-500" id="compat-b-dob">--</div>
+        </div>
+      </div>
+      <div class="flex gap-2 flex-wrap text-xs">
+        <span class="tag" id="compat-b-day">日元: --</span>
+        <span class="tag" id="compat-b-wx">五行: --</span>
+        <span class="tag tag-purple" id="compat-b-body">--</span>
+      </div>
+      <div class="mt-3 text-xs text-gray-500" id="compat-b-animal">--</div>
+    </div>
+  </div>
+
+  <!-- ③ 五行对比雷达 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
+    <h3 class="text-lg font-semibold mb-1">五行能量对比</h3>
+    <p class="text-xs text-gray-500 mb-4">两个人的五行分布叠加，看互补与冲突</p>
+    <div id="chart-compat-radar" style="width:100%;height:350px;"></div>
+  </div>
+
+  <!-- ④ 多维度评分 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d2">
+    <h3 class="text-lg font-semibold mb-4">五维兼容评分</h3>
+    <div class="space-y-4" id="compat-dim-bars"></div>
+  </div>
+
+  <!-- ⑤ 关系解读 -->
+  <div class="glass-card p-6 md:p-8 mb-6 slide-in-d2">
+    <div class="flex items-center gap-2 mb-5">
+      <svg class="w-5 h-5 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+      <h3 class="text-lg font-bold">命理深度解读</h3>
+    </div>
+    <div id="compat-advice" class="space-y-3"></div>
+  </div>
+
+  <!-- ⑥ 返回按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleCompatShare()" class="btn-secondary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+        分享关系图谱
+      </button>
+      <button onclick="handleCompatReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重新配对
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 梦境回廊输入 ══════════════════ -->
+<section id="section-hero-dream" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌙</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">梦境回廊</h2>
+      <p class="text-gray-400 text-sm">记录你的梦境，AI 从东方周公解梦与西方心理学双维度为你解析</p>
+    </div>
+
+    <form id="dream-form" class="space-y-5">
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦境日期</label>
+        <input type="date" id="dream-date" class="input-field w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦境标题（可选）</label>
+        <input type="text" id="dream-title" class="input-field w-full" placeholder="给你的梦起个名字..." maxlength="50" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">描述你的梦境 <span class="text-red-400">*</span></label>
+        <textarea id="dream-desc" class="input-field w-full" rows="6" placeholder="尽可能详细地描述梦境的内容、场景、人物、情绪感受..." required minlength="5" style="resize:vertical;min-height:120px;"></textarea>
+        <div class="text-xs text-gray-600 mt-1 text-right"><span id="dream-char-count">0</span> 字</div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦中的主要情绪</label>
+        <div class="flex flex-wrap gap-2" id="mood-selector">
+          <button type="button" class="mood-btn" data-mood="焦虑">😰 焦虑</button>
+          <button type="button" class="mood-btn" data-mood="平静">😌 平静</button>
+          <button type="button" class="mood-btn" data-mood="恐惧">😨 恐惧</button>
+          <button type="button" class="mood-btn" data-mood="喜悦">😊 喜悦</button>
+          <button type="button" class="mood-btn" data-mood="困惑">😕 困惑</button>
+          <button type="button" class="mood-btn" data-mood="悲伤">😢 悲伤</button>
+        </div>
+      </div>
+
+      <button type="submit" id="dream-submit-btn" class="btn-primary w-full text-base py-3" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
+        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        解析梦境
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <button onclick="loadDreamHistory()" class="text-sm text-purple-400 hover:text-purple-300 transition">
+        📖 查看梦境历史
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 紫微斗数输入 ══════════════════ -->
+<section id="section-hero-ziwei" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌟</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent">紫微斗数命盘</h2>
+      <p class="text-gray-400 text-sm">输入出生信息，查看您的紫微命盘·12宫位·主星格局</p>
+    </div>
+    <form id="ziwei-form" class="max-w-md mx-auto space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生日期 <span class="text-amber-400">*</span></label>
+          <input type="date" id="ziwei-date" required value="1990-06-15" class="input-field" style="border-color:rgba(251,191,36,.1);">
+        </div>
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生时辰</label>
+          <input type="time" id="ziwei-time" value="14:30" class="input-field" style="border-color:rgba(251,191,36,.1);">
+          <p class="text-xs text-gray-600 mt-1">时辰影响命宫位置，建议填写</p>
+        </div>
+      </div>
+      <div class="text-left">
+        <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="ziwei-gender" value="男" checked class="accent-amber-400"> <span class="text-sm text-gray-300">男</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="ziwei-gender" value="女" class="accent-amber-400"> <span class="text-sm text-gray-300">女</span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" id="ziwei-submit-btn" class="btn-primary w-full" style="background:linear-gradient(135deg,#D97706 0%,#F59E0B 50%,#D97706 100%);">
+        <span>✨</span> 排命盘
+      </button>
+    </form>
+    <p class="text-center text-xs text-gray-600 mt-5">基于传统紫微斗数·安命宫·布十四主星·四化推演</p>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 紫微斗数结果 ══════════════════ -->
+<section id="section-ziwei-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- ① 命盘概述 -->
+  <div id="ziwei-overview-wrap" class="overview-card mb-6 slide-in" style="background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(217,119,6,.06));border-color:rgba(251,191,36,.2);">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="text-3xl flex-shrink-0 mt-1">🌟</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-amber-400 font-semibold tracking-wide">紫微命盘</span>
+          <span class="tag" style="background:rgba(251,191,36,.12);color:#FCD34D;" id="ziwei-ge-tag">--格</span>
+          <span class="tag" style="background:rgba(168,85,247,.1);color:#C084FC;" id="ziwei-ming-star-tag">命宫: --</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="ziwei-overview-desc">--</p>
+        <div class="flex flex-wrap gap-4 mt-3 text-xs text-gray-500">
+          <span>命宫: <strong class="text-amber-400" id="ziwei-ming-zhi">--</strong></span>
+          <span>身宫: <strong class="text-purple-400" id="ziwei-shen-zhi">--</strong></span>
+          <span>年柱: <strong class="text-gray-300" id="ziwei-year-ganzhi">--</strong></span>
+          <span>月柱: <strong class="text-gray-300" id="ziwei-month-ganzhi">--</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 四化 + 幸运色 -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-d1">
+    <div class="glass-card p-4 text-center" style="border-color:rgba(251,191,36,.15);">
+      <div class="text-xs text-amber-400 mb-1">化禄 💰</div>
+      <div class="text-lg font-bold text-amber-300" id="ziwei-lu">--</div>
+      <div class="text-xs text-gray-600 mt-1">财运·贵人</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(251,191,36,.15);">
+      <div class="text-xs text-amber-400 mb-1">化权 ⚡</div>
+      <div class="text-lg font-bold text-amber-300" id="ziwei-quan">--</div>
+      <div class="text-xs text-gray-600 mt-1">权势·掌控</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(168,85,247,.15);">
+      <div class="text-xs text-purple-400 mb-1">化科 📚</div>
+      <div class="text-lg font-bold text-purple-300" id="ziwei-ke">--</div>
+      <div class="text-xs text-gray-600 mt-1">文名·贵气</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(239,68,68,.12);">
+      <div class="text-xs text-red-400 mb-1">化忌 ⚠️</div>
+      <div class="text-lg font-bold text-red-400" id="ziwei-ji">--</div>
+      <div class="text-xs text-gray-600 mt-1">阻力·暗耗</div>
+    </div>
+  </div>
+
+  <!-- ③ 12宫位命盘 -->
+  <div class="glass-card p-5 mb-6 slide-in-d1">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-semibold text-gray-200">命宫十二宫位</h3>
+      <div class="flex items-center gap-3 text-xs text-gray-500">
+        <span><span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1"></span>命宫</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-purple-400 mr-1"></span>身宫</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span>主星</span>
+      </div>
+    </div>
+    <!-- 4×3 宫格 (外围11宫 + 中心1宫) -->
+    <div id="ziwei-palace-grid" class="grid gap-2" style="grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,auto);">
+      <!-- Dynamically filled by JS -->
+    </div>
+  </div>
+
+  <!-- ④ 命宫主星深度解读 -->
+  <div class="glass-card p-6 mb-6 slide-in-d2">
+    <h3 class="text-base font-semibold text-gray-200 mb-4">命宫主星解读</h3>
+    <div class="flex items-start gap-4">
+      <div class="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);" id="ziwei-star-icon">⭐</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
+          <span class="text-lg font-bold text-amber-300" id="ziwei-main-star-name">--</span>
+          <span class="tag" style="background:rgba(251,191,36,.1);color:#FCD34D;" id="ziwei-title-tag">--格</span>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="ziwei-star-desc">--</p>
+        <div class="flex gap-3 mt-3 text-xs">
+          <span class="tag" id="ziwei-lucky-color">幸运色: --</span>
+          <span class="tag" id="ziwei-element-tag">命主五行: --</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 宫位详情（点击展示） -->
+  <div class="glass-card p-6 mb-6 slide-in-d2" id="ziwei-palace-detail" style="display:none;">
+    <h3 class="text-base font-semibold text-gray-200 mb-3" id="ziwei-detail-title">-- 详情</h3>
+    <div id="ziwei-detail-content" class="text-sm text-gray-400 leading-relaxed"></div>
+  </div>
+
+  <!-- ⑥ 操作按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleZiweiReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#D97706,#F59E0B);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重新排盘
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 梦境回廊结果 ══════════════════ -->
+<section id="section-dream-results" class="hidden-section max-w-4xl mx-auto px-6 py-4">
+
+  <!-- ① 梦境概况 -->
+  <div id="dream-overview-card" class="glass-card p-6 mb-6 slide-in" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(168,85,247,.06));border-color:rgba(99,102,241,.2);">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1">🌙</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-indigo-400 font-semibold tracking-wide">梦境解析</span>
+          <span class="tag" id="dream-omen-tag" style="background:rgba(99,102,241,.12);color:#A5B4FC;">--</span>
+          <span class="tag" id="dream-wx-tag" style="background:rgba(168,85,247,.1);color:#C084FC;">五行: --</span>
+          <span class="tag" id="dream-archetype-tag" style="background:rgba(236,72,153,.1);color:#F9A8D4;">原型: --</span>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" id="dream-result-title">--</h3>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-summary">--</p>
+      </div>
+      <div class="text-center flex-shrink-0">
+        <div class="text-3xl font-bold" id="dream-luck-score" style="color:#A5B4FC;">--</div>
+        <div class="text-xs text-gray-500 mt-1">吉凶指数</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 关键意象 -->
+  <div class="glass-card p-5 mb-6 slide-in-d1">
+    <h3 class="text-sm font-semibold text-gray-300 mb-3">🔑 关键意象</h3>
+    <div class="flex flex-wrap gap-2" id="dream-symbols-wrap"></div>
+  </div>
+
+  <!-- ③ 双维度解析 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 slide-in-d2">
+    <!-- 东方解梦 -->
+    <div class="glass-card p-6" style="border-color:rgba(251,191,36,.15);">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background:rgba(251,191,36,.1);">📜</div>
+        <div>
+          <div class="text-sm font-semibold text-amber-300" id="dream-east-title">周公解梦</div>
+          <div class="text-xs text-gray-500">东方传统解梦</div>
+        </div>
+      </div>
+      <div id="dream-east-omen" class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-3" style="background:rgba(251,191,36,.1);color:#FCD34D;">--</div>
+      <p class="text-sm text-gray-400 leading-relaxed mb-3" id="dream-east-interpretation">--</p>
+      <div class="text-xs text-gray-600 italic" id="dream-east-ref">--</div>
+    </div>
+
+    <!-- 西方心理学 -->
+    <div class="glass-card p-6" style="border-color:rgba(99,102,241,.15);">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background:rgba(99,102,241,.1);">🧠</div>
+        <div>
+          <div class="text-sm font-semibold text-indigo-300" id="dream-west-title">心理学解析</div>
+          <div class="text-xs text-gray-500">Freud · Jung</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="text-xs text-indigo-400 font-semibold mb-1">弗洛伊德视角</div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-freudian">--</p>
+      </div>
+      <div>
+        <div class="text-xs text-purple-400 font-semibold mb-1">荣格视角</div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-jungian">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 梦境趋势图 -->
+  <div class="glass-card p-6 mb-6 slide-in-d3">
+    <h3 class="text-sm font-semibold text-gray-300 mb-4">📊 梦境趋势</h3>
+    <div id="dream-trend-chart" style="width:100%;height:280px;"></div>
+    <div id="dream-trend-empty" class="text-center text-gray-600 text-sm py-8">记录更多梦境后将显示趋势分析</div>
+  </div>
+
+  <!-- ⑤ 操作按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleDreamNew()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
+        记录新梦境
+      </button>
+      <button onclick="loadDreamHistory()" class="btn-secondary text-sm">
+        📖 梦境历史
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 梦境历史 ══════════════════ -->
+<section id="section-dream-history" class="hidden-section max-w-3xl mx-auto px-6 py-4">
+  <div class="glass-card p-6 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-semibold text-gray-200">📖 梦境历史</h3>
+      <button onclick="switchModule('dream')" class="text-sm text-purple-400 hover:text-purple-300">← 返回</button>
+    </div>
+    <div id="dream-history-list" class="space-y-3">
+      <div class="text-center text-gray-600 text-sm py-8">暂无梦境记录</div>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center py-8 text-xs text-gray-700">
+  Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI
+</footer>
+
+<!-- ══════════════════ Scripts ══════════════════ -->
+<script>
+// ── State ──────────────────────────────────────
+// 自动适配当前域名端口（本地开发/部署环境通用）
+const API_BASE = '';
+let reportData  = null;
+let isUnlocked  = false;
+let isDemoMode  = false;
+let chartMain   = null;
+let chartRadar  = null;
+
+// ── Server ping ────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch(API_BASE + '/api/health', { signal: AbortSignal.timeout(3000) });
+    const j = await r.json();
+    document.getElementById('server-dot').className   = 'w-2 h-2 rounded-full bg-green-500 animate-pulse';
+    document.getElementById('server-label').textContent = j.llm ? 'AI Ready' : 'Online (Demo AI)';
+  } catch {
+    document.getElementById('server-dot').className   = 'w-2 h-2 rounded-full bg-amber-500';
+    document.getElementById('server-label').textContent = 'Offline Mode';
+  }
+})();
+
+// ── Demo Data (offline fallback) ───────────────
+const DEMO_PAIPAN = {
+  success: true,
+  bazi: { year:'庚午', month:'壬午', day:'辛亥', hour:'乙未',
+          day_gan:'辛', day_wuxing:'金', body_strength:'偏弱', strength_score:38 },
+  pillars: [
+    { name:'年柱', ganzhi:'庚午', gan:'庚', zhi:'午', gan_wuxing:'金', zhi_wuxing:'火', shishen:'劫财' },
+    { name:'月柱', ganzhi:'壬午', gan:'壬', zhi:'午', gan_wuxing:'水', zhi_wuxing:'火', shishen:'伤官' },
+    { name:'日柱', ganzhi:'辛亥', gan:'辛', zhi:'亥', gan_wuxing:'金', zhi_wuxing:'水', shishen:'日元' },
+    { name:'时柱', ganzhi:'乙未', gan:'乙', zhi:'未', gan_wuxing:'木', zhi_wuxing:'土', shishen:'偏财' }
+  ],
+  wuxing_balance: { '金':3, '水':2, '木':1, '火':2, '土':1 },
+  info: { animal:'马', zodiac:'双子座', lunar_date:'1990年5月23日', gender:'女', birth_date:'1990-06-15' }
+};
+
+function buildDemoReport(y, m, d, h, gender) {
+  const paipan = { ...DEMO_PAIPAN, info: { ...DEMO_PAIPAN.info, gender, birth_date:`${y}-${m}-${d}` } };
+  const seed   = y * 10000 + m * 100 + d + h;
+  const rng    = i => { const x = Math.sin(seed * 0.017 + i * 0.73) * 10000; return x - Math.floor(x); };
+
+  const fortune = Array.from({ length: 101 }, (_, age) => {
+    const phases = [
+      { n:'成长期',s:0,e:18,b:44 }, { n:'上升期',s:19,e:30,b:57 },
+      { n:'黄金期',s:31,e:45,b:65 }, { n:'稳固期',s:46,e:60,b:55 },
+      { n:'智慧期',s:61,e:75,b:60 }, { n:'颐养期',s:76,e:100,b:47 }
+    ];
+    const ph = phases.find(p => age >= p.s && age <= p.e) || phases[0];
+    const noise = (rng(age) - .5) * 22;
+    const base  = ph.b;
+    let extra   = 0;
+    if (age >= 33 && age <= 43) extra += 12;
+    if (age >= 50 && age <= 52) extra -= 10;
+    const sc = Math.round(Math.max(15, Math.min(96, base + noise + extra)));
+    const lv = sc >= 75 ? '大吉' : sc >= 60 ? '小吉' : sc >= 45 ? '平稳' : sc >= 30 ? '小凶' : '大凶';
+    const EVTS = { 6:'小学入学',12:'初中升学',18:'成年/高考',22:'大学毕业',30:'而立之年',40:'不惑之年',50:'知天命',60:'退休节点' };
+    return { age, score: sc, level: lv, phase: ph.n, event: EVTS[age] || '' };
+  });
+
+  const avg = Math.round(fortune.reduce((s, f) => s + f.score, 0) / 101);
+  const peak   = fortune.reduce((a, b) => a.score > b.score ? a : b);
+  const valley = fortune.reduce((a, b) => a.score < b.score ? a : b);
+
+  const dims = {
+    career:        { score: 72, summary:'逻辑严谨，适合金融、法律、科技精密行业', advice:'日主辛金，适合金融投资、法务、IT架构。身偏弱建议先在大平台积累，行水运（壬癸年）事业最顺。' },
+    wealth:        { score: 67, summary:'中年后财运亨通，理财能力强', advice:'金生水，偏财格局好。建议长线价值投资，45岁后进入财富积累高峰，40-50岁是转折点。' },
+    relationships: { score: 63, summary:'感情细腻但不善表达，30岁后稳定', advice:'辛金感情严肃认真，偏内敛。25-30岁变化多，30岁后稳定。伴侣往往能力突出，需学会欣赏差异。' },
+    health:        { score: 70, summary:'注意呼吸系统与心肺健康', advice:'金主肺，注意呼吸道健康。秋季最佳调养，建议每日有氧30分钟。火旺年（丙丁年）防心肺问题。' },
+    mentors:       { score: 74, summary:'贵人缘好，30-45岁引路人最多', advice:'行业圈子活动要积极参与，维护职场关系网络。午年/马年遇贵人概率高，把握关键引荐机会。' },
+    challenges:    { score: 57, summary:'挑战主要在青年和中年初期', advice:'低谷期是蜕变最佳时机，提前2-3年储备资金（6个月生活费）+深化技能。身弱命注意低谷年份健康。' }
+  };
+
+  return {
+    success: true, demo: true,
+    data: {
+      bazi: paipan,
+      fortune,
+      dimensions: dims,
+      summary: {
+        body_strength: '偏弱', day_master: '辛', day_wuxing: '金',
+        animal: '马', average_score: avg,
+        peak_age: peak.age, peak_score: peak.score,
+        valley_age: valley.age, valley_score: valley.score,
+        best_ages: [...fortune].sort((a,b)=>b.score-a.score).slice(0,5).map(f=>f.age),
+        caution_ages: [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age),
+        overview: '辛金偏弱之命，大器晚成，35岁后厚积薄发，中年行水运时人生K线强劲上扬。'
+      },
+      ai_enhanced: false
+    }
+  };
+}
+
+// ── UI helpers ─────────────────────────────────
+function showSection(id) { document.getElementById(id).classList.remove('hidden-section'); }
+function show(id)    { document.getElementById(id).classList.remove('hidden-section'); }
+function hide(id)    { document.getElementById(id).classList.add('hidden-section'); }
+function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
+function setHtml(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
+
+function showToast(msg, color = '#4ADE80') {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;top:24px;left:50%;transform:translateX(-50%);z-index:9999;background:rgba(15,12,31,.97);border:1px solid ${color}33;border-radius:12px;padding:10px 20px;font-size:13px;color:${color};max-width:340px;text-align:center;animation:slide-up .3s ease-out;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+// ── Loading step animation ─────────────────────
+function activateStep(i) {
+  for (let k = 0; k < 5; k++) {
+    const el = document.getElementById('step-' + k);
+    if (!el) continue;
+    if (k < i) {
+      el.style.opacity = '.5';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-purple-500 flex-shrink-0';
+      el.querySelector('.step-label').style.textDecoration = 'line-through';
+    } else if (k === i) {
+      el.style.opacity = '1';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-purple-400 animate-pulse flex-shrink-0';
+      el.querySelector('.step-label').style.textDecoration = '';
+    } else {
+      el.style.opacity = '.3';
+      el.querySelector('.step-dot').className = 'step-dot w-2 h-2 rounded-full bg-gray-600 flex-shrink-0';
+    }
+  }
+}
+
+// ── Form submit ────────────────────────────────
+document.getElementById('birth-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 计算中...';
+
+  hideAll();
+  showSection('section-loading');
+  activateStep(0);
+
+  const [y, m, d] = document.getElementById('birth-date').value.split('-').map(Number);
+  const [h, min]  = (document.getElementById('birth-time').value || '12:00').split(':').map(Number);
+  const gender    = document.querySelector('input[name="gender"]:checked')?.value || '男';
+
+  let result;
+  try {
+    activateStep(0);
+    await delay(600);
+    activateStep(1);
+    await delay(500);
+    activateStep(2);
+
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 90000); // 90s for LLM
+
+    const res = await fetch(API_BASE + '/api/fortune', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year: y, month: m, day: d, hour: h, minute: min, gender }),
+      signal: ctrl.signal
+    });
+    clearTimeout(tid);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'server error');
+
+    result     = json;
+    isDemoMode = false;
+    activateStep(3);
+    await delay(400);
+    activateStep(4);
+    await delay(400);
+
+  } catch (_err) {
+    activateStep(2);
+    await delay(800);
+    activateStep(3);
+    await delay(600);
+    activateStep(4);
+    await delay(400);
+    result     = buildDemoReport(y, m, d, h, gender);
+    isDemoMode = true;
+  }
+
+  reportData = result;
+  isUnlocked = false;
+
+  hideAll();
+  showSection('section-results');
+  renderAll();
+
+  if (isDemoMode) {
+    const bar = document.createElement('div');
+    bar.id = 'demo-bar';
+    bar.className = 'max-w-6xl mx-auto px-6 mb-3';
+    bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Demo 模式运行中 · 启动服务器可获得 AI 大师真实推演</div>';
+    document.getElementById('section-results').insertBefore(bar, document.getElementById('section-results').firstChild);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg> Generate My Life K-Line';
+});
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Render orchestrator ────────────────────────
+function renderAll() {
+  renderOverview();
+  renderBazi();
+  renderWuxing();
+  renderChart();
+  renderKLineInterp();
+  renderSummary();
+  renderDimensions();
+}
+
+// ── ① Overview ────────────────────────────────
+function renderOverview() {
+  const s = reportData?.data?.summary || {};
+  const text = s.overview || `日主${s.day_master||''}${s.day_wuxing||''}，身${s.body_strength||'中和'}，人生K线均分 ${s.average_score||'--'}，峰值在 ${s.peak_age||'--'} 岁。`;
+  setText('overview-text', text);
+  setText('overview-mode-tag', reportData?.data?.ai_enhanced ? '🤖 AI Enhanced' : '⚙️ Algorithm');
+  const EMOJIS = { '金':'⚔️', '木':'🌿', '水':'💧', '火':'🔥', '土':'🏔️' };
+  setText('overview-emoji', EMOJIS[s.day_wuxing] || '🔮');
+  show('overview-card-wrap');
+}
+
+// ── ② Bazi ─────────────────────────────────────
+const SHISHEN_DESC = {
+  '比肩':'与日主同性同行，代表兄弟朋友，喜合作', '劫财':'与日主同性异行，代表竞争压力',
+  '食神':'日主所生同性，代表才华表达、温和进取', '伤官':'日主所生异性，代表聪明才智，需谨慎',
+  '正财':'日主所克异性，代表稳定收入、配偶', '偏财':'日主所克同性，代表机遇财富、父亲',
+  '正官':'克日主异性，代表事业规范、配偶（女）', '七杀':'克日主同性，代表压力权威',
+  '正印':'生日主异性，代表贵人文书、母亲', '偏印':'生日主同性，代表技艺智慧'
+};
+
+function renderBazi() {
+  const p = reportData?.data?.bazi || {};
+  const pillars = p.pillars || [];
+  const ids = ['year','month','day','hour'];
+  const colors = ['text-purple-400','text-blue-400','text-amber-400','text-green-400'];
+  const ttPfx = ['y','m','d','h'];
+
+  pillars.forEach((pl, i) => {
+    const pid = ids[i];
+    setText(`bazi-${pid}`, pl.ganzhi);
+    setText(`bazi-${pid}-wx`, `${pl.gan_wuxing||''}·${pl.zhi_wuxing||''}`);
+    if (pid !== 'day') setText(`bazi-${pid}-ss`, pl.shishen || '');
+    // tooltip
+    setText(`tt-${ttPfx[i]}-gan`, pl.gan);   setText(`tt-${ttPfx[i]}-gwx`, pl.gan_wuxing||'');
+    setText(`tt-${ttPfx[i]}-zhi`, pl.zhi);   setText(`tt-${ttPfx[i]}-zwx`, pl.zhi_wuxing||'');
+    if (document.getElementById(`tt-${ttPfx[i]}-ss`)) setText(`tt-${ttPfx[i]}-ss`, pl.shishen || '日元');
+  });
+
+  const info = p.info || {};
+  setText('bazi-animal',   '生肖: ' + (info.animal  || '--'));
+  setText('bazi-zodiac',   '星座: ' + (info.zodiac  || '--'));
+  setText('bazi-strength',  (p.bazi?.body_strength || '--') + ' · ' + (p.bazi?.day_wuxing || '') + '命');
+  setText('bazi-lunar',    info.lunar_date || info.birth_date || '--');
+}
+
+// ── ③ Wuxing ──────────────────────────────────
+function renderWuxing() {
+  const wx = reportData?.data?.bazi?.wuxing_balance || {};
+  const total = Math.max(1, Object.values(wx).reduce((a, b) => a + b, 0));
+  // 固定顺序 + 配置，缺失五行补 0
+  const WX_ORDER = [
+    { name: '金', color: '#A0AEC0', bg: 'rgba(160,174,192,0.1)', emoji: '⚔️' },
+    { name: '木', color: '#48BB78', bg: 'rgba(72,187,120,0.1)',  emoji: '🌿' },
+    { name: '水', color: '#63B3ED', bg: 'rgba(99,179,237,0.1)',  emoji: '💧' },
+    { name: '火', color: '#FC8181', bg: 'rgba(252,129,129,0.1)', emoji: '🔥' },
+    { name: '土', color: '#ED8936', bg: 'rgba(237,137,54,0.1)',  emoji: '🏔️' }
+  ];
+  const el = document.getElementById('wuxing-bars');
+  el.innerHTML = WX_ORDER.map(({ name, color, bg, emoji }) => {
+    const cnt = wx[name] || 0;
+    const pct = Math.round((cnt / total) * 100);
+    return `<div style="padding:14px;border-radius:14px;background:${bg};border:1px solid ${color}33;text-align:center;">
+      <div class="text-xl mb-1">${emoji}</div>
+      <div class="text-sm font-semibold" style="color:${color}">${name}</div>
+      <div class="text-2xl font-bold mt-1" style="color:${color}">${cnt}</div>
+      <div class="wx-bar-bg mt-2"><div class="wx-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div class="text-xs mt-1" style="color:${color}88">${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+// ── ④ K-Line Chart ─────────────────────────────
+function renderChart() {
+  const fortune = reportData?.data?.fortune || [];
+  if (!fortune.length) return;
+
+  const ages   = fortune.map(f => f.age);
+  const scores = fortune.map(f => f.score);
+  const avg    = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+  const colorFn = v => v >= 75 ? '#EF4444' : v >= 60 ? '#F97316' : v >= 45 ? '#9CA3AF' : v >= 30 ? '#4ADE80' : '#16A34A';
+
+  if (chartMain) { chartMain.dispose(); chartMain = null; }
+  chartMain = echarts.init(document.getElementById('chart-main'), null, { renderer: 'canvas' });
+
+  // Phase bands
+  const PHASE_COLORS = { '成长期':'rgba(59,130,246,.06)', '上升期':'rgba(245,158,11,.06)', '黄金期':'rgba(239,68,68,.07)', '稳固期':'rgba(168,85,247,.05)', '智慧期':'rgba(34,197,94,.05)', '颐养期':'rgba(107,114,128,.04)' };
+  const bands = [];
+  let curPhase = fortune[0]?.phase, ps = 0;
+  fortune.forEach((f, i) => {
+    if (f.phase !== curPhase || i === fortune.length - 1) {
+      bands.push({ phase: curPhase, start: ages[ps], end: ages[i === fortune.length - 1 ? i : i - 1], color: PHASE_COLORS[curPhase] || 'transparent' });
+      curPhase = f.phase; ps = i;
+    }
+  });
+
+  const markAreaData = bands.map(b => [
+    { xAxis: String(b.start), itemStyle: { color: b.color }, label: { formatter: b.phase, color: '#6B7280', fontSize: 10 } },
+    { xAxis: String(b.end) }
+  ]);
+
+  chartMain.setOption({
+    backgroundColor: 'transparent',
+    animation: true, animationDuration: 1200,
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'rgba(15,12,31,.95)',
+      borderColor: 'rgba(168,85,247,.3)',
+      borderWidth: 1,
+      formatter(params) {
+        const f = fortune[params[0].dataIndex];
+        if (!f) return '';
+        const clr = colorFn(f.score);
+        return `<div style="padding:4px 0">
+          <div style="font-weight:700;color:#E5E7EB;margin-bottom:4px">${f.age} 岁 · ${f.phase}</div>
+          <div style="color:${clr};font-size:18px;font-weight:800">${f.score} <span style="font-size:12px">/100</span></div>
+          <div style="color:${clr};font-size:12px;margin-top:2px">${f.level}</div>
+          ${f.event ? `<div style="color:#9CA3AF;font-size:11px;margin-top:4px">📌 ${f.event}</div>` : ''}
+        </div>`;
+      }
+    },
+    grid: { top: 30, right: 20, bottom: 36, left: 46 },
+    xAxis: { type: 'category', data: ages.map(String), boundaryGap: false,
+      axisLabel: { color: '#6B7280', fontSize: 10, interval: 9 },
+      axisLine: { lineStyle: { color: 'rgba(255,255,255,.06)' } },
+      splitLine: { show: false } },
+    yAxis: { type: 'value', min: 0, max: 100,
+      axisLabel: { color: '#6B7280', fontSize: 10 },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,.04)' } } },
+    series: [{
+      type: 'line',
+      data: scores,
+      smooth: 0.3,
+      symbol: 'circle',
+      symbolSize: p => p >= 75 ? 8 : p < 35 ? 7 : 3,
+      lineStyle: { width: 2.5, color: '#A855F7' },
+      itemStyle: { color: p => colorFn(p.value), borderWidth: 1, borderColor: 'rgba(255,255,255,.7)' },
+      areaStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'rgba(168,85,247,.3)'},{offset:.5,color:'rgba(168,85,247,.08)'},{offset:1,color:'rgba(168,85,247,.01)'}]) },
+      markLine: { silent: true, symbol: 'none', data: [{ yAxis: avg, lineStyle: { color: '#A855F7', type: 'dashed', width: 1 }, label: { formatter: `均 ${avg}`, color: '#A855F7', fontSize: 11 } }] },
+      markPoint: {
+        data: [
+          { type: 'max', name:'峰值', symbol:'pin', symbolSize:42, itemStyle:{color:'#EF4444'}, label:{color:'#fff',fontSize:10} },
+          { type: 'min', name:'低谷', symbol:'pin', symbolSize:36, itemStyle:{color:'#22C55E'}, label:{color:'#fff',fontSize:10} }
+        ]
+      },
+      markArea: { silent: true, label: { show: true, position: 'insideTopLeft', color: '#6B7280', fontSize: 10 }, data: markAreaData }
+    }]
+  });
+
+  // 年龄快速跳转
+  document.getElementById('age-jump').addEventListener('change', function () {
+    const age = +this.value;
+    if (age >= 0 && age <= 100) {
+      chartMain.dispatchAction({ type: 'showTip', seriesIndex: 0, dataIndex: age });
+      const f = fortune[age];
+      if (f) document.getElementById('chart-phase').textContent = `${age}岁 · ${f.level} (${f.score})`;
+    }
+  });
+
+  chartMain.on('mousemove', p => {
+    if (p.dataIndex !== undefined) {
+      const f = fortune[p.dataIndex];
+      if (f) document.getElementById('chart-phase').textContent = `${f.age}岁 · ${f.phase} · ${f.level}`;
+    }
+  });
+
+  window.addEventListener('resize', () => { chartMain?.resize(); chartRadar?.resize(); });
+}
+
+// ── ⑤ K-Line Interpretation ───────────────────
+function renderKLineInterp() {
+  const fortune = reportData?.data?.fortune || [];
+  const s       = reportData?.data?.summary || {};
+  if (!fortune.length) return;
+
+  const scores  = fortune.map(f => f.score);
+  const avg     = s.average_score || Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+  const peak    = fortune.reduce((a,b)=>a.score>b.score?a:b);
+  const valley  = fortune.reduce((a,b)=>a.score<b.score?a:b);
+  const vol     = Math.round(Math.sqrt(scores.reduce((s,v)=>s+(v-avg)**2,0)/scores.length));
+
+  const f1 = scores.slice(0,35).reduce((a,b)=>a+b,0)/35;
+  const f2 = scores.slice(35,55).reduce((a,b)=>a+b,0)/20;
+  const f3 = scores.slice(55).reduce((a,b)=>a+b,0)/46;
+
+  const trend = f2 > f1+5 ? '先抑后扬' : f2 < f1-5 ? '先扬后抑' : Math.abs(f1-f3)<5 ? '平稳持中' : f3>f1 ? '厚积薄发' : '早发晚收';
+  const TMAP = {
+    '先抑后扬':{ ic:'📈', desc:'早年蓄力，中年后运势强劲上扬。大器晚成，越晚越精彩。' },
+    '厚积薄发':{ ic:'🚀', desc:'青年积累，壮年走高，晚年持续向好。稳健人生，一步一个脚印。' },
+    '平稳持中':{ ic:'⚖️', desc:'一生运势波动小，整体中上水平。不追大起大落，贵在细水长流。' },
+    '先扬后抑':{ ic:'🔻', desc:'早年运势好，后期需提前规划与积累，为晚年做好准备。' },
+    '早发晚收':{ ic:'🌅', desc:'早年亮眼，随后回归常态。高峰期来得早，后期宜稳中求进。' }
+  };
+  const ti = TMAP[trend] || TMAP['平稳持中'];
+
+  const phaseMap = {};
+  fortune.forEach(f => { if (!phaseMap[f.phase]) phaseMap[f.phase] = []; phaseMap[f.phase].push(f.score); });
+  const phaseAvgs = Object.entries(phaseMap).map(([k,v]) => [k, Math.round(v.reduce((a,b)=>a+b,0)/v.length)]).sort((a,b)=>b[1]-a[1]);
+  const best  = phaseAvgs[0];
+  const worst = phaseAvgs[phaseAvgs.length-1];
+
+  const stages = [
+    { n:'童年',  r:[0,12],  c:'#60A5FA' }, { n:'青年',  r:[13,29], c:'#F59E0B' },
+    { n:'壮年',  r:[30,49], c:'#EF4444' }, { n:'中年',  r:[50,65], c:'#A855F7' },
+    { n:'晚年',  r:[66,100],c:'#34D399' }
+  ];
+
+  let html = '';
+  // Trend block
+  html += `<div class="iblock flex items-start gap-3">
+    <span class="text-2xl">${ti.ic}</span>
+    <div class="flex-1">
+      <div class="font-semibold mb-1">整体走势：<span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">${trend}</span></div>
+      <p class="text-sm text-gray-400 leading-relaxed mb-3">${ti.desc}</p>
+      <div class="flex flex-wrap gap-4 text-xs text-gray-500">
+        <span>波动率 <strong class="text-purple-400">${vol}%</strong></span>
+        <span>均分 <strong class="text-blue-400">${avg}</strong></span>
+        <span>峰值 <strong class="text-red-400">${peak.score}分 @ ${peak.age}岁</strong></span>
+        <span>低谷 <strong class="text-green-400">${valley.score}分 @ ${valley.age}岁</strong></span>
+      </div>
+    </div>
+  </div>`;
+
+  // Life stages
+  html += `<div class="iblock">
+    <div class="text-sm font-semibold text-gray-300 mb-3">生命阶段均分</div>
+    <div class="space-y-2">`;
+  stages.forEach(st => {
+    const rel = fortune.filter(f => f.age >= st.r[0] && f.age <= st.r[1]);
+    const stAvg = rel.length ? Math.round(rel.reduce((a,b)=>a+b.score,0)/rel.length) : avg;
+    const stPk  = rel.length ? rel.reduce((a,b)=>a.score>b.score?a:b) : { score: avg, age: '--' };
+    html += `<div class="phase-row" style="border-left-color:${st.c}">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-sm font-medium" style="color:${st.c}">${st.n} (${st.r[0]}-${st.r[1]}岁)</span>
+        <span class="text-xs text-gray-500">均${stAvg} · 峰${stPk.score}@${stPk.age}岁</span>
+      </div>
+      <div class="wx-bar-bg" style="height:4px"><div class="wx-bar-fill" style="width:${stAvg}%;background:${st.c};height:4px;"></div></div>
+    </div>`;
+  });
+  html += `</div></div>`;
+
+  // Best/worst
+  html += `<div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <div class="iblock" style="border-color:rgba(239,68,68,.15)">
+      <div class="text-xs text-red-400 font-semibold mb-1">🌟 最佳阶段</div>
+      <div class="text-lg font-bold text-red-400">${best[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${best[1]} · 人生黄金窗口</div>
+    </div>
+    <div class="iblock" style="border-color:rgba(34,197,94,.15)">
+      <div class="text-xs text-green-400 font-semibold mb-1">⚠️ 挑战阶段</div>
+      <div class="text-lg font-bold text-green-400">${worst[0]}</div>
+      <div class="text-xs text-gray-500 mt-1">阶段均分 ${worst[1]} · 韬光养晦时期</div>
+    </div>
+  </div>`;
+
+  // K-line insight
+  const insightText = vol > 18 ? '人生K线波动大，大吉大凶交替。顺势而为：高峰勇猛精进，低谷韬光养晦。'
+    : vol > 12 ? '人生K线波动适中，整体稳健。把握最佳阶段上升趋势，在挑战期保持冷静。'
+    : '人生K线走势平稳，波幅小。典型稳健型命运曲线，适合长期主义策略。';
+
+  html += `<div class="iblock">
+    <div class="text-sm font-semibold text-gray-300 mb-2">🔍 K线洞察</div>
+    <p class="text-sm text-gray-400 leading-relaxed">${insightText} 关键节点：峰值 <strong class="text-red-400">${peak.age}岁</strong>，低谷 <strong class="text-green-400">${valley.age}岁</strong>。</p>
+  </div>`;
+
+  setHtml('kline-interp-content', html);
+  show('kline-interp-wrap');
+}
+
+// ── ⑥ Summary Cards ──────────────────────────
+function renderSummary() {
+  const s = reportData?.data?.summary || {};
+  setText('sum-peak',       (s.peak_age ?? '--') + ' 岁');
+  setText('sum-peak-score', `得分 ${s.peak_score ?? '--'}`);
+  setText('sum-valley',     (s.valley_age ?? '--') + ' 岁');
+  setText('sum-valley-score', `得分 ${s.valley_score ?? '--'}`);
+  setText('sum-avg',        s.average_score ?? '--');
+  setText('sum-body',       `${s.day_master || '--'}${s.day_wuxing || ''}日`);
+  setText('sum-body-sub',   s.body_strength || '--');
+}
+
+// ── ⑦ Dimensions (radar + cards) ──────────────
+function renderDimensions() {
+  const dims = reportData?.data?.dimensions;
+  if (!dims) return;
+
+  const DIM_CFG = [
+    { key:'career',        label:'事业', color:'#60A5FA', icon:'💼' },
+    { key:'wealth',        label:'财运', color:'#FBBF24', icon:'💰' },
+    { key:'relationships', label:'感情', color:'#F472B6', icon:'💕' },
+    { key:'health',        label:'健康', color:'#34D399', icon:'🌿' },
+    { key:'mentors',       label:'贵人', color:'#A78BFA', icon:'⭐' },
+    { key:'challenges',    label:'挑战', color:'#FB7185', icon:'🛡️' }
+  ];
+
+  // Radar chart
+  if (chartRadar) { chartRadar.dispose(); chartRadar = null; }
+  chartRadar = echarts.init(document.getElementById('chart-radar'), null, { renderer: 'canvas' });
+  chartRadar.setOption({
+    backgroundColor: 'transparent',
+    radar: {
+      indicator: DIM_CFG.map(d => ({ name: d.label, max: 100 })),
+      shape: 'polygon',
+      splitNumber: 4,
+      center: ['50%', '50%'],
+      radius: '68%',
+      nameGap: 8,
+      name: { color: '#9CA3AF', fontSize: 13, fontWeight: 600 },
+      axisLine:  { lineStyle: { color: 'rgba(255,255,255,.08)' } },
+      splitLine: { lineStyle: { color: 'rgba(255,255,255,.05)' } },
+      splitArea: { areaStyle: { color: ['rgba(255,255,255,.015)', 'transparent', 'rgba(255,255,255,.01)', 'transparent'] } }
+    },
+    series: [{
+      type: 'radar',
+      data: [{
+        value: DIM_CFG.map(d => dims[d.key]?.score || 60),
+        name: '六维度',
+        symbol: 'circle', symbolSize: 6,
+        lineStyle:  { color: '#A855F7', width: 2 },
+        itemStyle:  { color: '#A855F7', borderColor: '#E9D5FF', borderWidth: 2 },
+        areaStyle:  { color: 'rgba(168,85,247,.15)' }
+      }]
+    }],
+    tooltip: {
+      backgroundColor: 'rgba(15,12,31,.95)',
+      borderColor: 'rgba(168,85,247,.3)',
+      formatter(p) {
+        return DIM_CFG.map(d => `<span style="color:${d.color}">${d.icon} ${d.label}</span>: ${dims[d.key]?.score||'--'}`).join('<br>');
+      }
+    }
+  });
+
+  // Dim cards
+  const cardsEl = document.getElementById('dim-cards');
+  cardsEl.innerHTML = DIM_CFG.map(d => {
+    const dim  = dims[d.key] || {};
+    const sc   = dim.score || 60;
+    const pct  = Math.round(2 * Math.PI * 18 * sc / 100);
+    const circ = Math.round(2 * Math.PI * 18);
+    return `<div class="dim-card flex items-start gap-3">
+      <div class="flex-shrink-0">
+        <svg class="dim-score-ring" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/>
+          <circle cx="24" cy="24" r="18" fill="none" stroke="${d.color}" stroke-width="3"
+            stroke-dasharray="${pct} ${circ}" stroke-dashoffset="${circ/4}"
+            stroke-linecap="round" transform="rotate(-90 24 24)"/>
+          <text x="24" y="24" class="dim-score-text" style="font-size:9px;fill:#E5E7EB;font-weight:700;dominant-baseline:middle;text-anchor:middle;">${sc}</text>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="text-sm font-semibold" style="color:${d.color}">${d.icon} ${d.label}</span>
+        </div>
+        <p class="text-xs text-gray-400 leading-relaxed">${dim.advice || dim.summary || '--'}</p>
+      </div>
+    </div>`;
+  }).join('');
+
+  show('dimensions-wrap');
+  if (reportData?.data?.ai_enhanced) show('dim-ai-tag');
+}
+
+// ── Unlock ────────────────────────────────────
+async function handleUnlock(method) {
+  if (isDemoMode) {
+    isUnlocked = true;
+    document.getElementById('paywall').classList.add('hidden');
+    chartMain?.resize();
+    showToast(method === 'share' ? '🎉 分享解锁成功！享受完整报告' : '✅ 解锁成功！完整报告已开放', '#A855F7');
+    return;
+  }
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 8000);
+    const res  = await fetch(API_BASE + '/api/payment/create-checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId: reportData?.report_id, plan: 'report' }),
+      signal: ctrl.signal
+    });
+    const data = await res.json();
+    if (data.demo || !data.session_url) {
+      isUnlocked = true;
+      document.getElementById('paywall').classList.add('hidden');
+      chartMain?.resize();
+      showToast('✅ 解锁成功！', '#A855F7');
+    } else {
+      window.open(data.session_url, '_blank');
+    }
+  } catch {
+    isUnlocked = true;
+    document.getElementById('paywall').classList.add('hidden');
+    chartMain?.resize();
+  }
+}
+
+// ── Copy Link ─────────────────────────────────
+function handleCopyLink() {
+  const url = reportData?.report_id
+    ? `${window.location.origin}${window.location.pathname}?report=${reportData.report_id}`
+    : window.location.href;
+  navigator.clipboard?.writeText(url).then(() => {
+    setText('btn-copy-text', '✓ 已复制');
+    showToast('🔗 链接已复制到剪贴板', '#60A5FA');
+    setTimeout(() => setText('btn-copy-text', '复制链接'), 2000);
+  }).catch(() => showToast('请手动复制地址栏链接'));
+}
+
+// ── Module Switching ──────────────────────────
+let currentModule = 'kline';
+
+function switchModule(module) {
+    currentModule = module;
+    // Tab styles
+    document.querySelectorAll('.module-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + module).classList.add('active');
+
+    // Hide all sections
+    hideAll();
+
+    if (module === 'kline') {
+        showSection('section-hero');
+    } else if (module === 'compat') {
+        showSection('section-hero-compat');
+    } else if (module === 'ziwei') {
+        showSection('section-hero-ziwei');
+    } else if (module === 'dream') {
+        showSection('section-hero-dream');
+    } else if (module === 'persona') {
+        showSection('section-hero-persona');
+    } else if (module === 'divination') {
+        showSection('section-hero-divination');
+    } else if (module === 'cultivation') {
+        showSection('section-hero-cultivation');
+        if (typeof loadCultivation === 'function') loadCultivation();
+    } else if (module === 'market') {
+        showSection('section-hero-market');
+        if (typeof loadMarket === 'function') loadMarket();
+    }
+
+    // Reset chart refs
+    chartCompatRadar?.dispose(); chartCompatRadar = null;
+}
+
+function hideAll() {
+    ['section-hero', 'section-hero-compat', 'section-hero-ziwei', 'section-hero-dream',
+     'section-hero-persona', 'section-hero-divination', 'section-hero-cultivation', 'section-hero-market',
+     'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results',
+     'section-dream-results', 'section-dream-history']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
+}
+
+function readBirth() {
+    const date = document.getElementById('birth-date')?.value || '';
+    const time = document.getElementById('birth-time')?.value || '12:00';
+    const gender = document.querySelector('input[name="gender"]:checked')?.value || '未知';
+    if (!date) return { year: 0 };
+    const [y, m, d] = date.split('-').map(Number);
+    const [hh, mm] = time.split(':').map(Number);
+    return { year: y, month: m, day: d, hour: hh, minute: mm, gender };
+}
+
+// ── Compatibility Form ─────────────────────────
+document.getElementById('compat-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('compat-submit-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 分析中...';
+
+    hideAll();
+    showSection('section-loading');
+    activateStep(0);
+    setText('loading-text', '正在计算双方八字命盘...');
+    setText('loading-sub', 'Analyzing two destinies');
+
+    const parsePerson = prefix => {
+        const [y, m, d] = document.getElementById(`compat-${prefix}-date`).value.split('-').map(Number);
+        const [h, min] = (document.getElementById(`compat-${prefix}-time`).value || '12:00').split(':').map(Number);
+        const gender = document.getElementById(`compat-${prefix}-gender`).value || '未知';
+        return { year: y, month: m, day: d, hour: h, minute: min, gender };
+    };
+
+    const personA = parsePerson('a');
+    const personB = parsePerson('b');
+
+    let result;
+    try {
+        activateStep(0); await delay(600);
+        activateStep(1); await delay(500);
+        activateStep(2); await delay(400);
+
+        const ctrl = new AbortController();
+        setTimeout(() => ctrl.abort(), 30000);
+        const res = await fetch(API_BASE + '/api/compatibility', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ personA, personB }),
+            signal: ctrl.signal
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        if (!json.success) throw new Error(json.error || 'server error');
+        result = json;
+        isDemoMode = false;
+        activateStep(3); await delay(400);
+        activateStep(4); await delay(300);
+    } catch (_err) {
+        activateStep(2); await delay(600);
+        activateStep(3); await delay(500);
+        activateStep(4); await delay(300);
+        result = buildDemoCompat(personA, personB);
+        isDemoMode = true;
+    }
+
+    compatData = result;
+    hideAll();
+    showSection('section-compat-results');
+    renderCompatAll();
+
+    if (isDemoMode) {
+        const bar = document.createElement('div');
+        bar.id = 'demo-bar';
+        bar.className = 'max-w-6xl mx-auto px-6 mb-3';
+        bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80 flex items-center justify-center gap-2"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Demo 模式运行中 · 启动服务器可获得真实排盘分析</div>';
+        document.getElementById('section-compat-results').insertBefore(bar, document.getElementById('section-compat-results').firstChild);
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg> Analyze Compatibility';
+});
+
+// ── Compatibility State ────────────────────────
+let compatData = null;
+let chartCompatRadar = null;
+
+// ── Demo Compatibility ─────────────────────────
+function buildDemoCompat(pA, pB) {
+    const seed = pA.year * 100 + pB.year + pA.month * pB.month;
+    const rng = (i, offset) => { const x = Math.sin(seed * 0.017 + i * 0.73 + offset) * 10000; return x - Math.floor(x); };
+
+    const wxA = { '金': 2, '水': 1, '木': 1, '火': 1, '土': 3 };
+    const wxB = { '金': 1, '水': 3, '木': 2, '火': 1, '土': 1 };
+    const elements = ['金','木','水','火','土'];
+
+    const overall = Math.round(55 + rng(1, 0) * 40);
+    const dims = {
+        personality:  { score: Math.round(55 + rng(2, 0.3) * 40), label: '性格互补' },
+        career:       { score: Math.round(55 + rng(3, 0.5) * 40), label: '事业合作' },
+        romance:      { score: Math.round(55 + rng(4, 0.7) * 40), label: '感情契合' },
+        communicaton: { score: Math.round(55 + rng(5, 0.2) * 40), label: '沟通默契' },
+        long_term:    { score: overall, label: '长期发展' }
+    };
+
+    return {
+        success: true, demo: true,
+        personA: {
+            bazi: { day_gan: '辛', day_wuxing: '金', body_strength: '偏弱', day: '辛亥' },
+            info: { animal: '马', zodiac: '双子座', gender: pA.gender, birth_date: `${pA.year}-${pA.month}-${pA.day}` },
+            wuxing_balance: wxA
+        },
+        personB: {
+            bazi: { day_gan: '甲', day_wuxing: '木', body_strength: '身强', day: '甲寅' },
+            info: { animal: '猴', zodiac: '狮子座', gender: pB.gender, birth_date: `${pB.year}-${pB.month}-${pB.day}` },
+            wuxing_balance: wxB
+        },
+        compatibility: {
+            relation_type: overall >= 75 ? '天作之合' : overall >= 60 ? '五行相生' : '欢喜冤家',
+            relation_icon: overall >= 75 ? '✨' : overall >= 60 ? '💫' : '⚡',
+            relation_desc: '两人五行能量互补，一方金命配另一方木命，金克木但有水调候则成材。关系中需要中间人调和，但天生有吸引。',
+            wx_relation: '金克木',
+            wx_score: 45,
+            ss_a_to_b: '偏财',
+            ss_b_to_a: '偏印',
+            zhi_relation: '普通',
+            zhi_score: 55,
+            dimensions: dims,
+            overall_score: overall,
+            radar_data: elements.map(e => ({ element: e, personA: wxA[e] || 0, personB: wxB[e] || 0 })),
+            advice: [
+                '金克木的关系，需要水来调候——一起做一些创造性的事。',
+                '两人日柱无冲无合，平淡中需要更多主动经营。',
+                '关键提醒：金命果断、木命生长，你的执行力正是对方需要的动力。'
+            ]
+        }
+    };
+}
+
+// ── Render Compat ──────────────────────────────
+function renderCompatAll() {
+    const d = compatData?.compatibility;
+    const a = compatData?.personA;
+    const b = compatData?.personB;
+    if (!d || !a || !b) return;
+
+    // ① Overview
+    setText('compat-emoji', d.relation_icon || '💞');
+    setText('compat-relation-tag', d.relation_type || '--');
+    setText('compat-desc', d.relation_desc || '--');
+
+    // ② Score
+    const score = d.overall_score || 50;
+    const circ = 2 * Math.PI * 52; // ~327
+    const dash = Math.round(circ * score / 100);
+    const circle = document.getElementById('compat-score-circle');
+    if (circle) { circle.setAttribute('stroke-dasharray', dash + ' ' + circ); }
+    setText('compat-score-text', score);
+    setText('compat-type', d.relation_type || '--');
+    const scoreColor = score >= 75 ? '#EF4444' : score >= 60 ? '#F97316' : score >= 45 ? '#9CA3AF' : '#4ADE80';
+    if (circle) circle.setAttribute('stroke', scoreColor);
+
+    // Person A
+    setText('compat-a-name', `Person A (${a.info?.gender || '--'})`);
+    setText('compat-a-dob', a.info?.birth_date || '--');
+    setText('compat-a-day', '日元: ' + (a.bazi?.day_gan || '--'));
+    setText('compat-a-wx', '五行: ' + (a.bazi?.day_wuxing || '--'));
+    setText('compat-a-body', a.bazi?.body_strength || '--');
+    setText('compat-a-animal', `生肖: ${a.info?.animal||'--'} · 星座: ${a.info?.zodiac||'--'}`);
+
+    // Person B
+    setText('compat-b-name', `Person B (${b.info?.gender || '--'})`);
+    setText('compat-b-dob', b.info?.birth_date || '--');
+    setText('compat-b-day', '日元: ' + (b.bazi?.day_gan || '--'));
+    setText('compat-b-wx', '五行: ' + (b.bazi?.day_wuxing || '--'));
+    setText('compat-b-body', b.bazi?.body_strength || '--');
+    setText('compat-b-animal', `生肖: ${b.info?.animal||'--'} · 星座: ${b.info?.zodiac||'--'}`);
+
+    // ③ Radar
+    renderCompatRadar();
+
+    // ④ Dimensions
+    const dims = d.dimensions || {};
+    const dimEl = document.getElementById('compat-dim-bars');
+    const DIM_ORDER = ['personality','career','romance','communicaton','long_term'];
+    const DIM_ICONS = { personality:'🎭', career:'💼', romance:'💕', communicaton:'💬', long_term:'🏛️' };
+    dimEl.innerHTML = DIM_ORDER.filter(k => dims[k]).map(k => {
+        const dim = dims[k];
+        const sc = dim.score || 50;
+        const clr = sc >= 75 ? '#EF4444' : sc >= 60 ? '#F97316' : sc >= 45 ? '#9CA3AF' : '#4ADE80';
+        return `<div class="flex items-center gap-3">
+          <span class="text-sm w-20 flex-shrink-0 text-gray-300">${DIM_ICONS[k]||''} ${dim.label||k}</span>
+          <div class="flex-1 wx-bar-bg" style="height:10px;"><div class="wx-bar-fill" style="width:${sc}%;background:${clr};height:10px;"></div></div>
+          <span class="text-sm font-bold w-10 text-right" style="color:${clr}">${sc}</span>
+        </div>`;
+    }).join('');
+
+    // ⑤ Advice
+    const adviceEl = document.getElementById('compat-advice');
+    const advice = d.advice || [];
+    adviceEl.innerHTML = advice.map((tip, i) => `<div class="iblock flex items-start gap-3">
+      <span class="text-sm flex-shrink-0" style="color:${i === advice.length - 1 ? '#F472B6' : '#9CA3AF'}">${i === advice.length - 1 ? '🔑' : '•'}</span>
+      <p class="text-sm text-gray-400 leading-relaxed">${tip}</p>
+    </div>`).join('') + `
+    <div class="iblock mt-3" style="border-color:rgba(168,85,247,.15);">
+      <div class="flex items-center gap-2 mb-2"><span class="text-xs text-purple-400 font-semibold">⚡ 关系核心</span></div>
+      <p class="text-xs text-gray-500">十神关系: <strong class="text-purple-400">A→B: ${d.ss_a_to_b||'--'}</strong> · <strong class="text-pink-400">B→A: ${d.ss_b_to_a||'--'}</strong> · 五行: <strong class="text-amber-400">${d.wx_relation||'--'}</strong> · 日柱: <strong class="text-blue-400">${d.zhi_relation||'--'}</strong></p>
+    </div>`;
+}
+
+function renderCompatRadar() {
+    const radarData = compatData?.compatibility?.radar_data || [];
+    if (!radarData.length) return;
+
+    if (chartCompatRadar) { chartCompatRadar.dispose(); chartCompatRadar = null; }
+    chartCompatRadar = echarts.init(document.getElementById('chart-compat-radar'), null, { renderer: 'canvas' });
+
+    chartCompatRadar.setOption({
+        backgroundColor: 'transparent',
+        legend: { data: ['Person A', 'Person B'], bottom: 0, textStyle: { color: '#9CA3AF', fontSize: 11 } },
+        radar: {
+            indicator: radarData.map(d => ({ name: d.element, max: 5 })),
+            shape: 'polygon', splitNumber: 5,
+            center: ['50%', '50%'], radius: '65%',
+            name: { color: '#9CA3AF', fontSize: 13, fontWeight: 600 },
+            axisLine: { lineStyle: { color: 'rgba(255,255,255,.08)' } },
+            splitLine: { lineStyle: { color: 'rgba(255,255,255,.05)' } },
+            splitArea: { areaStyle: { color: ['rgba(255,255,255,.015)', 'transparent'] } }
+        },
+        series: [{
+            type: 'radar',
+            animation: true, animationDuration: 1000,
+            data: [
+                { value: radarData.map(d => d.personA), name: 'Person A',
+                  symbol: 'circle', symbolSize: 5,
+                  lineStyle: { color: '#F472B6', width: 2 },
+                  itemStyle: { color: '#F472B6', borderColor: '#FBCFE8', borderWidth: 2 },
+                  areaStyle: { color: 'rgba(244,114,182,.1)' } },
+                { value: radarData.map(d => d.personB), name: 'Person B',
+                  symbol: 'circle', symbolSize: 5,
+                  lineStyle: { color: '#A855F7', width: 2 },
+                  itemStyle: { color: '#A855F7', borderColor: '#DDD6FE', borderWidth: 2 },
+                  areaStyle: { color: 'rgba(168,85,247,.1)' } }
+            ]
+        }],
+        tooltip: {
+            backgroundColor: 'rgba(15,12,31,.95)',
+            borderColor: 'rgba(168,85,247,.3)',
+            formatter(p) { return radarData.map(d => `${d.element}: A=${d.personA} B=${d.personB}`).join('<br>'); }
+        }
+    });
+
+    window.addEventListener('resize', () => { chartCompatRadar?.resize(); });
+}
+
+function handleCompatShare() {
+    const url = window.location.href;
+    navigator.clipboard?.writeText(url).then(() => {
+        showToast('💞 关系图谱链接已复制到剪贴板', '#F472B6');
+    }).catch(() => showToast('请手动复制地址栏链接'));
+}
+
+function handleCompatReset() {
+    compatData = null;
+    chartCompatRadar?.dispose(); chartCompatRadar = null;
+    document.getElementById('demo-bar')?.remove();
+    hideAll();
+    showSection('section-hero-compat');
+    document.getElementById('compat-form').reset();
+}
+
+// ── K-Line New Reading (reuse) ────────────────
+function handleNewReading() {
+    reportData = null; isUnlocked = false; isDemoMode = false;
+    chartMain?.dispose();  chartMain  = null;
+    chartRadar?.dispose(); chartRadar = null;
+    hide('overview-card-wrap');
+    hide('kline-interp-wrap');
+    hide('dimensions-wrap');
+    document.getElementById('demo-bar')?.remove();
+    hideAll();
+    showSection('section-hero');
+    document.getElementById('birth-form').reset();
+    setText('chart-phase', '--');
+}
+
+// ══════════════════ 紫微斗数 ══════════════════
+
+let ziweiData = null;
+
+// 12宫位标准布局（外围顺序，按传统方位）
+// 格子编号 0-15（4x4），位置映射
+// 紫微盘传统方位：从寅宫开始，顺时针（东→南→西→北）外圈
+const PALACE_POSITIONS = [
+  // 上行 左→右 (row0: col0,col1,col2,col3)
+  { grid:'1/1',  zhiOffset: 3 }, // 寅
+  { grid:'1/2',  zhiOffset: 4 }, // 卯
+  { grid:'1/3',  zhiOffset: 5 }, // 辰
+  { grid:'1/4',  zhiOffset: 6 }, // 巳
+  // 右列 上→下 (col4: row1,row2)
+  { grid:'2/4',  zhiOffset: 7 }, // 午
+  { grid:'3/4',  zhiOffset: 8 }, // 未
+  // 下行 右→左 (row4: col3,col2,col1,col0)
+  { grid:'4/4',  zhiOffset: 9  }, // 申
+  { grid:'4/3',  zhiOffset: 10 }, // 酉
+  { grid:'4/2',  zhiOffset: 11 }, // 戌
+  { grid:'4/1',  zhiOffset: 0  }, // 亥
+  // 左列 下→上 (col1: row3,row2)
+  { grid:'3/1',  zhiOffset: 1  }, // 子
+  { grid:'2/1',  zhiOffset: 2  }, // 丑
+];
+
+// 宫格星曜颜色
+const STAR_COLORS = {
+  '主星': '#FCD34D',
+  '辅星': '#93C5FD',
+  '化禄': '#4ADE80', '化权': '#60A5FA', '化科': '#C084FC', '化忌': '#F87171'
+};
+
+// 格式化宫格
+function buildPalaceCell(palace, mingZhiIdx, shenZhiIdx, gridPos) {
+  const isMing = palace.zhiIdx === mingZhiIdx;
+  const isShen = palace.zhiIdx === shenZhiIdx;
+
+  let borderColor = 'rgba(255,255,255,.06)';
+  let bgColor = 'rgba(0,0,0,.2)';
+  let badge = '';
+
+  if (isMing) {
+    borderColor = 'rgba(251,191,36,.4)';
+    bgColor = 'rgba(251,191,36,.06)';
+    badge = '<span style="font-size:10px;background:rgba(251,191,36,.15);color:#FCD34D;border-radius:6px;padding:1px 5px;display:inline-block;margin-bottom:2px;">命宫</span>';
+  } else if (isShen) {
+    borderColor = 'rgba(168,85,247,.35)';
+    bgColor = 'rgba(168,85,247,.06)';
+    badge = '<span style="font-size:10px;background:rgba(168,85,247,.15);color:#C084FC;border-radius:6px;padding:1px 5px;display:inline-block;margin-bottom:2px;">身宫</span>';
+  }
+
+  const mainStars = palace.stars.filter(s => s.type === '主星');
+  const auxStars  = palace.stars.filter(s => s.type === '辅星');
+
+  const starsHtml = [
+    ...mainStars.map(s => {
+      const huaColor = s.hua ? (s.hua === '化禄' ? '#4ADE80' : s.hua === '化权' ? '#60A5FA' : s.hua === '化科' ? '#C084FC' : '#F87171') : null;
+      return `<div style="font-size:12px;font-weight:700;color:${huaColor || '#FCD34D'};line-height:1.3;">${s.name}${s.hua ? `<span style="font-size:9px;margin-left:2px;opacity:.9;">${s.hua.replace('化','')}</span>` : ''}</div>`;
+    }),
+    ...auxStars.map(s => `<div style="font-size:10px;color:#93C5FD;opacity:.8;">${s.name}${s.hua ? `<span style="font-size:8px;color:#4ADE80;">禄</span>` : ''}</div>`)
+  ].join('');
+
+  return `<div onclick="showPalaceDetail(${palace.zhiIdx})" style="
+    grid-area:${gridPos};
+    padding:8px 6px;
+    border-radius:10px;
+    border:1px solid ${borderColor};
+    background:${bgColor};
+    cursor:pointer;
+    min-height:80px;
+    transition:all .25s;
+    position:relative;
+  " onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+    <div style="font-size:10px;color:#9CA3AF;margin-bottom:2px;">${palace.name || '未知'} · ${palace.zhi}</div>
+    ${badge}
+    ${starsHtml || '<div style="font-size:10px;color:#4B5563;">（空）</div>'}
+  </div>`;
+}
+
+function renderZiweiPalaces(data) {
+  const grid = document.getElementById('ziwei-palace-grid');
+  if (!grid) return;
+
+  // 中心格子（北斗七星标志）
+  const centerHtml = `<div style="grid-area:2/2/4/4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;border-radius:14px;background:linear-gradient(135deg,rgba(251,191,36,.05),rgba(217,119,6,.03));border:1px solid rgba(251,191,36,.1);">
+    <div style="font-size:28px;">🌌</div>
+    <div style="font-size:11px;color:#9CA3AF;text-align:center;line-height:1.5;">紫微斗数<br>命盘</div>
+    <div style="font-size:10px;color:#6B7280;">阴历 ${data.lunar.year}年</div>
+  </div>`;
+
+  let outerHtml = '';
+  PALACE_POSITIONS.forEach(pos => {
+    const palace = data.palaces.find(p => p.zhiIdx === pos.zhiOffset);
+    if (palace) {
+      outerHtml += buildPalaceCell(palace, data.mingGong.zhiIdx, data.shenGong.zhiIdx, pos.grid);
+    }
+  });
+
+  grid.innerHTML = outerHtml + centerHtml;
+}
+
+function showPalaceDetail(zhiIdx) {
+  if (!ziweiData) return;
+  const palace = ziweiData.palaces.find(p => p.zhiIdx === zhiIdx);
+  if (!palace) return;
+
+  const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const mainStars = palace.stars.filter(s => s.type === '主星');
+  const auxStars  = palace.stars.filter(s => s.type === '辅星');
+  const huaStars  = palace.stars.filter(s => s.hua);
+
+  let html = `<div class="flex flex-wrap gap-2 mb-3">`;
+  html += `<span class="tag" style="background:rgba(251,191,36,.1);color:#FCD34D;">${palace.name} · ${ZHI[zhiIdx]}宫</span>`;
+  if (palace.isMing) html += `<span class="tag" style="background:rgba(251,191,36,.15);color:#FCD34D;">⭐ 命宫</span>`;
+  if (palace.isShen) html += `<span class="tag" style="background:rgba(168,85,247,.15);color:#C084FC;">✨ 身宫</span>`;
+  html += `</div>`;
+
+  if (mainStars.length) {
+    html += `<div class="mb-3"><div class="text-xs text-amber-400 font-semibold mb-2">主星</div><div class="flex flex-wrap gap-2">`;
+    mainStars.forEach(s => {
+      html += `<div class="glass-card px-3 py-2" style="border-color:rgba(251,191,36,.15);">
+        <div class="text-sm font-bold text-amber-300">${s.name}${s.hua ? ` <span style="font-size:10px;color:#4ADE80;">${s.hua}</span>` : ''}</div>
+        <div class="text-xs text-gray-500">${s.detail?.type || ''} · ${s.detail?.yinyang || ''}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (auxStars.length) {
+    html += `<div><div class="text-xs text-blue-400 font-semibold mb-2">辅星</div><div class="flex flex-wrap gap-2">`;
+    auxStars.forEach(s => {
+      html += `<span class="tag" style="background:rgba(96,165,250,.08);color:#93C5FD;">${s.name}${s.hua ? ` ${s.hua}` : ''}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (!mainStars.length && !auxStars.length) {
+    html += `<p class="text-sm text-gray-500">此宫无主星，需借对宫主星论命</p>`;
+  }
+
+  const detailEl = document.getElementById('ziwei-palace-detail');
+  document.getElementById('ziwei-detail-title').textContent = `${palace.name}（${ZHI[zhiIdx]}）详情`;
+  document.getElementById('ziwei-detail-content').innerHTML = html;
+  detailEl.style.display = 'block';
+  detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderZiweiAll() {
+  if (!ziweiData) return;
+  const d = ziweiData;
+
+  // 四化
+  setText('ziwei-lu',   d.siHua['化禄'] || '--');
+  setText('ziwei-quan', d.siHua['化权'] || '--');
+  setText('ziwei-ke',   d.siHua['化科'] || '--');
+  setText('ziwei-ji',   d.siHua['化忌'] || '--');
+
+  // 概述
+  setText('ziwei-ge-tag',       d.summary['格局'] || '--');
+  setText('ziwei-ming-star-tag', '命宫: ' + d.mingGong.mainStar);
+  setText('ziwei-overview-desc', d.mingGong.interpret.desc || '--');
+  setText('ziwei-ming-zhi',     d.mingGong.zhi + '宫');
+  setText('ziwei-shen-zhi',     d.shenGong.zhi + '宫（' + d.shenGong.mainStar + '）');
+  setText('ziwei-year-ganzhi',  d.lunar.yearGanZhi);
+  setText('ziwei-month-ganzhi', d.lunar.monthGanZhi);
+
+  // 主星解读
+  const star = d.mingGong.mainStar;
+  const interp = d.mingGong.interpret;
+  setText('ziwei-main-star-name', star);
+  setText('ziwei-title-tag',      interp.title || '--');
+  setText('ziwei-star-desc',      interp.desc || '--');
+  setText('ziwei-lucky-color',    '幸运色: ' + (interp.lucky || '--'));
+  setText('ziwei-element-tag',    '命主五行: ' + (interp.element || '--'));
+  document.getElementById('ziwei-star-icon').textContent =
+    star === '紫微' ? '👑' : star === '天机' ? '🧠' : star === '太阳' ? '☀️' :
+    star === '武曲' ? '⚔️' : star === '天同' ? '🌊' : star === '廉贞' ? '🔥' :
+    star === '天府' ? '🏦' : star === '太阴' ? '🌙' : star === '贪狼' ? '🐺' :
+    star === '巨门' ? '🌊' : star === '天相' ? '⚖️' : star === '天梁' ? '🌿' :
+    star === '七杀' ? '🗡️' : star === '破军' ? '💥' : '⭐';
+
+  // 12宫位格子
+  renderZiweiPalaces(d);
+}
+
+// 紫微斗数表单提交
+document.getElementById('ziwei-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('ziwei-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 排盘中...';
+
+  hideAll();
+  showSection('section-loading');
+  activateStep(0);
+  setText('loading-text', '正在排紫微命盘...');
+  setText('loading-sub', 'Calculating Ziwei Doushu Chart');
+
+  const [y, m, d2] = document.getElementById('ziwei-date').value.split('-').map(Number);
+  const [h, min2]  = (document.getElementById('ziwei-time').value || '12:00').split(':').map(Number);
+  const gender     = document.querySelector('input[name="ziwei-gender"]:checked')?.value || '男';
+
+  let result;
+  try {
+    activateStep(0); await delay(500);
+    activateStep(1); await delay(400);
+    activateStep(2); await delay(300);
+
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 20000);
+    const res = await fetch(API_BASE + '/api/ziwei', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year: y, month: m, day: d2, hour: h, minute: min2, gender }),
+      signal: ctrl.signal
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'error');
+    result = json.data;
+    activateStep(3); await delay(300);
+    activateStep(4); await delay(200);
+    isDemoMode = false;
+  } catch (_err) {
+    // Demo fallback
+    result = buildDemoZiwei(y, m, d2, h, gender);
+    activateStep(4); await delay(200);
+    isDemoMode = true;
+  }
+
+  ziweiData = result;
+  hideAll();
+  showSection('section-ziwei-results');
+  renderZiweiAll();
+
+  if (isDemoMode) {
+    const bar = document.createElement('div');
+    bar.id = 'demo-bar';
+    bar.className = 'mb-3';
+    bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80">⚠️ Demo 模式运行中 · 启动服务器可获得真实紫微排盘</div>';
+    document.getElementById('section-ziwei-results').insertBefore(bar, document.getElementById('section-ziwei-results').firstChild);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>✨</span> 排命盘';
+});
+
+function buildDemoZiwei(y, m, d, h, gender) {
+  const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const PALACE_NAMES = ['命宫','兄弟','夫妻','子女','财帛','疾厄','迁移','交友','事业','田宅','福德','父母'];
+
+  // Demo 固定命盘（紫微坐命示例）
+  const mingIdx = 2; // 寅宫
+
+  const palaces = Array.from({ length: 12 }, (_, i) => ({
+    zhiIdx: i,
+    zhi: ZHI[i],
+    name: PALACE_NAMES[((i - mingIdx) % 12 + 12) % 12],
+    stars: [],
+    isMing: i === mingIdx,
+    isShen: i === 8,
+  }));
+
+  // 安主星 Demo
+  palaces[2].stars.push({ name: '紫微', type: '主星', detail: { type: '帝王星', yinyang: '阴土', wuxing: '土' } });
+  palaces[1].stars.push({ name: '天机', type: '主星', detail: { type: '智慧星', yinyang: '阴木', wuxing: '木' } });
+  palaces[0].stars.push({ name: '太阳', type: '主星', detail: { type: '官禄星', yinyang: '阳火', wuxing: '火' } });
+  palaces[11].stars.push({ name: '武曲', type: '主星', detail: { type: '财帛星', yinyang: '阴金', wuxing: '金' } });
+  palaces[10].stars.push({ name: '天同', type: '主星', detail: { type: '福德星', yinyang: '阳水', wuxing: '水' } });
+  palaces[9].stars.push({ name: '廉贞', type: '主星', detail: { type: '囚星', yinyang: '阴火', wuxing: '火' } });
+  palaces[8].stars.push({ name: '天府', type: '主星', detail: { type: '财库星', yinyang: '阳土', wuxing: '土' } });
+  palaces[7].stars.push({ name: '太阴', type: '主星', hua: '化禄', detail: { type: '财帛星', yinyang: '阴水', wuxing: '水' } });
+  palaces[6].stars.push({ name: '贪狼', type: '主星', detail: { type: '欲望星', yinyang: '阳木', wuxing: '木' } });
+  palaces[5].stars.push({ name: '巨门', type: '主星', detail: { type: '是非星', yinyang: '阴土', wuxing: '土' } });
+  palaces[4].stars.push({ name: '天相', type: '主星', detail: { type: '印星', yinyang: '阳水', wuxing: '水' } });
+  palaces[3].stars.push({ name: '天梁', type: '主星', detail: { type: '荫星', yinyang: '阳土', wuxing: '土' } });
+  palaces[0].stars.push({ name: '七杀', type: '主星', detail: { type: '将星', yinyang: '阳金', wuxing: '金' } });
+  palaces[6].stars.push({ name: '破军', type: '主星', hua: '化忌', detail: { type: '耗星', yinyang: '阴水', wuxing: '水' } });
+  // 辅星
+  palaces[3].stars.push({ name: '左辅', type: '辅星', detail: {} });
+  palaces[9].stars.push({ name: '右弼', type: '辅星', detail: {} });
+  palaces[2].stars.push({ name: '文昌', type: '辅星', detail: {} });
+  palaces[1].stars.push({ name: '天魁', type: '辅星', detail: {} });
+
+  return {
+    input: { year: y, month: m, day: d, hour: h, gender },
+    lunar: { year: y - 2697, month: m, day: d, yearGan: '庚', yearZhi: '午', yearGanZhi: '庚午', monthGanZhi: '壬午', dayGanZhi: '辛亥', hourZhi: '未' },
+    mingGong: {
+      zhi: '寅', zhiIdx: mingIdx, mainStar: '紫微',
+      interpret: {
+        title: '帝王格',
+        desc: '（Demo示例）领袖气质天成，独立自主，追求完美，具有极强的组织协调能力。适合担任领导职务，但需避免自我中心。',
+        lucky: '紫色·黄金', element: '土'
+      }
+    },
+    shenGong: { zhi: '申', zhiIdx: 8, mainStar: '天府' },
+    siHua: { '化禄': '太阴', '化权': '天梁', '化科': '武曲', '化忌': '破军' },
+    palaces,
+    summary: {
+      '格局': '紫微坐命 · 帝王格',
+      '身宫': '身宫主星天府',
+      '化禄': '太阴化禄：财运贵人', '化权': '天梁化权：权势掌控',
+      '化科': '武曲化科：文名贵气', '化忌': '破军化忌：阻力暗耗',
+      '幸运色': '紫色·黄金', '命主五行': '土'
+    }
+  };
+}
+
+function handleZiweiReset() {
+  ziweiData = null;
+  document.getElementById('demo-bar')?.remove();
+  document.getElementById('ziwei-palace-detail').style.display = 'none';
+  hideAll();
+  showSection('section-hero-ziwei');
+  document.getElementById('ziwei-form').reset();
+}
+
+// ── URL param: return from payment ────────────
+const params = new URLSearchParams(window.location.search);
+if (params.get('paid') === 'true') {
+  isUnlocked = true;
+  const rid  = params.get('report');
+  if (rid) {
+    fetch(API_BASE + '/api/report/' + rid).then(r => r.json()).then(j => {
+      if (j.success) { reportData = { data: j.data, report_id: rid }; isDemoMode = false; hideAll(); showSection('section-results'); renderAll(); isUnlocked = true; }
+    }).catch(() => {});
+  }
+}
+
+// ══════════════════ 梦境回廊 Module ══════════════════
+let selectedMood = '';
+let dreamTrendChart = null;
+
+// 情绪选择器
+document.querySelectorAll('.mood-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMood = btn.dataset.mood;
+  });
+});
+
+// 字数统计
+document.getElementById('dream-desc')?.addEventListener('input', e => {
+  document.getElementById('dream-char-count').textContent = e.target.value.length;
+});
+
+// 设置默认日期
+(function() {
+  const d = document.getElementById('dream-date');
+  if (d) d.value = new Date().toISOString().slice(0, 10);
+})();
+
+// 提交梦境
+document.getElementById('dream-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('dream-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 解析中...';
+
+  hideAll();
+  showSection('section-loading');
+  setText('loading-text', '正在解析你的梦境...');
+  setText('loading-sub', 'East + West dual perspective analysis');
+
+  const desc = document.getElementById('dream-desc').value.trim();
+  const title = document.getElementById('dream-title').value.trim();
+  const date = document.getElementById('dream-date').value;
+  const mood = selectedMood || '未指定';
+
+  try {
+    const res = await fetch(API_BASE + '/api/dream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: desc, title, mood, dream_date: date })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      hideAll();
+      showSection('section-dream-results');
+      renderDreamResult(data.data, data.ai_enhanced);
+    } else {
+      alert('解析失败: ' + (data.error || '未知错误'));
+      hideAll();
+      showSection('section-hero-dream');
+    }
+  } catch (err) {
+    alert('网络错误: ' + err.message);
+    hideAll();
+    showSection('section-hero-dream');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg> 解析梦境';
+  }
+});
+
+// 渲染梦境结果
+function renderDreamResult(analysis, aiEnhanced) {
+  const omenColors = { '大吉':'#4ADE80', '吉兆':'#86EFAC', '小吉':'#86EFAC', '平兆':'#A5B4FC', '小凶':'#FCD34D', '凶兆':'#F87171' };
+  const omenBg = { '大吉':'rgba(34,197,94,.12)', '吉兆':'rgba(34,197,94,.1)', '小吉':'rgba(34,197,94,.1)', '平兆':'rgba(99,102,241,.12)', '小凶':'rgba(245,158,11,.1)', '凶兆':'rgba(239,68,68,.1)' };
+
+  const east = analysis.east_analysis || {};
+  const west = analysis.west_analysis || {};
+
+  // 概况
+  const omenTag = document.getElementById('dream-omen-tag');
+  omenTag.textContent = east.omen || '--';
+  omenTag.style.background = omenBg[east.omen] || 'rgba(255,255,255,.06)';
+  omenTag.style.color = omenColors[east.omen] || '#A5B4FC';
+
+  document.getElementById('dream-wx-tag').textContent = '五行: ' + (east.five_element || '--');
+  document.getElementById('dream-archetype-tag').textContent = '原型: ' + (west.archetype || '--');
+  document.getElementById('dream-result-title').textContent = east.title || west.title || '梦境解析';
+
+  setText('dream-summary', analysis.summary || '--');
+
+  const score = analysis.luck_score || 50;
+  const scoreEl = document.getElementById('dream-luck-score');
+  scoreEl.textContent = score;
+  scoreEl.style.color = score >= 70 ? '#4ADE80' : score >= 50 ? '#A5B4FC' : score >= 30 ? '#FCD34D' : '#F87171';
+
+  // 关键意象
+  const symbolsWrap = document.getElementById('dream-symbols-wrap');
+  symbolsWrap.innerHTML = (analysis.symbols || []).map(s =>
+    `<span class="tag" style="background:rgba(99,102,241,.1);color:#A5B4FC;">${s}</span>`
+  ).join('');
+
+  // 东方解梦
+  setText('dream-east-title', east.title || '周公解梦');
+  const eastOmenEl = document.getElementById('dream-east-omen');
+  eastOmenEl.textContent = east.omen || '--';
+  eastOmenEl.style.background = omenBg[east.omen] || 'rgba(245,158,11,.1)';
+  setText('dream-east-interpretation', east.interpretation || '--');
+  setText('dream-east-ref', east.classic_ref || '');
+
+  // 西方心理学
+  setText('dream-west-title', west.title || '心理学解析');
+  setText('dream-freudian', west.freudian || '--');
+  setText('dream-jungian', west.jungian || '--');
+
+  // AI 标识
+  if (aiEnhanced) {
+    const aiTag = document.createElement('span');
+    aiTag.className = 'tag';
+    aiTag.style.cssText = 'background:rgba(168,85,247,.15);color:#C084FC;margin-left:8px;';
+    aiTag.textContent = 'AI Enhanced';
+    document.getElementById('dream-overview-card').querySelector('.flex.items-center.gap-2').appendChild(aiTag);
+  }
+
+  // 加载趋势图
+  loadDreamTrend();
+}
+
+// 新梦境
+function handleDreamNew() {
+  hideAll();
+  showSection('section-hero-dream');
+  document.getElementById('dream-form').reset();
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  selectedMood = '';
+  document.getElementById('dream-char-count').textContent = '0';
+  document.getElementById('dream-date').value = new Date().toISOString().slice(0, 10);
+  // 移除 AI tag
+  document.querySelectorAll('#dream-overview-card .tag:last-child').forEach(el => {
+    if (el.textContent === 'AI Enhanced') el.remove();
+  });
+}
+
+// 梦境趋势图
+async function loadDreamTrend() {
+  try {
+    const res = await fetch(API_BASE + '/api/dream/trend');
+    const data = await res.json();
+    if (!data.success || !data.trend || data.trend.length === 0) {
+      document.getElementById('dream-trend-chart').style.display = 'none';
+      document.getElementById('dream-trend-empty').style.display = 'block';
+      return;
+    }
+    document.getElementById('dream-trend-chart').style.display = 'block';
+    document.getElementById('dream-trend-empty').style.display = 'none';
+
+    if (dreamTrendChart) dreamTrendChart.dispose();
+    dreamTrendChart = echarts.init(document.getElementById('dream-trend-chart'));
+
+    const dates = data.trend.map(t => t.date);
+    const scores = data.trend.map(t => t.score);
+    const moodMap = { '喜悦':5, '平静':4, '困惑':3, '焦虑':2, '悲伤':1, '恐惧':0, '未指定':3 };
+    const moodNums = data.trend.map(t => moodMap[t.mood] || 3);
+
+    dreamTrendChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger:'axis', backgroundColor:'rgba(15,12,31,.9)', borderColor:'rgba(99,102,241,.3)', textStyle:{color:'#D1D5DB',fontSize:12} },
+      legend: { data:['吉凶指数','情绪指数'], textStyle:{color:'#6B7280',fontSize:11}, top:0 },
+      grid: { top:35, right:20, bottom:25, left:40 },
+      xAxis: { type:'category', data:dates, axisLine:{lineStyle:{color:'rgba(255,255,255,.1)'}}, axisLabel:{color:'#6B7280',fontSize:11,rotate:dates.length>10?45:0} },
+      yAxis: [
+        { type:'value', min:0, max:100, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}}, axisLabel:{color:'#6B7280',fontSize:11} },
+        { type:'value', min:0, max:5, splitLine:{show:false}, axisLabel:{color:'#6B7280',fontSize:11} }
+      ],
+      series: [
+        { name:'吉凶指数', type:'line', data:scores, smooth:true, lineStyle:{color:'#A855F7',width:2}, itemStyle:{color:'#A855F7'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(168,85,247,.2)'},{offset:1,color:'rgba(168,85,247,.01)'}]}} },
+        { name:'情绪指数', type:'line', yAxisIndex:1, data:moodNums, smooth:true, lineStyle:{color:'#6366F1',width:2,type:'dashed'}, itemStyle:{color:'#6366F1'} }
+      ]
+    });
+
+    window.addEventListener('resize', () => dreamTrendChart?.resize());
+  } catch (e) {
+    console.error('Dream trend error:', e);
+  }
+}
+
+// 梦境历史列表
+async function loadDreamHistory() {
+  hideAll();
+  showSection('section-dream-history');
+
+  try {
+    const res = await fetch(API_BASE + '/api/dreams');
+    const data = await res.json();
+    const list = document.getElementById('dream-history-list');
+
+    if (!data.success || !data.dreams || data.dreams.length === 0) {
+      list.innerHTML = '<div class="text-center text-gray-600 text-sm py-8">暂无梦境记录，去记录你的第一个梦吧 ✨</div>';
+      return;
+    }
+
+    list.innerHTML = data.dreams.map(d => {
+      const scoreColor = d.luck_score >= 70 ? 'background:rgba(34,197,94,.15);color:#4ADE80;' :
+                          d.luck_score >= 50 ? 'background:rgba(99,102,241,.15);color:#A5B4FC;' :
+                          d.luck_score >= 30 ? 'background:rgba(245,158,11,.15);color:#FCD34D;' :
+                          'background:rgba(239,68,68,.15);color:#F87171;';
+      const moodEmoji = { '喜悦':'😊','平静':'😌','困惑':'😕','焦虑':'😰','恐惧':'😨','悲伤':'😢','未指定':'🌙' };
+      return `<div class="dream-item" onclick="loadDreamDetail('${d.id}')">
+        <div class="dream-score-ring" style="${scoreColor}">${d.luck_score}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-200 truncate">${d.title || '无题梦境'}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${moodEmoji[d.mood]||'🌙'} ${d.mood} · ${d.dream_date || '--'}</div>
+          ${d.summary ? `<div class="text-xs text-gray-600 mt-1 truncate">${d.summary}</div>` : ''}
+        </div>
+        <svg class="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    document.getElementById('dream-history-list').innerHTML = '<div class="text-center text-red-400 text-sm py-8">加载失败</div>';
+  }
+}
+
+// 加载梦境详情
+async function loadDreamDetail(id) {
+  try {
+    const res = await fetch(API_BASE + '/api/dreams');
+    const data = await res.json();
+    if (!data.success) return;
+    const dream = data.dreams.find(d => d.id === id);
+    if (!dream) return;
+
+    hideAll();
+    showSection('section-dream-results');
+
+    // 构造简易分析数据用于展示
+    renderDreamResult({
+      mood: dream.mood,
+      symbols: dream.symbols || [],
+      luck_score: dream.luck_score,
+      summary: dream.summary || '',
+      east_analysis: { title:'周公解梦', omen:'--', five_element:'--', interpretation:'详细解析需重新提交梦境。', classic_ref:'' },
+      west_analysis: { title:'心理学解析', freudian:'详细解析需重新提交梦境。', jungian:'', archetype:'--' }
+    }, false);
+  } catch (e) {
+    console.error('Load dream detail error:', e);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  v3.4  灵境人格 — Module 2
+// ════════════════════════════════════════════════════════════════
+let currentPersona = null;
+let chatHistory = [];
+
+async function generatePersona() {
+    const b = readBirth();
+    if (!b.year) return alert('请输入出生日期');
+    document.getElementById('persona-loading').classList.remove('hidden-section');
+    document.getElementById('persona-card-wrap').classList.add('hidden-section');
+    document.getElementById('persona-needs-birth').classList.add('hidden-section');
+    try {
+        const r = await fetch(API_BASE + '/api/persona/generate', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(b)
+        });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.error || '生成失败');
+        currentPersona = j.data;
+        renderPersonaCard(j.data);
+    } catch(e) {
+        alert('生成人格失败：' + e.message + '\n请检查后端服务');
+    } finally {
+        document.getElementById('persona-loading').classList.add('hidden-section');
+    }
+}
+
+function renderPersonaCard(p) {
+    const wrap = document.getElementById('persona-card-wrap');
+    wrap.classList.remove('hidden-section');
+    document.getElementById('persona-name').textContent = p.name;
+    document.getElementById('persona-meta').innerHTML = `
+        <span class="tag tag-purple">${p.day_gan}日主 · ${p.day_wuxing}行</span>
+        <span class="tag tag-amber">${p.archetype}</span>
+        <span class="tag">${p.main_shishen} · ${p.ss_info.tag}</span>
+        <span class="tag">虚拟${p.virtual_gender === '女' ? '姐妹' : '兄长'}</span>
+    `;
+    document.getElementById('persona-ss-desc').textContent = p.ss_info.desc;
+    document.getElementById('persona-weakness').textContent = p.weakness;
+    document.getElementById('persona-style').textContent = p.speaking_style;
+    const traitsEl = document.getElementById('persona-traits');
+    traitsEl.innerHTML = p.traits.map(t => `<span class="tag">${t}</span>`).join('');
+    const miss = p.missing_elements.length
+        ? p.missing_elements.map(m => `<span class="tag tag-amber">缺${m}</span>`).join('')
+        : '<span class="tag tag-green">五行俱全</span>';
+    document.getElementById('persona-missing').innerHTML = miss;
+    // 加载历史
+    loadChatHistory(p.persona_id);
+}
+
+async function loadChatHistory(pid) {
+    if (!pid) return;
+    chatHistory = [];
+    try {
+        const r = await fetch(API_BASE + '/api/persona/history?persona_id=' + encodeURIComponent(pid));
+        const j = await r.json();
+        if (j.success) chatHistory = j.history;
+    } catch(e) { console.error(e); }
+    renderChat();
+}
+
+function renderChat() {
+    const el = document.getElementById('persona-chat-list');
+    if (!chatHistory.length) {
+        el.innerHTML = `<div class="text-center text-gray-500 text-sm py-8">${currentPersona ? '开始与 ' + currentPersona.name + ' 对话吧' : '请先生成虚拟人格'}</div>`;
+        return;
+    }
+    el.innerHTML = chatHistory.map(m => `
+        <div class="flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}">
+            <div class="max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+                m.role === 'user'
+                  ? 'bg-gradient-to-br from-purple-600/30 to-pink-600/30 border border-purple-400/20 text-purple-50'
+                  : 'bg-white/[0.04] border border-white/10 text-gray-200'
+            }">
+                <div class="text-[11px] opacity-60 mb-1">${m.role === 'user' ? '我' : currentPersona?.name || '人格'}</div>
+                ${escapeHtml(m.content)}
+            </div>
+        </div>
+    `).join('');
+    el.scrollTop = el.scrollHeight;
+}
+
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+async function sendChat() {
+    if (!currentPersona) return alert('请先生成虚拟人格');
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    chatHistory.push({ role: 'user', content: msg });
+    renderChat();
+    // 临时显示打字中
+    chatHistory.push({ role: 'assistant', content: '…' });
+    renderChat();
+    const idx = chatHistory.length - 1;
+    try {
+        const r = await fetch(API_BASE + '/api/persona/chat', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ persona_id: currentPersona.persona_id, message: msg })
+        });
+        const j = await r.json();
+        chatHistory[idx] = { role: 'assistant', content: j.reply || '（无回复）' };
+    } catch(e) {
+        chatHistory[idx] = { role: 'assistant', content: '（连接失败，请稍后再试）' };
+    }
+    renderChat();
+}
+
+document.getElementById('chat-input')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+});
+
+async function resetPersona() {
+    if (!currentPersona) return;
+    if (!confirm('确定要重置与 ' + currentPersona.name + ' 的对话历史吗？')) return;
+    try {
+        await fetch(API_BASE + '/api/persona/reset', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ persona_id: currentPersona.persona_id })
+        });
+        chatHistory = [];
+        renderChat();
+    } catch(e) { alert('重置失败：' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  v3.5  灵境占卜 — Module 5
+// ════════════════════════════════════════════════════════════════
+let divinationType = 'tarot';
+
+function selectDivinationType(t) {
+    divinationType = t;
+    document.querySelectorAll('.divi-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('divi-tab-' + t).classList.add('active');
+    document.getElementById('divi-tarot-form').classList.toggle('hidden-section', t !== 'tarot');
+    document.getElementById('divi-jiaobei-form').classList.toggle('hidden-section', t !== 'jiaobei');
+    document.getElementById('divi-daily').classList.toggle('hidden-section', t !== 'daily');
+    document.getElementById('divi-result').classList.add('hidden-section');
+}
+
+async function doTarot() {
+    const q = document.getElementById('tarot-question').value.trim();
+    const spread = document.getElementById('tarot-spread').value;
+    document.getElementById('divi-loading').classList.remove('hidden-section');
+    document.getElementById('divi-result').classList.add('hidden-section');
+    try {
+        const r = await fetch(API_BASE + '/api/divination/tarot', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ spread, question: q })
+        });
+        const j = await r.json();
+        if (!j.success) throw new Error(j.error || '占卜失败');
+        renderTarotResult(j);
+    } catch(e) { alert('塔罗占卜失败：' + e.message); }
+    finally { document.getElementById('divi-loading').classList.add('hidden-section'); }
+}
+
+function renderTarotResult(j) {
+    document.getElementById('divi-result').classList.remove('hidden-section');
+    const wrap = document.getElementById('divi-result');
+    const cards = j.cards.map(c => `
+        <div class="glass-card p-5 text-center slide-in" style="min-width:140px">
+            <div class="text-3xl mb-2">${c.reversed ? '🃏' : '🎴'}</div>
+            <div class="text-base font-bold mb-1 ${c.reversed ? 'text-pink-300' : 'text-purple-200'}">${c.name}</div>
+            <div class="text-xs ${c.reversed ? 'text-pink-400' : 'text-amber-300'} mb-2">${c.reversed ? '逆位' : '正位'} · ${c.position}</div>
+            <div class="text-xs text-gray-400 leading-relaxed">${c.meaning}</div>
+        </div>
+    `).join('');
+    wrap.innerHTML = `
+        <div class="glass p-6 md:p-8">
+            <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <span>🃏</span> 塔罗牌阵
+                ${j.ai_enhanced ? '<span class="tag tag-purple text-[10px]">AI 增强</span>' : ''}
+            </h3>
+            <div class="flex flex-wrap gap-4 justify-center mb-6">${cards}</div>
+            <div class="iblock text-sm leading-relaxed text-gray-300 whitespace-pre-wrap">${escapeHtml(j.interpretation)}</div>
+            <div class="text-center mt-6">
+                <button class="btn-secondary" onclick="selectDivinationType('tarot');doTarot()">🔄 再抽一次</button>
+            </div>
+        </div>
+    `;
+}
+
+async function doJiaobei() {
+    const q = document.getElementById('jiaobei-question').value.trim();
+    document.getElementById('divi-loading').classList.remove('hidden-section');
+    document.getElementById('divi-result').classList.add('hidden-section');
+    try {
+        const r = await fetch(API_BASE + '/api/divination/jiaobei', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: q })
+        });
+        const j = await r.json();
+        renderJiaobeiResult(j);
+    } catch(e) { alert('摇杯筊失败：' + e.message); }
+    finally { document.getElementById('divi-loading').classList.add('hidden-section'); }
+}
+
+function renderJiaobeiResult(j) {
+    const colors = { '圣杯':'#4ADE80', '阴杯':'#94A3B8', '阳杯':'#FCD34D', '笑杯':'#F472B6' };
+    const c = colors[j.result] || '#A855F7';
+    const emoji = j.result === '圣杯' ? '🌟' : j.result === '阴杯' ? '☁️' : j.result === '阳杯' ? '☀️' : '🌸';
+    document.getElementById('divi-result').classList.remove('hidden-section');
+    document.getElementById('divi-result').innerHTML = `
+        <div class="glass p-8 text-center">
+            <div class="text-7xl mb-4" style="animation:float 2s ease-in-out infinite">${emoji}</div>
+            <h3 class="text-2xl font-bold mb-2" style="color:${c}">${j.result}</h3>
+            <div class="flex justify-center gap-3 my-4">
+                <div class="w-16 h-20 rounded-lg flex items-center justify-center text-2xl" style="background:rgba(255,255,255,.05);border:1px solid ${c}">
+                    ${j.throws[0] ? '☀️' : '🌑'}
+                </div>
+                <div class="w-16 h-20 rounded-lg flex items-center justify-center text-2xl" style="background:rgba(255,255,255,.05);border:1px solid ${c}">
+                    ${j.throws[1] ? '☀️' : '🌑'}
+                </div>
+            </div>
+            <div class="iblock text-sm leading-relaxed text-gray-300 whitespace-pre-wrap text-left mt-4">${escapeHtml(j.interpretation)}</div>
+            <div class="text-center mt-6">
+                <button class="btn-secondary" onclick="doJiaobei()">🙏 再请示</button>
+            </div>
+        </div>
+    `;
+}
+
+async function loadDailyQian() {
+    document.getElementById('divi-daily').innerHTML = '<div class="text-center text-gray-500 py-6">抽取中…</div>';
+    try {
+        const r = await fetch(API_BASE + '/api/divination/daily');
+        const j = await r.json();
+        renderDailyQian(j);
+    } catch(e) {
+        document.getElementById('divi-daily').innerHTML = '<div class="text-center text-pink-300 py-6">加载失败：' + e.message + '</div>';
+    }
+}
+
+function renderDailyQian(j) {
+    const levelColors = { '上上':'#FCD34D', '上':'#A5B4FC', '中上':'#86EFAC', '中':'#94A3B8', '中下':'#FCA5A5', '下':'#FCA5A5', '下下':'#F472B6' };
+    const c = levelColors[j.level] || '#A855F7';
+    document.getElementById('divi-daily').innerHTML = `
+        <div class="glass p-6 md:p-8 text-center">
+            <div class="text-xs text-gray-500 mb-2">${j.date} · 第 ${j.qian_id} 签</div>
+            <div class="text-5xl font-bold mb-3" style="color:${c}">${j.level}</div>
+            <div class="iblock text-left my-5">
+                <div class="text-base leading-loose text-purple-100 whitespace-pre-line font-serif" style="letter-spacing:.1em">${escapeHtml(j.poem)}</div>
+            </div>
+            <div class="iblock text-left mb-4">
+                <div class="text-xs text-amber-300 mb-1">典故</div>
+                <div class="text-sm text-gray-300">${escapeHtml(j.story)}</div>
+            </div>
+            <div class="iblock text-left">
+                <div class="text-xs text-purple-300 mb-1">解曰</div>
+                <div class="text-sm text-gray-200">${escapeHtml(j.advice)}</div>
+            </div>
+        </div>
+    `;
+}
+
+// ════════════════════════════════════════════════════════════════
+//  v3.6  灵境修行 — Module 6
+// ════════════════════════════════════════════════════════════════
+async function loadCultivation() {
+    document.getElementById('cultivation-loading').classList.remove('hidden-section');
+    document.getElementById('cultivation-content').classList.add('hidden-section');
+    try {
+        const [today, stats, diaryTrend, scenes] = await Promise.all([
+            fetch(API_BASE + '/api/cultivation/today').then(r => r.json()),
+            fetch(API_BASE + '/api/cultivation/stats').then(r => r.json()),
+            fetch(API_BASE + '/api/cultivation/diary/trend?days=30').then(r => r.json()),
+            fetch(API_BASE + '/api/cultivation/meditation').then(r => r.json())
+        ]);
+        renderCultivation(today, stats, diaryTrend, scenes);
+    } catch(e) { alert('加载修行数据失败：' + e.message); }
+    finally { document.getElementById('cultivation-loading').classList.add('hidden-section'); }
+}
+
+function renderCultivation(today, stats, diaryTrend, scenes) {
+    document.getElementById('cultivation-content').classList.remove('hidden-section');
+    // 统计
+    const statsEl = document.getElementById('cultivation-stats');
+    statsEl.innerHTML = `
+        <div class="grid grid-cols-3 gap-3 mb-5">
+            <div class="stat-card">
+                <div class="text-2xl font-bold text-purple-300">${stats.total || 0}</div>
+                <div class="text-xs text-gray-500 mt-1">修行值</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-2xl font-bold text-amber-300">${stats.streak || 0}</div>
+                <div class="text-xs text-gray-500 mt-1">连续天数</div>
+            </div>
+            <div class="stat-card">
+                <div class="text-lg font-bold text-pink-300">${stats.level || '初学者'}</div>
+                <div class="text-xs text-gray-500 mt-1">修行等级</div>
+            </div>
+        </div>
+    `;
+    // 今日任务
+    const tasksEl = document.getElementById('cultivation-tasks');
+    tasksEl.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-base font-bold">📿 今日功课</h3>
+            <span class="text-xs text-gray-500">${today.date}</span>
+        </div>
+        <div class="space-y-2">
+            ${today.tasks.map(t => `
+                <div class="task-item glass-card p-4 flex items-center gap-4 cursor-pointer ${t.completed ? 'opacity-60' : ''}" onclick="toggleCheckin('${t.id}')">
+                    <div class="text-2xl">${t.icon}</div>
+                    <div class="flex-1">
+                        <div class="text-sm font-medium ${t.completed ? 'line-through' : ''}">${t.type}</div>
+                        <div class="text-xs text-gray-500">${t.desc}</div>
+                    </div>
+                    <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${t.completed ? 'bg-purple-500 border-purple-500' : 'border-gray-600'}">
+                        ${t.completed ? '<span class="text-xs">✓</span>' : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    // 冥想
+    const medEl = document.getElementById('cultivation-meditation');
+    medEl.innerHTML = `
+        <h3 class="text-base font-bold mb-3">🧘 冥想引导</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            ${scenes.scenes.map(s => `
+                <div class="meditation-card glass-card p-4 text-center cursor-pointer" onclick="startMeditation('${s.id}')">
+                    <div class="text-3xl mb-2">${s.icon}</div>
+                    <div class="text-sm font-medium">${s.name}</div>
+                    <div class="text-xs text-gray-500 mt-1">${s.desc}</div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    // 日记趋势图
+    if (diaryTrend.trend && diaryTrend.trend.length) {
+        renderDiaryTrend(diaryTrend.trend);
+    } else {
+        document.getElementById('diary-trend').innerHTML = '<div class="text-center text-gray-500 text-sm py-6">写第一篇能量日记开始追踪趋势 →</div>';
+    }
+}
+
+async function toggleCheckin(taskId) {
+    try {
+        const r = await fetch(API_BASE + '/api/cultivation/checkin', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ task_id: taskId })
+        });
+        const j = await r.json();
+        if (j.success) {
+            loadCultivation(); // 重新加载
+        }
+    } catch(e) { console.error(e); }
+}
+
+let diaryChart = null;
+function renderDiaryTrend(trend) {
+    const el = document.getElementById('diary-trend');
+    el.innerHTML = '<h3 class="text-base font-bold mb-3">📈 能量趋势 (30天)</h3><div id="diary-trend-chart" style="height:200px"></div>';
+    const chart = echarts.init(document.getElementById('diary-trend-chart'));
+    chart.setOption({
+        grid: { left: 30, right: 16, top: 16, bottom: 30 },
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: trend.map(t => t.date.slice(5)), axisLine: { lineStyle: { color: '#4B5563' } }, axisLabel: { color: '#9CA3AF', fontSize: 10 } },
+        yAxis: { type: 'value', min: 0, max: 10, splitLine: { lineStyle: { color: 'rgba(255,255,255,.05)' } }, axisLabel: { color: '#9CA3AF', fontSize: 10 } },
+        series: [
+            { name: '情绪', type: 'line', data: trend.map(t => t.mood), smooth: true, lineStyle: { color: '#A855F7' }, itemStyle: { color: '#A855F7' }, areaStyle: { color: 'rgba(168,85,247,.15)' } },
+            { name: '精力', type: 'line', data: trend.map(t => t.energy), smooth: true, lineStyle: { color: '#22C55E' }, itemStyle: { color: '#22C55E' } }
+        ]
+    });
+    diaryChart?.dispose();
+    diaryChart = chart;
+}
+
+async function startMeditation(id) {
+    try {
+        const r = await fetch(API_BASE + '/api/cultivation/meditation/' + id);
+        const j = await r.json();
+        if (!j.success) throw new Error(j.error);
+        const s = j.data;
+        // 用全屏 modal 显示
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position:fixed;inset:0;background:rgba(8,6,24,.96);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(20px)';
+        modal.innerHTML = `
+            <div class="glass p-8 max-w-2xl w-full text-center" style="max-height:90vh;overflow-y:auto">
+                <div class="text-5xl mb-4" style="animation:pulse-ring 2s infinite">${s.icon}</div>
+                <h2 class="text-2xl font-bold mb-2">${s.name}</h2>
+                <p class="text-sm text-gray-400 mb-6">${s.desc}</p>
+                <div class="text-left text-base leading-loose text-purple-100 whitespace-pre-line font-serif" style="letter-spacing:.05em">${escapeHtml(s.script)}</div>
+                <button class="btn-secondary mt-6" onclick="this.closest('div[style*=fixed]').remove()">完成</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+    } catch(e) { alert('加载冥想引导失败：' + e.message); }
+}
+
+async function saveDiary() {
+    const mood = +document.getElementById('diary-mood').value;
+    const energy = +document.getElementById('diary-energy').value;
+    const grat = document.getElementById('diary-grat').value.split('\n').filter(s => s.trim());
+    const refl = document.getElementById('diary-refl').value;
+    if (!mood || !energy) return alert('请填写情绪和精力');
+    try {
+        const r = await fetch(API_BASE + '/api/cultivation/diary', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mood, energy, gratitudes: grat, reflection: refl })
+        });
+        const j = await r.json();
+        if (j.success) {
+            alert(j.action === 'updated' ? '已更新今日日记' : '已保存今日日记');
+            document.getElementById('diary-refl').value = '';
+            document.getElementById('diary-grat').value = '';
+            loadCultivation();
+        }
+    } catch(e) { alert('保存失败：' + e.message); }
+}
+
+// ════════════════════════════════════════════════════════════════
+//  v3.7  灵境市集 — Module 7
+// ════════════════════════════════════════════════════════════════
+let marketTab = 'digital';
+let marketCache = {};
+
+function selectMarketTab(t) {
+    marketTab = t;
+    document.querySelectorAll('.market-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('market-tab-' + t).classList.add('active');
+    loadMarket();
+}
+
+async function loadMarket() {
+    document.getElementById('market-loading').classList.remove('hidden-section');
+    document.getElementById('market-content').classList.add('hidden-section');
+    try {
+        let url = marketTab === 'digital' ? '/api/market/digital'
+                : marketTab === 'crystals' ? '/api/market/crystals'
+                : '/api/market/events';
+        if (!marketCache[marketTab]) {
+            const r = await fetch(API_BASE + url);
+            const j = await r.json();
+            marketCache[marketTab] = j.items;
+        }
+        renderMarket(marketCache[marketTab], marketTab);
+        // 加载心愿单
+        const w = await fetch(API_BASE + '/api/market/wishlist').then(r => r.json());
+        window._wishlist = (w.items || []).map(x => x.item_id);
+    } catch(e) { alert('加载市集失败：' + e.message); }
+    finally {
+        document.getElementById('market-loading').classList.add('hidden-section');
+        document.getElementById('market-content').classList.remove('hidden-section');
+    }
+}
+
+function renderMarket(items, type) {
+    const el = document.getElementById('market-content');
+    if (!items || !items.length) { el.innerHTML = '<div class="text-center text-gray-500 py-10">暂无商品</div>'; return; }
+    el.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            ${items.map(item => {
+                const inWish = (window._wishlist || []).includes(item.id);
+                const wx = item.wx ? `<span class="tag tag-amber">五行:${item.wx}</span>` : '';
+                const date = item.date ? `<div class="text-xs text-purple-300 mt-1">📅 ${item.date}</div>` : '';
+                const loc = item.location ? `<div class="text-xs text-gray-400 mt-1">📍 ${item.location}</div>` : '';
+                const slots = item.slots ? `<div class="text-xs text-gray-400 mt-1">👥 名额 ${item.slots}</div>` : '';
+                return `
+                    <div class="market-item glass-card p-5">
+                        <div class="text-4xl mb-3">${item.icon || '🎁'}</div>
+                        <h4 class="text-base font-bold mb-1">${item.name}</h4>
+                        <p class="text-xs text-gray-400 leading-relaxed mb-3">${item.desc}</p>
+                        <div class="flex flex-wrap gap-1 mb-3">${wx}${date}${loc}${slots}</div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-lg font-bold text-amber-300">¥${(item.price/100).toFixed(2)}</div>
+                            <button class="wishlist-btn ${inWish ? 'active' : ''}" onclick="toggleWishlist('${item.id}','${type}')">
+                                ${inWish ? '❤️' : '🤍'}
+                            </button>
+                        </div>
+                        <button class="btn-secondary w-full mt-3" onclick="buyDemo('${item.name}')">🛒 加入心愿</button>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
+async function toggleWishlist(itemId, type) {
+    try {
+        const r = await fetch(API_BASE + '/api/market/wishlist', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId, item_type: type })
+        });
+        const j = await r.json();
+        if (j.success) {
+            // 重新拉心愿单
+            const w = await fetch(API_BASE + '/api/market/wishlist').then(r => r.json());
+            window._wishlist = (w.items || []).map(x => x.item_id);
+            loadMarket();
+        }
+    } catch(e) { console.error(e); }
+}
+
+function buyDemo(name) {
+    alert(`【Demo 模式】\n\n\"${name}\" 已加入您的愿望清单。\n\n实际购买功能在正式版上线，敬请期待！`);
+}
+
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.4 灵境人格 — Module 2
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-persona" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-10 text-center mb-6">
+    <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">💞</div>
+    <h2 class="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">灵境人格</h2>
+    <p class="text-gray-400 text-sm mb-6 leading-relaxed max-w-md mx-auto">
+      基于你的八字日主与十神组合，<br>生成一位灵魂伴侣式 AI 人格，与你日常对话、情绪疏导、命理解读
+    </p>
+    <button class="btn-primary" onclick="generatePersona()">✨ 生成虚拟人格</button>
+    <p class="text-xs text-gray-600 mt-4">需要先在上方输入出生信息（灵境图谱页）</p>
+  </div>
+
+  <div id="persona-loading" class="hidden-section text-center py-12">
+    <div class="inline-block w-12 h-12 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    <p class="text-gray-400 mt-4 text-sm">正在召唤灵魂伴侣…</p>
+  </div>
+
+  <div id="persona-card-wrap" class="hidden-section">
+    <div class="glass p-6 md:p-8 mb-5">
+      <div class="text-center mb-5">
+        <h3 class="text-2xl font-bold mb-2" id="persona-name">—</h3>
+        <div class="flex flex-wrap justify-center gap-2" id="persona-meta"></div>
+      </div>
+      <div class="space-y-3 mb-5">
+        <div class="iblock">
+          <div class="text-xs text-purple-300 mb-1">主要特质</div>
+          <div class="text-sm text-gray-200" id="persona-ss-desc">—</div>
+        </div>
+        <div class="iblock">
+          <div class="text-xs text-amber-300 mb-1">性格弱点</div>
+          <div class="text-sm text-gray-200" id="persona-weakness">—</div>
+        </div>
+        <div class="iblock">
+          <div class="text-xs text-pink-300 mb-1">说话风格</div>
+          <div class="text-sm text-gray-200" id="persona-style">—</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-2">特质标签</div>
+          <div class="flex flex-wrap gap-2" id="persona-traits"></div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-2">五行状态</div>
+          <div class="flex flex-wrap gap-2" id="persona-missing"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass p-5 md:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold">💬 与她/他对话</h3>
+        <button class="text-xs text-pink-400 hover:text-pink-300" onclick="resetPersona()">重置对话</button>
+      </div>
+      <div id="persona-chat-list" class="space-y-3 mb-4" style="max-height:480px;overflow-y:auto"></div>
+      <div class="flex gap-2">
+        <textarea id="chat-input" class="input-field" rows="2" placeholder="说点什么… (Enter 发送, Shift+Enter 换行)" style="resize:none"></textarea>
+        <button class="btn-primary" style="padding:0 18px" onclick="sendChat()">发送</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.5 灵境占卜 — Module 5
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-divination" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8 mb-6">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🃏</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">灵境占卜</h2>
+      <p class="text-gray-400 text-sm">塔罗 · 杯筊 · 每日一签 — 与天地对话的仪式</p>
+    </div>
+
+    <div class="module-tabs mb-6" style="max-width:480px">
+      <button class="module-tab active divi-tab" id="divi-tab-tarot" onclick="selectDivinationType('tarot')">🃏 塔罗</button>
+      <button class="module-tab divi-tab" id="divi-tab-jiaobei" onclick="selectDivinationType('jiaobei')">🙏 杯筊</button>
+      <button class="module-tab divi-tab" id="divi-tab-daily" onclick="selectDivinationType('daily')">🎴 每日一签</button>
+    </div>
+
+    <div id="divi-tarot-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">牌阵</label>
+        <select id="tarot-spread" class="input-field">
+          <option value="single">单牌指引（适合日常）</option>
+          <option value="three" selected>三牌时间线（过去/现在/未来）</option>
+          <option value="celtic">凯尔特十字（深度占卜）</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">你的问题（可选）</label>
+        <textarea id="tarot-question" class="input-field" rows="2" placeholder="例如：我最近的工作方向该如何选择？"></textarea>
+      </div>
+      <button class="btn-primary w-full" onclick="doTarot()">🎴 开始占卜</button>
+    </div>
+
+    <div id="divi-jiaobei-form" class="hidden-section space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2">请示问题</label>
+        <textarea id="jiaobei-question" class="input-field" rows="2" placeholder="例如：本次合作是否可成？"></textarea>
+      </div>
+      <button class="btn-primary w-full" onclick="doJiaobei()">🙏 投掷杯筊</button>
+    </div>
+
+    <div id="divi-daily" class="hidden-section">
+      <button class="btn-primary w-full mb-4" onclick="loadDailyQian()">🎴 抽取今日签文</button>
+    </div>
+
+    <div id="divi-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="divi-result" class="hidden-section mt-6"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.6 灵境修行 — Module 6
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-cultivation" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8 mb-6">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🧘</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">灵境修行</h2>
+      <p class="text-gray-400 text-sm">了凡四训 · 冥想引导 · 能量日记</p>
+    </div>
+    <div id="cultivation-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="cultivation-content" class="hidden-section">
+      <div id="cultivation-stats"></div>
+      <div id="cultivation-tasks" class="mb-6"></div>
+      <div id="cultivation-meditation" class="mb-6"></div>
+      <div id="diary-trend" class="iblock"></div>
+    </div>
+  </div>
+
+  <div class="glass p-5 md:p-6">
+    <h3 class="text-base font-bold mb-4">📓 今日能量日记</h3>
+    <div class="space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-gray-500">情绪 (1-10)</label>
+          <input type="number" id="diary-mood" min="1" max="10" value="7" class="input-field mt-1">
+        </div>
+        <div>
+          <label class="text-xs text-gray-500">精力 (1-10)</label>
+          <input type="number" id="diary-energy" min="1" max="10" value="7" class="input-field mt-1">
+        </div>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">感恩三件事（每行一件）</label>
+        <textarea id="diary-grat" class="input-field mt-1" rows="3" placeholder="今天值得感恩的事…"></textarea>
+      </div>
+      <div>
+        <label class="text-xs text-gray-500">今日反思</label>
+        <textarea id="diary-refl" class="input-field mt-1" rows="2" placeholder="今天的领悟…"></textarea>
+      </div>
+      <button class="btn-secondary w-full" onclick="saveDiary()">💾 保存今日日记</button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.7 灵境市集 — Module 7
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-market" class="hidden-section max-w-5xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🛍️</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">灵境市集</h2>
+      <p class="text-gray-400 text-sm">数字周边 · 水晶能量 · 线下活动</p>
+    </div>
+
+    <div class="module-tabs mb-6" style="max-width:480px">
+      <button class="module-tab active market-tab" id="market-tab-digital" onclick="selectMarketTab('digital')">📄 数字周边</button>
+      <button class="module-tab market-tab" id="market-tab-crystals" onclick="selectMarketTab('crystals')">💎 水晶</button>
+      <button class="module-tab market-tab" id="market-tab-events" onclick="selectMarketTab('events')">🏯 线下</button>
+    </div>
+
+    <div id="market-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="market-content" class="hidden-section"></div>
+  </div>
+</section>
+
+<style>
+/* ── 新增模块样式 ── */
+.wishlist-btn { background:transparent; border:none; cursor:pointer; font-size:22px; transition:transform .2s; }
+.wishlist-btn:hover { transform:scale(1.2); }
+.wishlist-btn.active { animation:pulse-ring 1.5s infinite; }
+.task-item, .meditation-card { transition:all .25s; }
+.task-item:hover, .meditation-card:hover { background:rgba(168,85,247,.08); border-color:rgba(168,85,247,.25); transform:translateY(-1px); }
+.market-item { transition:all .3s; }
+.market-item:hover { transform:translateY(-3px); border-color:rgba(168,85,247,.2); box-shadow:0 8px 24px rgba(168,85,247,.1); }
+</style>
+
+</body>
+</html>

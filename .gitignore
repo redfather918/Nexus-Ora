@@ -1,50 +1,41 @@
-# Node.js
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-error.log
+nexus-ora-mvp/backend/node_modules/
+
+# Environment files
+.env
+nexus-ora-mvp/backend/.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
 
 # Python
-venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-*.egg-info/
-dist/
-build/
-
-# Environment & secrets
-.env
-*.db
-*.sqlite
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
+env/
+venv/
+.venv/
 
 # Logs
 *.log
 logs/
 
-# Test artifacts
-test_result.json
-engine_test.json
-sample_report.json
+# OS files
+.DS_Store
+Thumbs.db
 
-# Debug temp files
-backend/.paipan_*.json
-backend/py_stdout.txt
-backend/py_stderr.txt
-backend/r*.json
-backend/resp*.json
-backend/t.json
-backend/test_*.js
-backend/test_*.json
+# IDE
+.vscode/
+.idea/
+
+# WorkBuddy internal
+.workbuddy/
+
+# Build outputs
+dist/
+build/
