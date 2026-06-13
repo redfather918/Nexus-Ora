@@ -63,6 +63,19 @@ async function initDatabase() {
         id TEXT PRIMARY KEY, report_id TEXT, plan TEXT,
         amount INTEGER, status TEXT DEFAULT 'pending',
         created_at TEXT DEFAULT (datetime('now')))`);
+    db.run(`CREATE TABLE IF NOT EXISTS dreams (
+        id TEXT PRIMARY KEY,
+        title TEXT,
+        description TEXT,
+        mood TEXT,
+        dream_date TEXT,
+        symbols TEXT,
+        east_analysis TEXT,
+        west_analysis TEXT,
+        summary TEXT,
+        luck_score INTEGER,
+        llm_enhanced INTEGER DEFAULT 0,
+        created_at TEXT DEFAULT (datetime('now')))`);
     saveDB();
     console.log('[DB] initialized');
 }
@@ -322,7 +335,7 @@ function buildSummary(fortune, paipan, dimensions) {
 // ───────────────────────── Routes ─────────────────────────
 
 app.get('/api/health', (_req, res) => {
-    res.json({ status:'ok', version:'3.0.0', llm: !!CFG.deepseek.apiKey, db: !!db });
+    res.json({ status:'ok', version:'3.3.0', llm: !!CFG.deepseek.apiKey, db: !!db });
 });
 
 // 主接口：排盘 → LLM → 报告
@@ -611,6 +624,301 @@ app.post('/api/ziwei', (req, res) => {
     }
 });
 
+// ───────────────────────── 梦境回廊 API ────────────────────
+
+const DREAM_SYSTEM_PROMPT = `你是一位融汇中西方梦境解析的大师，同时精通周公解梦传统和弗洛伊德/荣格心理学。
+
+用户会描述一个梦境，请从两个视角完成解析，严格输出 JSON（无多余文字）：
+
+【东方视角 — 周公解梦】
+基于中国传统解梦文化，分析梦境吉凶、五行属性、对应现实预兆。
+引用周公解梦中的经典对应关系。
+
+【西方视角 — 心理学解析】
+基于弗洛伊德（潜意识欲望）和荣格（原型意象）理论分析。
+识别梦境中的心理投射和情绪映射。
+
+输出格式：
+{
+  "mood": "情绪基调（焦虑/平静/恐惧/喜悦/困惑/悲伤）",
+  "symbols": ["关键意象1", "关键意象2", "关键意象3", "关键意象4", "关键意象5"],
+  "east_analysis": {
+    "title": "周公解梦标题（8字内）",
+    "interpretation": "东方解梦详细解读（150-200字）",
+    "five_element": "关联五行（金/木/水/火/土）",
+    "omen": "吉兆/凶兆/平兆",
+    "classic_ref": "相关周公解梦经典条目"
+  },
+  "west_analysis": {
+    "title": "心理学解析标题（8字内）",
+    "freudian": "弗洛伊德视角解读（100-150字）",
+    "jungian": "荣格原型视角解读（100-150字）",
+    "archetype": "关联荣格原型（如英雄/智者/阴影/阿尼玛/阿尼姆斯等）"
+  },
+  "summary": "综合建议（80-120字，结合东西方给出行动指引）",
+  "luck_score": 75
+}
+
+luck_score 说明：
+- 90-100：大吉之梦，好运将至
+- 70-89：小吉之梦，近期顺利
+- 50-69：平梦，平稳无波
+- 30-49：小凶，注意防范
+- 0-29：大凶，谨慎行事`;
+
+async function callDreamLLM(description, mood) {
+    if (!CFG.deepseek.apiKey || CFG.deepseek.apiKey === 'sk-placeholder') return null;
+
+    const userPrompt = `梦境描述：${description}
+用户当前情绪感知：${mood || '未指定'}
+
+请按系统要求，输出完整 JSON。`;
+
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 60000);
+
+    try {
+        const res = await fetch(CFG.deepseek.url, {
+            method:  'POST',
+            headers: { 'Authorization': `Bearer ${CFG.deepseek.apiKey}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model:           CFG.deepseek.model,
+                messages:        [{ role:'system', content: DREAM_SYSTEM_PROMPT }, { role:'user', content: userPrompt }],
+                temperature:     0.7,
+                max_tokens:      4096,
+                response_format: { type: 'json_object' }
+            }),
+            signal: ctrl.signal
+        });
+        clearTimeout(tid);
+
+        if (!res.ok) { console.error('[Dream LLM] HTTP', res.status); return null; }
+
+        const data = await res.json();
+        const raw  = data.choices?.[0]?.message?.content;
+        if (!raw) return null;
+
+        let parsed;
+        try { parsed = JSON.parse(raw); }
+        catch { const m = raw.match(/\{[\s\S]*\}/); if (m) parsed = JSON.parse(m[0]); else return null; }
+
+        if (!parsed.east_analysis || !parsed.west_analysis) return null;
+        console.log('[Dream LLM] analysis generated ✓');
+        return parsed;
+
+    } catch (e) {
+        clearTimeout(tid);
+        console.error('[Dream LLM] error:', e.message);
+        return null;
+    }
+}
+
+// 算法回退：基于关键词的本地梦境解析
+function algorithmDreamAnalysis(description, mood) {
+    const desc = description.toLowerCase();
+
+    // 关键意象关键词库
+    const SYMBOL_KEYWORDS = {
+        '水': ['水','河','海','湖','雨','游泳','溺水','洪','泉','瀑布','船'],
+        '火': ['火','燃烧','太阳','光','热','火焰','烟','火山','灯','红'],
+        '飞行': ['飞','翅膀','天空','云','鸟','漂浮','升空','降落'],
+        '坠落': ['掉','坠落','摔','跌','深渊','悬崖','下坠','失控'],
+        '追逐': ['追','跑','逃跑','追逐','追赶','被追','逃跑'],
+        '考试': ['考试','考场','答题','试卷','迟到','忘带'],
+        '牙齿': ['牙','牙齿','掉牙','拔牙','刷牙'],
+        '蛇': ['蛇','蟒','龙'],
+        '房屋': ['房子','家','门','房间','窗','楼','搬家'],
+        '死亡': ['死','去世','葬礼','棺材','鬼','灵'],
+        '恋爱': ['恋爱','情人','亲吻','拥抱','结婚','婚礼'],
+        '动物': ['猫','狗','鱼','马','蝴蝶','兔子','鹿'],
+        '自然': ['花','树','山','森林','草','田','花园'],
+        '旅途': ['路','旅行','迷路','地图','车','火车'],
+        '食物': ['吃','饭','食物','水果','甜','饥饿']
+    };
+
+    const detectedSymbols = [];
+    for (const [symbol, keywords] of Object.entries(SYMBOL_KEYWORDS)) {
+        if (keywords.some(kw => desc.includes(kw))) {
+            detectedSymbols.push(symbol);
+        }
+    }
+
+    // 周公解梦规则（简化版）
+    const ZHOU_GONG = {
+        '水':   { omen:'吉兆', wx:'水', title:'水润万物', classic_ref:'周公曰：梦见大水，主财帛丰足' },
+        '火':   { omen:'吉兆', wx:'火', title:'火旺运通', classic_ref:'周公曰：梦见火焰，主事业兴旺' },
+        '飞行': { omen:'大吉', wx:'风', title:'飞黄腾达', classic_ref:'周公曰：梦见飞翔，主志向得伸' },
+        '坠落': { omen:'凶兆', wx:'土', title:'失足之忧', classic_ref:'周公曰：梦见坠落，主小心谨慎' },
+        '追逐': { omen:'小凶', wx:'金', title:'压力之影', classic_ref:'周公曰：梦见被追，主小人当道' },
+        '考试': { omen:'平兆', wx:'水', title:'验才之梦', classic_ref:'周公曰：梦见考试，主能力受验' },
+        '牙齿': { omen:'小凶', wx:'金', title:'骨肉之忧', classic_ref:'周公曰：梦见掉牙，主亲人有恙' },
+        '蛇':   { omen:'吉兆', wx:'火', title:'龙蛇呈祥', classic_ref:'周公曰：梦见蛇，主贵人将至' },
+        '房屋': { omen:'平兆', wx:'土', title:'安身之所', classic_ref:'周公曰：梦见房子，主家宅平安' },
+        '死亡': { omen:'凶兆', wx:'水', title:'终始之兆', classic_ref:'周公曰：梦见死亡，主旧事终结新生将至' },
+        '恋爱': { omen:'大吉', wx:'火', title:'桃花入梦', classic_ref:'周公曰：梦见婚恋，主姻缘将至' },
+        '动物': { omen:'吉兆', wx:'木', title:'灵兽伴行', classic_ref:'周公曰：梦见动物，主生机勃勃' },
+        '自然': { omen:'平兆', wx:'木', title:'天人感应', classic_ref:'周公曰：梦见山水，主心境自然' },
+        '旅途': { omen:'平兆', wx:'土', title:'行者无疆', classic_ref:'周公曰：梦见旅途，主前途未知' },
+        '食物': { omen:'吉兆', wx:'土', title:'口福之兆', classic_ref:'周公曰：梦见食物，主生活富足' }
+    };
+
+    // 心理学解析规则（简化版）
+    const JUNG_ARCHETYPES = {
+        '水': '阿尼玛（内在女性面）', '火': '自性（Self）', '飞行': '英雄原型',
+        '坠落': '阴影（Shadow）', '追逐': '阴影追逐', '考试': '智者与愚者',
+        '牙齿': '变形与更新', '蛇': '转化与智慧', '房屋': '自我（Self）',
+        '死亡': '重生原型', '恋爱': '阿尼玛/阿尼姆斯', '动物': '自然精灵',
+        '自然': '大地母亲', '旅途': '探索者', '食物': '滋养原型'
+    };
+
+    const MOOD_SCORE_MAP = { '喜悦':80, '平静':65, '困惑':50, '焦虑':35, '悲伤':30, '恐惧':25 };
+    const baseScore = MOOD_SCORE_MAP[mood] || 55;
+
+    let luckScore = baseScore;
+    let eastTitle = '寻常之梦';
+    let eastOmen = '平兆';
+    let eastWx = '木';
+    let eastRef = '周公曰：寻常梦境，无特殊预兆。';
+    let mainSymbol = detectedSymbols[0] || '自然';
+
+    for (const sym of detectedSymbols) {
+        const zg = ZHOU_GONG[sym];
+        if (zg) {
+            eastTitle = zg.title;
+            eastOmen  = zg.omen;
+            eastWx    = zg.wx;
+            eastRef   = zg.classic_ref;
+            if (zg.omen === '大吉') luckScore = Math.min(100, luckScore + 20);
+            else if (zg.omen === '吉兆') luckScore = Math.min(100, luckScore + 12);
+            else if (zg.omen === '小凶') luckScore = Math.max(0, luckScore - 10);
+            else if (zg.omen === '凶兆') luckScore = Math.max(0, luckScore - 18);
+        }
+    }
+
+    const archetype = JUNG_ARCHETYPES[mainSymbol] || '未定型';
+
+    return {
+        mood: mood || '困惑',
+        symbols: detectedSymbols.length > 0 ? detectedSymbols : ['未识别'],
+        east_analysis: {
+            title: eastTitle,
+            interpretation: `此梦涉及${detectedSymbols.join('、') || '寻常'}等意象。${eastRef}从五行角度看，此梦与${eastWx}行相关。建议关注${eastWx === '水' ? '财运和人际关系' : eastWx === '火' ? '事业和激情' : eastWx === '木' ? '成长和健康' : eastWx === '金' ? '竞争和决断' : '安稳和积累'}方面的变化。`,
+            five_element: eastWx,
+            omen: eastOmen,
+            classic_ref: eastRef
+        },
+        west_analysis: {
+            title: '潜意识映射',
+            freudian: `梦境中的${mainSymbol || '意象'}反映了潜意识中的某种渴望或压抑。弗洛伊德认为梦境是"通往潜意识的皇家大道"，${mood === '恐惧' || mood === '焦虑' ? '当前的情绪可能来源于现实中的压力投射' : '此梦可能暗示内在需求的满足或补偿'}。`,
+            jungian: `从荣格的视角看，${mainSymbol || '意象'}关联着"${archetype}"原型。这种原型在集体无意识中具有普遍意义，暗示你当前可能正经历一个与${mainSymbol === '坠落' ? '控制感和安全感' : mainSymbol === '追逐' ? '逃避和面对' : mainSymbol === '飞行' ? '自由和超越' : '内在成长'}相关的心理转化过程。`,
+            archetype: archetype
+        },
+        summary: `此梦${eastOmen === '大吉' ? '为大吉之兆' : eastOmen === '凶兆' ? '需要留意' : '无特殊吉凶'}。东方解梦指向${eastWx}行能量的${eastOmen === '吉兆' || eastOmen === '大吉' ? '正向' : '需关注'}变化，西方心理学建议你${mood === '焦虑' || mood === '恐惧' ? '正视内心的不安，必要时寻求支持' : '保持当下的良好状态，注意情绪的周期性变化'}。`,
+        luck_score: luckScore
+    };
+}
+
+// 记录并分析梦境
+app.post('/api/dream', async (req, res) => {
+    console.log('[API] /api/dream body keys:', Object.keys(req.body));
+    const { description, mood = '未指定', dream_date, title } = req.body;
+
+    if (!description || description.trim().length < 5) {
+        return res.status(400).json({ success: false, error: '梦境描述至少需要5个字' });
+    }
+
+    // LLM 解析
+    let analysis = await callDreamLLM(description, mood);
+    let llmOk = false;
+
+    if (analysis) {
+        llmOk = true;
+    } else {
+        analysis = algorithmDreamAnalysis(description, mood);
+        console.log('[Dream] algorithm fallback used');
+    }
+
+    // 存库
+    const did = 'D' + Date.now().toString(36).toUpperCase();
+    if (db) {
+        try {
+            db.run(`INSERT INTO dreams(id,title,description,mood,dream_date,symbols,east_analysis,west_analysis,summary,luck_score,llm_enhanced)
+                    VALUES(?,?,?,?,?,?,?,?,?,?,?)`, [
+                did,
+                title || description.slice(0, 20),
+                description,
+                mood,
+                dream_date || new Date().toISOString().slice(0, 10),
+                JSON.stringify(analysis.symbols || []),
+                JSON.stringify(analysis.east_analysis),
+                JSON.stringify(analysis.west_analysis),
+                analysis.summary || '',
+                analysis.luck_score || 50,
+                llmOk ? 1 : 0
+            ]);
+            saveDB();
+        } catch (e) { console.error('[Dream DB] save error:', e.message); }
+    }
+
+    res.json({ success: true, dream_id: did, ai_enhanced: llmOk, data: analysis });
+});
+
+// 获取梦境列表
+app.get('/api/dreams', (_req, res) => {
+    if (!db) return res.status(500).json({ success: false, error: 'db not ready' });
+    try {
+        const r = db.exec('SELECT id, title, mood, dream_date, symbols, luck_score, summary, created_at FROM dreams ORDER BY created_at DESC LIMIT 50');
+        if (!r.length) return res.json({ success: true, dreams: [] });
+        const dreams = r[0].values.map(row => ({
+            id: row[0], title: row[1], mood: row[2], dream_date: row[3],
+            symbols: JSON.parse(row[4] || '[]'), luck_score: row[5],
+            summary: row[6], created_at: row[7]
+        }));
+        res.json({ success: true, dreams });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 获取梦境趋势数据
+app.get('/api/dream/trend', (_req, res) => {
+    if (!db) return res.status(500).json({ success: false, error: 'db not ready' });
+    try {
+        const r = db.exec(`SELECT dream_date, mood, luck_score, symbols FROM dreams ORDER BY dream_date ASC`);
+        if (!r.length) return res.json({ success: true, trend: [], mood_stats: {} });
+
+        const trend = r[0].values.map(row => ({
+            date: row[0], mood: row[1], score: row[2], symbols: JSON.parse(row[3] || '[]')
+        }));
+
+        // 情绪统计
+        const moodStats = {};
+        const symbolStats = {};
+        for (const t of trend) {
+            moodStats[t.mood] = (moodStats[t.mood] || 0) + 1;
+            for (const s of t.symbols) {
+                symbolStats[s] = (symbolStats[s] || 0) + 1;
+            }
+        }
+
+        res.json({ success: true, trend, mood_stats: moodStats, symbol_stats: symbolStats });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// 删除梦境
+app.delete('/api/dream/:id', (req, res) => {
+    if (!db) return res.status(500).json({ success: false, error: 'db not ready' });
+    try {
+        db.run('DELETE FROM dreams WHERE id=?', [req.params.id]);
+        saveDB();
+        res.json({ success: true });
+    } catch (e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ───────────────────────── Start ──────────────────────────
 
 async function start() {
@@ -618,7 +926,7 @@ async function start() {
     app.listen(PORT, HOST, () => {
         console.log('');
         console.log('╔══════════════════════════════════════╗');
-        console.log('║     Nexus Ora  v3.0  │  Running      ║');
+        console.log('║     Nexus Ora  v3.3  │  Running      ║');
         console.log('╠══════════════════════════════════════╣');
         console.log(`║  URL : http://${HOST}:${PORT}          ║`);
         console.log(`║  LLM : ${CFG.deepseek.apiKey && CFG.deepseek.apiKey !== 'sk-placeholder' ? 'DeepSeek ✓            ' : 'Algorithm fallback    '}  ║`);

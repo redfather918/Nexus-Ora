@@ -60,6 +60,16 @@ body{
 .tag-green{background:rgba(34,197,94,.1);color:#4ADE80;}
 .tag-amber{background:rgba(245,158,11,.1);color:#FCD34D;}
 
+/* ── 梦境情绪选择器 ── */
+.mood-btn{display:inline-flex;align-items:center;gap:4px;padding:8px 16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;}
+.mood-btn:hover{background:rgba(255,255,255,.08);}
+.mood-btn.active{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.4);color:#A5B4FC;}
+
+/* ── 梦境历史条目 ── */
+.dream-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px;background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.05);transition:all .2s;cursor:pointer;}
+.dream-item:hover{background:rgba(0,0,0,.25);border-color:rgba(99,102,241,.2);}
+.dream-score-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+
 /* ── 八字四柱 ── */
 .pillar-box{text-align:center;padding:16px 10px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.05);transition:all .3s;cursor:default;position:relative;}
 .pillar-box.self{border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.08);}
@@ -136,6 +146,9 @@ body{
     </button>
     <button class="module-tab" onclick="switchModule('ziwei')" id="tab-ziwei">
       <span class="mr-1.5">🌟</span> 紫微斗数
+    </button>
+    <button class="module-tab" onclick="switchModule('dream')" id="tab-dream">
+      <span class="mr-1.5">🌙</span> 梦境回廊
     </button>
   </div>
 </div>
@@ -634,6 +647,58 @@ body{
   </div>
 </section>
 
+<!-- ══════════════════ Section: 梦境回廊输入 ══════════════════ -->
+<section id="section-hero-dream" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌙</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">梦境回廊</h2>
+      <p class="text-gray-400 text-sm">记录你的梦境，AI 从东方周公解梦与西方心理学双维度为你解析</p>
+    </div>
+
+    <form id="dream-form" class="space-y-5">
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦境日期</label>
+        <input type="date" id="dream-date" class="input-field w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦境标题（可选）</label>
+        <input type="text" id="dream-title" class="input-field w-full" placeholder="给你的梦起个名字..." maxlength="50" />
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">描述你的梦境 <span class="text-red-400">*</span></label>
+        <textarea id="dream-desc" class="input-field w-full" rows="6" placeholder="尽可能详细地描述梦境的内容、场景、人物、情绪感受..." required minlength="5" style="resize:vertical;min-height:120px;"></textarea>
+        <div class="text-xs text-gray-600 mt-1 text-right"><span id="dream-char-count">0</span> 字</div>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-400 mb-2">梦中的主要情绪</label>
+        <div class="flex flex-wrap gap-2" id="mood-selector">
+          <button type="button" class="mood-btn" data-mood="焦虑">😰 焦虑</button>
+          <button type="button" class="mood-btn" data-mood="平静">😌 平静</button>
+          <button type="button" class="mood-btn" data-mood="恐惧">😨 恐惧</button>
+          <button type="button" class="mood-btn" data-mood="喜悦">😊 喜悦</button>
+          <button type="button" class="mood-btn" data-mood="困惑">😕 困惑</button>
+          <button type="button" class="mood-btn" data-mood="悲伤">😢 悲伤</button>
+        </div>
+      </div>
+
+      <button type="submit" id="dream-submit-btn" class="btn-primary w-full text-base py-3" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
+        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        解析梦境
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <button onclick="loadDreamHistory()" class="text-sm text-purple-400 hover:text-purple-300 transition">
+        📖 查看梦境历史
+      </button>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════════ Section: 紫微斗数输入 ══════════════════ -->
 <section id="section-hero-ziwei" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
   <div class="glass p-8 md:p-10">
@@ -769,6 +834,105 @@ body{
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         重新排盘
       </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 梦境回廊结果 ══════════════════ -->
+<section id="section-dream-results" class="hidden-section max-w-4xl mx-auto px-6 py-4">
+
+  <!-- ① 梦境概况 -->
+  <div id="dream-overview-card" class="glass-card p-6 mb-6 slide-in" style="background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(168,85,247,.06));border-color:rgba(99,102,241,.2);">
+    <div class="flex items-start gap-4">
+      <div class="text-3xl flex-shrink-0 mt-1">🌙</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-indigo-400 font-semibold tracking-wide">梦境解析</span>
+          <span class="tag" id="dream-omen-tag" style="background:rgba(99,102,241,.12);color:#A5B4FC;">--</span>
+          <span class="tag" id="dream-wx-tag" style="background:rgba(168,85,247,.1);color:#C084FC;">五行: --</span>
+          <span class="tag" id="dream-archetype-tag" style="background:rgba(236,72,153,.1);color:#F9A8D4;">原型: --</span>
+        </div>
+        <h3 class="text-lg font-semibold mb-2" id="dream-result-title">--</h3>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-summary">--</p>
+      </div>
+      <div class="text-center flex-shrink-0">
+        <div class="text-3xl font-bold" id="dream-luck-score" style="color:#A5B4FC;">--</div>
+        <div class="text-xs text-gray-500 mt-1">吉凶指数</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 关键意象 -->
+  <div class="glass-card p-5 mb-6 slide-in-d1">
+    <h3 class="text-sm font-semibold text-gray-300 mb-3">🔑 关键意象</h3>
+    <div class="flex flex-wrap gap-2" id="dream-symbols-wrap"></div>
+  </div>
+
+  <!-- ③ 双维度解析 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 slide-in-d2">
+    <!-- 东方解梦 -->
+    <div class="glass-card p-6" style="border-color:rgba(251,191,36,.15);">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background:rgba(251,191,36,.1);">📜</div>
+        <div>
+          <div class="text-sm font-semibold text-amber-300" id="dream-east-title">周公解梦</div>
+          <div class="text-xs text-gray-500">东方传统解梦</div>
+        </div>
+      </div>
+      <div id="dream-east-omen" class="inline-block px-2 py-0.5 rounded text-xs font-semibold mb-3" style="background:rgba(251,191,36,.1);color:#FCD34D;">--</div>
+      <p class="text-sm text-gray-400 leading-relaxed mb-3" id="dream-east-interpretation">--</p>
+      <div class="text-xs text-gray-600 italic" id="dream-east-ref">--</div>
+    </div>
+
+    <!-- 西方心理学 -->
+    <div class="glass-card p-6" style="border-color:rgba(99,102,241,.15);">
+      <div class="flex items-center gap-2 mb-4">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-lg" style="background:rgba(99,102,241,.1);">🧠</div>
+        <div>
+          <div class="text-sm font-semibold text-indigo-300" id="dream-west-title">心理学解析</div>
+          <div class="text-xs text-gray-500">Freud · Jung</div>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="text-xs text-indigo-400 font-semibold mb-1">弗洛伊德视角</div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-freudian">--</p>
+      </div>
+      <div>
+        <div class="text-xs text-purple-400 font-semibold mb-1">荣格视角</div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="dream-jungian">--</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ④ 梦境趋势图 -->
+  <div class="glass-card p-6 mb-6 slide-in-d3">
+    <h3 class="text-sm font-semibold text-gray-300 mb-4">📊 梦境趋势</h3>
+    <div id="dream-trend-chart" style="width:100%;height:280px;"></div>
+    <div id="dream-trend-empty" class="text-center text-gray-600 text-sm py-8">记录更多梦境后将显示趋势分析</div>
+  </div>
+
+  <!-- ⑤ 操作按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleDreamNew()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
+        记录新梦境
+      </button>
+      <button onclick="loadDreamHistory()" class="btn-secondary text-sm">
+        📖 梦境历史
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 梦境历史 ══════════════════ -->
+<section id="section-dream-history" class="hidden-section max-w-3xl mx-auto px-6 py-4">
+  <div class="glass-card p-6 mb-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-semibold text-gray-200">📖 梦境历史</h3>
+      <button onclick="switchModule('dream')" class="text-sm text-purple-400 hover:text-purple-300">← 返回</button>
+    </div>
+    <div id="dream-history-list" class="space-y-3">
+      <div class="text-center text-gray-600 text-sm py-8">暂无梦境记录</div>
     </div>
   </div>
 </section>
@@ -1421,6 +1585,8 @@ function switchModule(module) {
         showSection('section-hero-compat');
     } else if (module === 'ziwei') {
         showSection('section-hero-ziwei');
+    } else if (module === 'dream') {
+        showSection('section-hero-dream');
     }
 
     // Reset chart refs
@@ -1428,8 +1594,9 @@ function switchModule(module) {
 }
 
 function hideAll() {
-    ['section-hero', 'section-hero-compat', 'section-hero-ziwei',
-     'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results']
+    ['section-hero', 'section-hero-compat', 'section-hero-ziwei', 'section-hero-dream',
+     'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results',
+     'section-dream-results', 'section-dream-history']
         .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
 }
 
@@ -2034,6 +2201,252 @@ if (params.get('paid') === 'true') {
     }).catch(() => {});
   }
 }
+
+// ══════════════════ 梦境回廊 Module ══════════════════
+let selectedMood = '';
+let dreamTrendChart = null;
+
+// 情绪选择器
+document.querySelectorAll('.mood-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedMood = btn.dataset.mood;
+  });
+});
+
+// 字数统计
+document.getElementById('dream-desc')?.addEventListener('input', e => {
+  document.getElementById('dream-char-count').textContent = e.target.value.length;
+});
+
+// 设置默认日期
+(function() {
+  const d = document.getElementById('dream-date');
+  if (d) d.value = new Date().toISOString().slice(0, 10);
+})();
+
+// 提交梦境
+document.getElementById('dream-form')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('dream-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 解析中...';
+
+  hideAll();
+  showSection('section-loading');
+  setText('loading-text', '正在解析你的梦境...');
+  setText('loading-sub', 'East + West dual perspective analysis');
+
+  const desc = document.getElementById('dream-desc').value.trim();
+  const title = document.getElementById('dream-title').value.trim();
+  const date = document.getElementById('dream-date').value;
+  const mood = selectedMood || '未指定';
+
+  try {
+    const res = await fetch(API_BASE + '/api/dream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ description: desc, title, mood, dream_date: date })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      hideAll();
+      showSection('section-dream-results');
+      renderDreamResult(data.data, data.ai_enhanced);
+    } else {
+      alert('解析失败: ' + (data.error || '未知错误'));
+      hideAll();
+      showSection('section-hero-dream');
+    }
+  } catch (err) {
+    alert('网络错误: ' + err.message);
+    hideAll();
+    showSection('section-hero-dream');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg> 解析梦境';
+  }
+});
+
+// 渲染梦境结果
+function renderDreamResult(analysis, aiEnhanced) {
+  const omenColors = { '大吉':'#4ADE80', '吉兆':'#86EFAC', '小吉':'#86EFAC', '平兆':'#A5B4FC', '小凶':'#FCD34D', '凶兆':'#F87171' };
+  const omenBg = { '大吉':'rgba(34,197,94,.12)', '吉兆':'rgba(34,197,94,.1)', '小吉':'rgba(34,197,94,.1)', '平兆':'rgba(99,102,241,.12)', '小凶':'rgba(245,158,11,.1)', '凶兆':'rgba(239,68,68,.1)' };
+
+  const east = analysis.east_analysis || {};
+  const west = analysis.west_analysis || {};
+
+  // 概况
+  const omenTag = document.getElementById('dream-omen-tag');
+  omenTag.textContent = east.omen || '--';
+  omenTag.style.background = omenBg[east.omen] || 'rgba(255,255,255,.06)';
+  omenTag.style.color = omenColors[east.omen] || '#A5B4FC';
+
+  document.getElementById('dream-wx-tag').textContent = '五行: ' + (east.five_element || '--');
+  document.getElementById('dream-archetype-tag').textContent = '原型: ' + (west.archetype || '--');
+  document.getElementById('dream-result-title').textContent = east.title || west.title || '梦境解析';
+
+  setText('dream-summary', analysis.summary || '--');
+
+  const score = analysis.luck_score || 50;
+  const scoreEl = document.getElementById('dream-luck-score');
+  scoreEl.textContent = score;
+  scoreEl.style.color = score >= 70 ? '#4ADE80' : score >= 50 ? '#A5B4FC' : score >= 30 ? '#FCD34D' : '#F87171';
+
+  // 关键意象
+  const symbolsWrap = document.getElementById('dream-symbols-wrap');
+  symbolsWrap.innerHTML = (analysis.symbols || []).map(s =>
+    `<span class="tag" style="background:rgba(99,102,241,.1);color:#A5B4FC;">${s}</span>`
+  ).join('');
+
+  // 东方解梦
+  setText('dream-east-title', east.title || '周公解梦');
+  const eastOmenEl = document.getElementById('dream-east-omen');
+  eastOmenEl.textContent = east.omen || '--';
+  eastOmenEl.style.background = omenBg[east.omen] || 'rgba(245,158,11,.1)';
+  setText('dream-east-interpretation', east.interpretation || '--');
+  setText('dream-east-ref', east.classic_ref || '');
+
+  // 西方心理学
+  setText('dream-west-title', west.title || '心理学解析');
+  setText('dream-freudian', west.freudian || '--');
+  setText('dream-jungian', west.jungian || '--');
+
+  // AI 标识
+  if (aiEnhanced) {
+    const aiTag = document.createElement('span');
+    aiTag.className = 'tag';
+    aiTag.style.cssText = 'background:rgba(168,85,247,.15);color:#C084FC;margin-left:8px;';
+    aiTag.textContent = 'AI Enhanced';
+    document.getElementById('dream-overview-card').querySelector('.flex.items-center.gap-2').appendChild(aiTag);
+  }
+
+  // 加载趋势图
+  loadDreamTrend();
+}
+
+// 新梦境
+function handleDreamNew() {
+  hideAll();
+  showSection('section-hero-dream');
+  document.getElementById('dream-form').reset();
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+  selectedMood = '';
+  document.getElementById('dream-char-count').textContent = '0';
+  document.getElementById('dream-date').value = new Date().toISOString().slice(0, 10);
+  // 移除 AI tag
+  document.querySelectorAll('#dream-overview-card .tag:last-child').forEach(el => {
+    if (el.textContent === 'AI Enhanced') el.remove();
+  });
+}
+
+// 梦境趋势图
+async function loadDreamTrend() {
+  try {
+    const res = await fetch(API_BASE + '/api/dream/trend');
+    const data = await res.json();
+    if (!data.success || !data.trend || data.trend.length === 0) {
+      document.getElementById('dream-trend-chart').style.display = 'none';
+      document.getElementById('dream-trend-empty').style.display = 'block';
+      return;
+    }
+    document.getElementById('dream-trend-chart').style.display = 'block';
+    document.getElementById('dream-trend-empty').style.display = 'none';
+
+    if (dreamTrendChart) dreamTrendChart.dispose();
+    dreamTrendChart = echarts.init(document.getElementById('dream-trend-chart'));
+
+    const dates = data.trend.map(t => t.date);
+    const scores = data.trend.map(t => t.score);
+    const moodMap = { '喜悦':5, '平静':4, '困惑':3, '焦虑':2, '悲伤':1, '恐惧':0, '未指定':3 };
+    const moodNums = data.trend.map(t => moodMap[t.mood] || 3);
+
+    dreamTrendChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger:'axis', backgroundColor:'rgba(15,12,31,.9)', borderColor:'rgba(99,102,241,.3)', textStyle:{color:'#D1D5DB',fontSize:12} },
+      legend: { data:['吉凶指数','情绪指数'], textStyle:{color:'#6B7280',fontSize:11}, top:0 },
+      grid: { top:35, right:20, bottom:25, left:40 },
+      xAxis: { type:'category', data:dates, axisLine:{lineStyle:{color:'rgba(255,255,255,.1)'}}, axisLabel:{color:'#6B7280',fontSize:11,rotate:dates.length>10?45:0} },
+      yAxis: [
+        { type:'value', min:0, max:100, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}}, axisLabel:{color:'#6B7280',fontSize:11} },
+        { type:'value', min:0, max:5, splitLine:{show:false}, axisLabel:{color:'#6B7280',fontSize:11} }
+      ],
+      series: [
+        { name:'吉凶指数', type:'line', data:scores, smooth:true, lineStyle:{color:'#A855F7',width:2}, itemStyle:{color:'#A855F7'}, areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(168,85,247,.2)'},{offset:1,color:'rgba(168,85,247,.01)'}]}} },
+        { name:'情绪指数', type:'line', yAxisIndex:1, data:moodNums, smooth:true, lineStyle:{color:'#6366F1',width:2,type:'dashed'}, itemStyle:{color:'#6366F1'} }
+      ]
+    });
+
+    window.addEventListener('resize', () => dreamTrendChart?.resize());
+  } catch (e) {
+    console.error('Dream trend error:', e);
+  }
+}
+
+// 梦境历史列表
+async function loadDreamHistory() {
+  hideAll();
+  showSection('section-dream-history');
+
+  try {
+    const res = await fetch(API_BASE + '/api/dreams');
+    const data = await res.json();
+    const list = document.getElementById('dream-history-list');
+
+    if (!data.success || !data.dreams || data.dreams.length === 0) {
+      list.innerHTML = '<div class="text-center text-gray-600 text-sm py-8">暂无梦境记录，去记录你的第一个梦吧 ✨</div>';
+      return;
+    }
+
+    list.innerHTML = data.dreams.map(d => {
+      const scoreColor = d.luck_score >= 70 ? 'background:rgba(34,197,94,.15);color:#4ADE80;' :
+                          d.luck_score >= 50 ? 'background:rgba(99,102,241,.15);color:#A5B4FC;' :
+                          d.luck_score >= 30 ? 'background:rgba(245,158,11,.15);color:#FCD34D;' :
+                          'background:rgba(239,68,68,.15);color:#F87171;';
+      const moodEmoji = { '喜悦':'😊','平静':'😌','困惑':'😕','焦虑':'😰','恐惧':'😨','悲伤':'😢','未指定':'🌙' };
+      return `<div class="dream-item" onclick="loadDreamDetail('${d.id}')">
+        <div class="dream-score-ring" style="${scoreColor}">${d.luck_score}</div>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-200 truncate">${d.title || '无题梦境'}</div>
+          <div class="text-xs text-gray-500 mt-0.5">${moodEmoji[d.mood]||'🌙'} ${d.mood} · ${d.dream_date || '--'}</div>
+          ${d.summary ? `<div class="text-xs text-gray-600 mt-1 truncate">${d.summary}</div>` : ''}
+        </div>
+        <svg class="w-4 h-4 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    document.getElementById('dream-history-list').innerHTML = '<div class="text-center text-red-400 text-sm py-8">加载失败</div>';
+  }
+}
+
+// 加载梦境详情
+async function loadDreamDetail(id) {
+  try {
+    const res = await fetch(API_BASE + '/api/dreams');
+    const data = await res.json();
+    if (!data.success) return;
+    const dream = data.dreams.find(d => d.id === id);
+    if (!dream) return;
+
+    hideAll();
+    showSection('section-dream-results');
+
+    // 构造简易分析数据用于展示
+    renderDreamResult({
+      mood: dream.mood,
+      symbols: dream.symbols || [],
+      luck_score: dream.luck_score,
+      summary: dream.summary || '',
+      east_analysis: { title:'周公解梦', omen:'--', five_element:'--', interpretation:'详细解析需重新提交梦境。', classic_ref:'' },
+      west_analysis: { title:'心理学解析', freudian:'详细解析需重新提交梦境。', jungian:'', archetype:'--' }
+    }, false);
+  } catch (e) {
+    console.error('Load dream detail error:', e);
+  }
+}
+
 </script>
 </body>
 </html>
