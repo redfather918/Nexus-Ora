@@ -902,23 +902,24 @@ function renderBazi() {
 function renderWuxing() {
   const wx = reportData?.data?.bazi?.wuxing_balance || {};
   const total = Math.max(1, Object.values(wx).reduce((a, b) => a + b, 0));
-  const WX_CFG = {
-    '金': { color: '#A0AEC0', bg: '#A0AEC020', emoji: '⚔️' },
-    '木': { color: '#48BB78', bg: '#48BB7820', emoji: '🌿' },
-    '水': { color: '#63B3ED', bg: '#63B3ED20', emoji: '💧' },
-    '火': { color: '#FC8181', bg: '#FC818120', emoji: '🔥' },
-    '土': { color: '#ED8936', bg: '#ED893620', emoji: '🏔️' }
-  };
+  // 固定顺序 + 配置，缺失五行补 0
+  const WX_ORDER = [
+    { name: '金', color: '#A0AEC0', bg: 'rgba(160,174,192,0.1)', emoji: '⚔️' },
+    { name: '木', color: '#48BB78', bg: 'rgba(72,187,120,0.1)',  emoji: '🌿' },
+    { name: '水', color: '#63B3ED', bg: 'rgba(99,179,237,0.1)',  emoji: '💧' },
+    { name: '火', color: '#FC8181', bg: 'rgba(252,129,129,0.1)', emoji: '🔥' },
+    { name: '土', color: '#ED8936', bg: 'rgba(237,137,54,0.1)',  emoji: '🏔️' }
+  ];
   const el = document.getElementById('wuxing-bars');
-  el.innerHTML = Object.entries(wx).map(([name, cnt]) => {
-    const cfg = WX_CFG[name] || { color:'#A855F7', bg:'#A855F720', emoji:'✨' };
+  el.innerHTML = WX_ORDER.map(({ name, color, bg, emoji }) => {
+    const cnt = wx[name] || 0;
     const pct = Math.round((cnt / total) * 100);
-    return `<div style="padding:14px;border-radius:14px;background:${cfg.bg};border:1px solid ${cfg.color}22;text-align:center;">
-      <div class="text-xl mb-1">${cfg.emoji}</div>
-      <div class="text-sm font-semibold" style="color:${cfg.color}">${name}</div>
-      <div class="text-2xl font-bold mt-1" style="color:${cfg.color}">${cnt}</div>
-      <div class="wx-bar-bg mt-2"><div class="wx-bar-fill" style="width:${pct}%;background:${cfg.color};"></div></div>
-      <div class="text-xs text-gray-500 mt-1">${pct}%</div>
+    return `<div style="padding:14px;border-radius:14px;background:${bg};border:1px solid ${color}33;text-align:center;">
+      <div class="text-xl mb-1">${emoji}</div>
+      <div class="text-sm font-semibold" style="color:${color}">${name}</div>
+      <div class="text-2xl font-bold mt-1" style="color:${color}">${cnt}</div>
+      <div class="wx-bar-bg mt-2"><div class="wx-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div class="text-xs mt-1" style="color:${color}88">${pct}%</div>
     </div>`;
   }).join('');
 }

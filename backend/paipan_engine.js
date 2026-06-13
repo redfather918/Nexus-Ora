@@ -80,11 +80,11 @@ function paipan(input) {
         });
     }
 
-    // 五行分布统计
-    const wuxingCount = {};
+    // 五行分布统计（固定五行顺序，缺失补 0）
+    const wuxingCount = { '金': 0, '木': 0, '水': 0, '火': 0, '土': 0 };
     for (const p of pillars) {
-        wuxingCount[p.gan_wuxing] = (wuxingCount[p.gan_wuxing] || 0) + 1;
-        wuxingCount[p.zhi_wuxing] = (wuxingCount[p.zhi_wuxing] || 0) + 1;
+        if (p.gan_wuxing in wuxingCount) wuxingCount[p.gan_wuxing] += 1;
+        if (p.zhi_wuxing in wuxingCount) wuxingCount[p.zhi_wuxing] += 1;
     }
 
     // 日干五行 → 身强身弱判断
