@@ -127,12 +127,15 @@ body{
 
 <!-- ── Module Switcher ── -->
 <div id="module-switcher" class="max-w-3xl mx-auto px-6 pb-2">
-  <div class="module-tabs">
+  <div class="module-tabs" style="max-width:480px;">
     <button class="module-tab active" onclick="switchModule('kline')" id="tab-kline">
       <span class="mr-1.5">📈</span> 人生K线
     </button>
     <button class="module-tab" onclick="switchModule('compat')" id="tab-compat">
       <span class="mr-1.5">💞</span> 缘分配对
+    </button>
+    <button class="module-tab" onclick="switchModule('ziwei')" id="tab-ziwei">
+      <span class="mr-1.5">🌟</span> 紫微斗数
     </button>
   </div>
 </div>
@@ -631,8 +634,147 @@ body{
   </div>
 </section>
 
+<!-- ══════════════════ Section: 紫微斗数输入 ══════════════════ -->
+<section id="section-hero-ziwei" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-8 md:p-10">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌟</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent">紫微斗数命盘</h2>
+      <p class="text-gray-400 text-sm">输入出生信息，查看您的紫微命盘·12宫位·主星格局</p>
+    </div>
+    <form id="ziwei-form" class="max-w-md mx-auto space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生日期 <span class="text-amber-400">*</span></label>
+          <input type="date" id="ziwei-date" required value="1990-06-15" class="input-field" style="border-color:rgba(251,191,36,.1);">
+        </div>
+        <div class="text-left">
+          <label class="block text-sm font-medium text-gray-300 mb-2">出生时辰</label>
+          <input type="time" id="ziwei-time" value="14:30" class="input-field" style="border-color:rgba(251,191,36,.1);">
+          <p class="text-xs text-gray-600 mt-1">时辰影响命宫位置，建议填写</p>
+        </div>
+      </div>
+      <div class="text-left">
+        <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="ziwei-gender" value="男" checked class="accent-amber-400"> <span class="text-sm text-gray-300">男</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" name="ziwei-gender" value="女" class="accent-amber-400"> <span class="text-sm text-gray-300">女</span>
+          </label>
+        </div>
+      </div>
+      <button type="submit" id="ziwei-submit-btn" class="btn-primary w-full" style="background:linear-gradient(135deg,#D97706 0%,#F59E0B 50%,#D97706 100%);">
+        <span>✨</span> 排命盘
+      </button>
+    </form>
+    <p class="text-center text-xs text-gray-600 mt-5">基于传统紫微斗数·安命宫·布十四主星·四化推演</p>
+  </div>
+</section>
+
+<!-- ══════════════════ Section: 紫微斗数结果 ══════════════════ -->
+<section id="section-ziwei-results" class="hidden-section max-w-6xl mx-auto px-6 py-4">
+
+  <!-- ① 命盘概述 -->
+  <div id="ziwei-overview-wrap" class="overview-card mb-6 slide-in" style="background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(217,119,6,.06));border-color:rgba(251,191,36,.2);">
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="text-3xl flex-shrink-0 mt-1">🌟</div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1 flex-wrap">
+          <span class="text-xs text-amber-400 font-semibold tracking-wide">紫微命盘</span>
+          <span class="tag" style="background:rgba(251,191,36,.12);color:#FCD34D;" id="ziwei-ge-tag">--格</span>
+          <span class="tag" style="background:rgba(168,85,247,.1);color:#C084FC;" id="ziwei-ming-star-tag">命宫: --</span>
+        </div>
+        <p class="text-base md:text-lg font-semibold leading-relaxed" id="ziwei-overview-desc">--</p>
+        <div class="flex flex-wrap gap-4 mt-3 text-xs text-gray-500">
+          <span>命宫: <strong class="text-amber-400" id="ziwei-ming-zhi">--</strong></span>
+          <span>身宫: <strong class="text-purple-400" id="ziwei-shen-zhi">--</strong></span>
+          <span>年柱: <strong class="text-gray-300" id="ziwei-year-ganzhi">--</strong></span>
+          <span>月柱: <strong class="text-gray-300" id="ziwei-month-ganzhi">--</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ② 四化 + 幸运色 -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 slide-in-d1">
+    <div class="glass-card p-4 text-center" style="border-color:rgba(251,191,36,.15);">
+      <div class="text-xs text-amber-400 mb-1">化禄 💰</div>
+      <div class="text-lg font-bold text-amber-300" id="ziwei-lu">--</div>
+      <div class="text-xs text-gray-600 mt-1">财运·贵人</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(251,191,36,.15);">
+      <div class="text-xs text-amber-400 mb-1">化权 ⚡</div>
+      <div class="text-lg font-bold text-amber-300" id="ziwei-quan">--</div>
+      <div class="text-xs text-gray-600 mt-1">权势·掌控</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(168,85,247,.15);">
+      <div class="text-xs text-purple-400 mb-1">化科 📚</div>
+      <div class="text-lg font-bold text-purple-300" id="ziwei-ke">--</div>
+      <div class="text-xs text-gray-600 mt-1">文名·贵气</div>
+    </div>
+    <div class="glass-card p-4 text-center" style="border-color:rgba(239,68,68,.12);">
+      <div class="text-xs text-red-400 mb-1">化忌 ⚠️</div>
+      <div class="text-lg font-bold text-red-400" id="ziwei-ji">--</div>
+      <div class="text-xs text-gray-600 mt-1">阻力·暗耗</div>
+    </div>
+  </div>
+
+  <!-- ③ 12宫位命盘 -->
+  <div class="glass-card p-5 mb-6 slide-in-d1">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-base font-semibold text-gray-200">命宫十二宫位</h3>
+      <div class="flex items-center gap-3 text-xs text-gray-500">
+        <span><span class="inline-block w-2 h-2 rounded-full bg-amber-400 mr-1"></span>命宫</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-purple-400 mr-1"></span>身宫</span>
+        <span><span class="inline-block w-2 h-2 rounded-full bg-blue-400 mr-1"></span>主星</span>
+      </div>
+    </div>
+    <!-- 4×3 宫格 (外围11宫 + 中心1宫) -->
+    <div id="ziwei-palace-grid" class="grid gap-2" style="grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,auto);">
+      <!-- Dynamically filled by JS -->
+    </div>
+  </div>
+
+  <!-- ④ 命宫主星深度解读 -->
+  <div class="glass-card p-6 mb-6 slide-in-d2">
+    <h3 class="text-base font-semibold text-gray-200 mb-4">命宫主星解读</h3>
+    <div class="flex items-start gap-4">
+      <div class="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style="background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.2);" id="ziwei-star-icon">⭐</div>
+      <div class="flex-1">
+        <div class="flex items-center gap-2 mb-2 flex-wrap">
+          <span class="text-lg font-bold text-amber-300" id="ziwei-main-star-name">--</span>
+          <span class="tag" style="background:rgba(251,191,36,.1);color:#FCD34D;" id="ziwei-title-tag">--格</span>
+        </div>
+        <p class="text-sm text-gray-400 leading-relaxed" id="ziwei-star-desc">--</p>
+        <div class="flex gap-3 mt-3 text-xs">
+          <span class="tag" id="ziwei-lucky-color">幸运色: --</span>
+          <span class="tag" id="ziwei-element-tag">命主五行: --</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 宫位详情（点击展示） -->
+  <div class="glass-card p-6 mb-6 slide-in-d2" id="ziwei-palace-detail" style="display:none;">
+    <h3 class="text-base font-semibold text-gray-200 mb-3" id="ziwei-detail-title">-- 详情</h3>
+    <div id="ziwei-detail-content" class="text-sm text-gray-400 leading-relaxed"></div>
+  </div>
+
+  <!-- ⑥ 操作按钮 -->
+  <div class="glass-card p-6 text-center slide-in-d3">
+    <div class="flex justify-center gap-3 flex-wrap">
+      <button onclick="handleZiweiReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#D97706,#F59E0B);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        重新排盘
+      </button>
+    </div>
+  </div>
+</section>
+
 <footer class="text-center py-8 text-xs text-gray-700">
-  Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 · 东方玄学 × 现代AI
+  Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI
 </footer>
 
 <!-- ══════════════════ Scripts ══════════════════ -->
@@ -1277,6 +1419,8 @@ function switchModule(module) {
         showSection('section-hero');
     } else if (module === 'compat') {
         showSection('section-hero-compat');
+    } else if (module === 'ziwei') {
+        showSection('section-hero-ziwei');
     }
 
     // Reset chart refs
@@ -1284,7 +1428,8 @@ function switchModule(module) {
 }
 
 function hideAll() {
-    ['section-hero', 'section-hero-compat', 'section-loading', 'section-results', 'section-compat-results']
+    ['section-hero', 'section-hero-compat', 'section-hero-ziwei',
+     'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results']
         .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
 }
 
@@ -1558,6 +1703,324 @@ function handleNewReading() {
     showSection('section-hero');
     document.getElementById('birth-form').reset();
     setText('chart-phase', '--');
+}
+
+// ══════════════════ 紫微斗数 ══════════════════
+
+let ziweiData = null;
+
+// 12宫位标准布局（外围顺序，按传统方位）
+// 格子编号 0-15（4x4），位置映射
+// 紫微盘传统方位：从寅宫开始，顺时针（东→南→西→北）外圈
+const PALACE_POSITIONS = [
+  // 上行 左→右 (row0: col0,col1,col2,col3)
+  { grid:'1/1',  zhiOffset: 3 }, // 寅
+  { grid:'1/2',  zhiOffset: 4 }, // 卯
+  { grid:'1/3',  zhiOffset: 5 }, // 辰
+  { grid:'1/4',  zhiOffset: 6 }, // 巳
+  // 右列 上→下 (col4: row1,row2)
+  { grid:'2/4',  zhiOffset: 7 }, // 午
+  { grid:'3/4',  zhiOffset: 8 }, // 未
+  // 下行 右→左 (row4: col3,col2,col1,col0)
+  { grid:'4/4',  zhiOffset: 9  }, // 申
+  { grid:'4/3',  zhiOffset: 10 }, // 酉
+  { grid:'4/2',  zhiOffset: 11 }, // 戌
+  { grid:'4/1',  zhiOffset: 0  }, // 亥
+  // 左列 下→上 (col1: row3,row2)
+  { grid:'3/1',  zhiOffset: 1  }, // 子
+  { grid:'2/1',  zhiOffset: 2  }, // 丑
+];
+
+// 宫格星曜颜色
+const STAR_COLORS = {
+  '主星': '#FCD34D',
+  '辅星': '#93C5FD',
+  '化禄': '#4ADE80', '化权': '#60A5FA', '化科': '#C084FC', '化忌': '#F87171'
+};
+
+// 格式化宫格
+function buildPalaceCell(palace, mingZhiIdx, shenZhiIdx, gridPos) {
+  const isMing = palace.zhiIdx === mingZhiIdx;
+  const isShen = palace.zhiIdx === shenZhiIdx;
+
+  let borderColor = 'rgba(255,255,255,.06)';
+  let bgColor = 'rgba(0,0,0,.2)';
+  let badge = '';
+
+  if (isMing) {
+    borderColor = 'rgba(251,191,36,.4)';
+    bgColor = 'rgba(251,191,36,.06)';
+    badge = '<span style="font-size:10px;background:rgba(251,191,36,.15);color:#FCD34D;border-radius:6px;padding:1px 5px;display:inline-block;margin-bottom:2px;">命宫</span>';
+  } else if (isShen) {
+    borderColor = 'rgba(168,85,247,.35)';
+    bgColor = 'rgba(168,85,247,.06)';
+    badge = '<span style="font-size:10px;background:rgba(168,85,247,.15);color:#C084FC;border-radius:6px;padding:1px 5px;display:inline-block;margin-bottom:2px;">身宫</span>';
+  }
+
+  const mainStars = palace.stars.filter(s => s.type === '主星');
+  const auxStars  = palace.stars.filter(s => s.type === '辅星');
+
+  const starsHtml = [
+    ...mainStars.map(s => {
+      const huaColor = s.hua ? (s.hua === '化禄' ? '#4ADE80' : s.hua === '化权' ? '#60A5FA' : s.hua === '化科' ? '#C084FC' : '#F87171') : null;
+      return `<div style="font-size:12px;font-weight:700;color:${huaColor || '#FCD34D'};line-height:1.3;">${s.name}${s.hua ? `<span style="font-size:9px;margin-left:2px;opacity:.9;">${s.hua.replace('化','')}</span>` : ''}</div>`;
+    }),
+    ...auxStars.map(s => `<div style="font-size:10px;color:#93C5FD;opacity:.8;">${s.name}${s.hua ? `<span style="font-size:8px;color:#4ADE80;">禄</span>` : ''}</div>`)
+  ].join('');
+
+  return `<div onclick="showPalaceDetail(${palace.zhiIdx})" style="
+    grid-area:${gridPos};
+    padding:8px 6px;
+    border-radius:10px;
+    border:1px solid ${borderColor};
+    background:${bgColor};
+    cursor:pointer;
+    min-height:80px;
+    transition:all .25s;
+    position:relative;
+  " onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+    <div style="font-size:10px;color:#9CA3AF;margin-bottom:2px;">${palace.name || '未知'} · ${palace.zhi}</div>
+    ${badge}
+    ${starsHtml || '<div style="font-size:10px;color:#4B5563;">（空）</div>'}
+  </div>`;
+}
+
+function renderZiweiPalaces(data) {
+  const grid = document.getElementById('ziwei-palace-grid');
+  if (!grid) return;
+
+  // 中心格子（北斗七星标志）
+  const centerHtml = `<div style="grid-area:2/2/4/4;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;border-radius:14px;background:linear-gradient(135deg,rgba(251,191,36,.05),rgba(217,119,6,.03));border:1px solid rgba(251,191,36,.1);">
+    <div style="font-size:28px;">🌌</div>
+    <div style="font-size:11px;color:#9CA3AF;text-align:center;line-height:1.5;">紫微斗数<br>命盘</div>
+    <div style="font-size:10px;color:#6B7280;">阴历 ${data.lunar.year}年</div>
+  </div>`;
+
+  let outerHtml = '';
+  PALACE_POSITIONS.forEach(pos => {
+    const palace = data.palaces.find(p => p.zhiIdx === pos.zhiOffset);
+    if (palace) {
+      outerHtml += buildPalaceCell(palace, data.mingGong.zhiIdx, data.shenGong.zhiIdx, pos.grid);
+    }
+  });
+
+  grid.innerHTML = outerHtml + centerHtml;
+}
+
+function showPalaceDetail(zhiIdx) {
+  if (!ziweiData) return;
+  const palace = ziweiData.palaces.find(p => p.zhiIdx === zhiIdx);
+  if (!palace) return;
+
+  const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const mainStars = palace.stars.filter(s => s.type === '主星');
+  const auxStars  = palace.stars.filter(s => s.type === '辅星');
+  const huaStars  = palace.stars.filter(s => s.hua);
+
+  let html = `<div class="flex flex-wrap gap-2 mb-3">`;
+  html += `<span class="tag" style="background:rgba(251,191,36,.1);color:#FCD34D;">${palace.name} · ${ZHI[zhiIdx]}宫</span>`;
+  if (palace.isMing) html += `<span class="tag" style="background:rgba(251,191,36,.15);color:#FCD34D;">⭐ 命宫</span>`;
+  if (palace.isShen) html += `<span class="tag" style="background:rgba(168,85,247,.15);color:#C084FC;">✨ 身宫</span>`;
+  html += `</div>`;
+
+  if (mainStars.length) {
+    html += `<div class="mb-3"><div class="text-xs text-amber-400 font-semibold mb-2">主星</div><div class="flex flex-wrap gap-2">`;
+    mainStars.forEach(s => {
+      html += `<div class="glass-card px-3 py-2" style="border-color:rgba(251,191,36,.15);">
+        <div class="text-sm font-bold text-amber-300">${s.name}${s.hua ? ` <span style="font-size:10px;color:#4ADE80;">${s.hua}</span>` : ''}</div>
+        <div class="text-xs text-gray-500">${s.detail?.type || ''} · ${s.detail?.yinyang || ''}</div>
+      </div>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (auxStars.length) {
+    html += `<div><div class="text-xs text-blue-400 font-semibold mb-2">辅星</div><div class="flex flex-wrap gap-2">`;
+    auxStars.forEach(s => {
+      html += `<span class="tag" style="background:rgba(96,165,250,.08);color:#93C5FD;">${s.name}${s.hua ? ` ${s.hua}` : ''}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
+  if (!mainStars.length && !auxStars.length) {
+    html += `<p class="text-sm text-gray-500">此宫无主星，需借对宫主星论命</p>`;
+  }
+
+  const detailEl = document.getElementById('ziwei-palace-detail');
+  document.getElementById('ziwei-detail-title').textContent = `${palace.name}（${ZHI[zhiIdx]}）详情`;
+  document.getElementById('ziwei-detail-content').innerHTML = html;
+  detailEl.style.display = 'block';
+  detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderZiweiAll() {
+  if (!ziweiData) return;
+  const d = ziweiData;
+
+  // 四化
+  setText('ziwei-lu',   d.siHua['化禄'] || '--');
+  setText('ziwei-quan', d.siHua['化权'] || '--');
+  setText('ziwei-ke',   d.siHua['化科'] || '--');
+  setText('ziwei-ji',   d.siHua['化忌'] || '--');
+
+  // 概述
+  setText('ziwei-ge-tag',       d.summary['格局'] || '--');
+  setText('ziwei-ming-star-tag', '命宫: ' + d.mingGong.mainStar);
+  setText('ziwei-overview-desc', d.mingGong.interpret.desc || '--');
+  setText('ziwei-ming-zhi',     d.mingGong.zhi + '宫');
+  setText('ziwei-shen-zhi',     d.shenGong.zhi + '宫（' + d.shenGong.mainStar + '）');
+  setText('ziwei-year-ganzhi',  d.lunar.yearGanZhi);
+  setText('ziwei-month-ganzhi', d.lunar.monthGanZhi);
+
+  // 主星解读
+  const star = d.mingGong.mainStar;
+  const interp = d.mingGong.interpret;
+  setText('ziwei-main-star-name', star);
+  setText('ziwei-title-tag',      interp.title || '--');
+  setText('ziwei-star-desc',      interp.desc || '--');
+  setText('ziwei-lucky-color',    '幸运色: ' + (interp.lucky || '--'));
+  setText('ziwei-element-tag',    '命主五行: ' + (interp.element || '--'));
+  document.getElementById('ziwei-star-icon').textContent =
+    star === '紫微' ? '👑' : star === '天机' ? '🧠' : star === '太阳' ? '☀️' :
+    star === '武曲' ? '⚔️' : star === '天同' ? '🌊' : star === '廉贞' ? '🔥' :
+    star === '天府' ? '🏦' : star === '太阴' ? '🌙' : star === '贪狼' ? '🐺' :
+    star === '巨门' ? '🌊' : star === '天相' ? '⚖️' : star === '天梁' ? '🌿' :
+    star === '七杀' ? '🗡️' : star === '破军' ? '💥' : '⭐';
+
+  // 12宫位格子
+  renderZiweiPalaces(d);
+}
+
+// 紫微斗数表单提交
+document.getElementById('ziwei-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = document.getElementById('ziwei-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 排盘中...';
+
+  hideAll();
+  showSection('section-loading');
+  activateStep(0);
+  setText('loading-text', '正在排紫微命盘...');
+  setText('loading-sub', 'Calculating Ziwei Doushu Chart');
+
+  const [y, m, d2] = document.getElementById('ziwei-date').value.split('-').map(Number);
+  const [h, min2]  = (document.getElementById('ziwei-time').value || '12:00').split(':').map(Number);
+  const gender     = document.querySelector('input[name="ziwei-gender"]:checked')?.value || '男';
+
+  let result;
+  try {
+    activateStep(0); await delay(500);
+    activateStep(1); await delay(400);
+    activateStep(2); await delay(300);
+
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 20000);
+    const res = await fetch(API_BASE + '/api/ziwei', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ year: y, month: m, day: d2, hour: h, minute: min2, gender }),
+      signal: ctrl.signal
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'error');
+    result = json.data;
+    activateStep(3); await delay(300);
+    activateStep(4); await delay(200);
+    isDemoMode = false;
+  } catch (_err) {
+    // Demo fallback
+    result = buildDemoZiwei(y, m, d2, h, gender);
+    activateStep(4); await delay(200);
+    isDemoMode = true;
+  }
+
+  ziweiData = result;
+  hideAll();
+  showSection('section-ziwei-results');
+  renderZiweiAll();
+
+  if (isDemoMode) {
+    const bar = document.createElement('div');
+    bar.id = 'demo-bar';
+    bar.className = 'mb-3';
+    bar.innerHTML = '<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:14px;" class="px-4 py-2.5 text-center text-xs text-amber-400/80">⚠️ Demo 模式运行中 · 启动服务器可获得真实紫微排盘</div>';
+    document.getElementById('section-ziwei-results').insertBefore(bar, document.getElementById('section-ziwei-results').firstChild);
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>✨</span> 排命盘';
+});
+
+function buildDemoZiwei(y, m, d, h, gender) {
+  const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const PALACE_NAMES = ['命宫','兄弟','夫妻','子女','财帛','疾厄','迁移','交友','事业','田宅','福德','父母'];
+
+  // Demo 固定命盘（紫微坐命示例）
+  const mingIdx = 2; // 寅宫
+
+  const palaces = Array.from({ length: 12 }, (_, i) => ({
+    zhiIdx: i,
+    zhi: ZHI[i],
+    name: PALACE_NAMES[((i - mingIdx) % 12 + 12) % 12],
+    stars: [],
+    isMing: i === mingIdx,
+    isShen: i === 8,
+  }));
+
+  // 安主星 Demo
+  palaces[2].stars.push({ name: '紫微', type: '主星', detail: { type: '帝王星', yinyang: '阴土', wuxing: '土' } });
+  palaces[1].stars.push({ name: '天机', type: '主星', detail: { type: '智慧星', yinyang: '阴木', wuxing: '木' } });
+  palaces[0].stars.push({ name: '太阳', type: '主星', detail: { type: '官禄星', yinyang: '阳火', wuxing: '火' } });
+  palaces[11].stars.push({ name: '武曲', type: '主星', detail: { type: '财帛星', yinyang: '阴金', wuxing: '金' } });
+  palaces[10].stars.push({ name: '天同', type: '主星', detail: { type: '福德星', yinyang: '阳水', wuxing: '水' } });
+  palaces[9].stars.push({ name: '廉贞', type: '主星', detail: { type: '囚星', yinyang: '阴火', wuxing: '火' } });
+  palaces[8].stars.push({ name: '天府', type: '主星', detail: { type: '财库星', yinyang: '阳土', wuxing: '土' } });
+  palaces[7].stars.push({ name: '太阴', type: '主星', hua: '化禄', detail: { type: '财帛星', yinyang: '阴水', wuxing: '水' } });
+  palaces[6].stars.push({ name: '贪狼', type: '主星', detail: { type: '欲望星', yinyang: '阳木', wuxing: '木' } });
+  palaces[5].stars.push({ name: '巨门', type: '主星', detail: { type: '是非星', yinyang: '阴土', wuxing: '土' } });
+  palaces[4].stars.push({ name: '天相', type: '主星', detail: { type: '印星', yinyang: '阳水', wuxing: '水' } });
+  palaces[3].stars.push({ name: '天梁', type: '主星', detail: { type: '荫星', yinyang: '阳土', wuxing: '土' } });
+  palaces[0].stars.push({ name: '七杀', type: '主星', detail: { type: '将星', yinyang: '阳金', wuxing: '金' } });
+  palaces[6].stars.push({ name: '破军', type: '主星', hua: '化忌', detail: { type: '耗星', yinyang: '阴水', wuxing: '水' } });
+  // 辅星
+  palaces[3].stars.push({ name: '左辅', type: '辅星', detail: {} });
+  palaces[9].stars.push({ name: '右弼', type: '辅星', detail: {} });
+  palaces[2].stars.push({ name: '文昌', type: '辅星', detail: {} });
+  palaces[1].stars.push({ name: '天魁', type: '辅星', detail: {} });
+
+  return {
+    input: { year: y, month: m, day: d, hour: h, gender },
+    lunar: { year: y - 2697, month: m, day: d, yearGan: '庚', yearZhi: '午', yearGanZhi: '庚午', monthGanZhi: '壬午', dayGanZhi: '辛亥', hourZhi: '未' },
+    mingGong: {
+      zhi: '寅', zhiIdx: mingIdx, mainStar: '紫微',
+      interpret: {
+        title: '帝王格',
+        desc: '（Demo示例）领袖气质天成，独立自主，追求完美，具有极强的组织协调能力。适合担任领导职务，但需避免自我中心。',
+        lucky: '紫色·黄金', element: '土'
+      }
+    },
+    shenGong: { zhi: '申', zhiIdx: 8, mainStar: '天府' },
+    siHua: { '化禄': '太阴', '化权': '天梁', '化科': '武曲', '化忌': '破军' },
+    palaces,
+    summary: {
+      '格局': '紫微坐命 · 帝王格',
+      '身宫': '身宫主星天府',
+      '化禄': '太阴化禄：财运贵人', '化权': '天梁化权：权势掌控',
+      '化科': '武曲化科：文名贵气', '化忌': '破军化忌：阻力暗耗',
+      '幸运色': '紫色·黄金', '命主五行': '土'
+    }
+  };
+}
+
+function handleZiweiReset() {
+  ziweiData = null;
+  document.getElementById('demo-bar')?.remove();
+  document.getElementById('ziwei-palace-detail').style.display = 'none';
+  hideAll();
+  showSection('section-hero-ziwei');
+  document.getElementById('ziwei-form').reset();
 }
 
 // ── URL param: return from payment ────────────

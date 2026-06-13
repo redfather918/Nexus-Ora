@@ -12,6 +12,7 @@ const path    = require('path');
 const fs      = require('fs');
 const initSqlJs = require('sql.js');
 const { paipan, getShishen } = require('./paipan_engine.js');
+const { ziwei } = require('./ziwei_engine.js');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -413,8 +414,8 @@ app.post('/api/payment/create-checkout', async (req, res) => {
             line_items: [{ price_data: { currency:'cny', product_data:{name:pc.name},
                 unit_amount: pc.amt }, quantity:1 }],
             mode: plan==='monthly'?'subscription':'payment',
-            success_url: `http://127.0.0.1:${PORT}/?paid=true&report=${reportId||''}`,
-            cancel_url:  `http://127.0.0.1:${PORT}/`
+            success_url: `${process.env.APP_URL || `http://${HOST}:${PORT}`}/?paid=true&report=${reportId||''}`,
+            cancel_url:  `${process.env.APP_URL || `http://${HOST}:${PORT}`}/`
         });
         if (db) {
             db.run('INSERT INTO orders(id,report_id,plan,amount,status) VALUES(?,?,?,?,?)',
@@ -582,6 +583,30 @@ app.post('/api/compatibility', (req, res) => {
         res.json(result);
     } catch (e) {
         console.error('[Compatibility] error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// ───────────────────────── 紫微斗数 API ────────────────────
+
+app.post('/api/ziwei', (req, res) => {
+    console.log('[API] /api/ziwei body:', JSON.stringify(req.body));
+    const b = req.body;
+    if (!b.year || !b.month || !b.day) {
+        return res.status(400).json({ success: false, error: '缺少出生日期' });
+    }
+    try {
+        const result = ziwei({
+            year:   +b.year,
+            month:  +b.month,
+            day:    +b.day,
+            hour:   b.hour !== undefined ? +b.hour : 12,
+            minute: b.minute !== undefined ? +b.minute : 0,
+            gender: b.gender || '未知'
+        });
+        res.json({ success: true, data: result });
+    } catch (e) {
+        console.error('[Ziwei] error:', e.message, e.stack);
         res.status(500).json({ success: false, error: e.message });
     }
 });
