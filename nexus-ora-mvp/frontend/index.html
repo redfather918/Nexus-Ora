@@ -114,6 +114,11 @@ body{
 .compat-score-ring-lg{width:120px;height:120px;position:relative;}
 .compat-score-ring-lg .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
 
+/* ── Language switcher ── */
+.lang-btn{padding:3px 8px;font-size:11px;font-weight:700;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--dim);cursor:pointer;transition:all .2s;}
+.lang-btn:hover{background:rgba(168,85,247,.15);color:#fff;}
+.lang-btn.active{background:rgba(168,85,247,.25);border-color:rgba(168,85,247,.5);color:#C084FC;}
+
 /* ── responsive ── */
 @media(max-width:640px){
   .pillar-tooltip{width:160px;left:0;transform:none;}
@@ -129,7 +134,13 @@ body{
     Nexus Ora
   </div>
   <div class="flex gap-3 items-center">
-    <span class="text-xs text-gray-500 hidden sm:inline">AI Soul Companion · 东方玄学 × AI</span>
+    <span class="text-xs text-gray-500 hidden sm:inline" id="nav-tagline">AI Soul Companion · 东方玄学 × AI</span>
+    <!-- Language Switcher -->
+    <div class="flex gap-1 items-center" id="lang-switcher">
+      <button onclick="setLang('zh')" id="lang-zh" class="lang-btn active" title="中文">中</button>
+      <button onclick="setLang('en')" id="lang-en" class="lang-btn" title="English">EN</button>
+      <button onclick="setLang('ja')" id="lang-ja" class="lang-btn" title="日本語">日</button>
+    </div>
     <span id="server-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
     <span class="text-xs text-gray-500" id="server-label">connecting</span>
   </div>
@@ -139,28 +150,28 @@ body{
 <div id="module-switcher" class="max-w-5xl mx-auto px-6 pb-2">
   <div class="module-tabs" style="max-width:780px; flex-wrap:wrap;">
     <button class="module-tab active" onclick="switchModule('kline')" id="tab-kline">
-      <span class="mr-1.5">📈</span> 灵境图谱
+      <span class="mr-1.5">📈</span> <span data-i18n="tab_kline">灵境图谱</span>
     </button>
     <button class="module-tab" onclick="switchModule('persona')" id="tab-persona">
-      <span class="mr-1.5">💞</span> 灵境人格
+      <span class="mr-1.5">💞</span> <span data-i18n="tab_persona">灵境人格</span>
     </button>
     <button class="module-tab" onclick="switchModule('dream')" id="tab-dream">
-      <span class="mr-1.5">🌙</span> 梦境回廊
+      <span class="mr-1.5">🌙</span> <span data-i18n="tab_dream">梦境回廊</span>
     </button>
     <button class="module-tab" onclick="switchModule('compat')" id="tab-compat">
-      <span class="mr-1.5">💫</span> 缘分配对
+      <span class="mr-1.5">💫</span> <span data-i18n="tab_compat">缘分配对</span>
     </button>
     <button class="module-tab" onclick="switchModule('divination')" id="tab-divination">
-      <span class="mr-1.5">🃏</span> 灵境占卜
+      <span class="mr-1.5">🃏</span> <span data-i18n="tab_divination">灵境占卜</span>
     </button>
     <button class="module-tab" onclick="switchModule('cultivation')" id="tab-cultivation">
-      <span class="mr-1.5">🧘</span> 灵境修行
+      <span class="mr-1.5">🧘</span> <span data-i18n="tab_cultivation">灵境修行</span>
     </button>
     <button class="module-tab" onclick="switchModule('market')" id="tab-market">
-      <span class="mr-1.5">🛍️</span> 灵境市集
+      <span class="mr-1.5">🛍️</span> <span data-i18n="tab_market">灵境市集</span>
     </button>
     <button class="module-tab" onclick="switchModule('ziwei')" id="tab-ziwei">
-      <span class="mr-1.5">🌟</span> 紫微斗数
+      <span class="mr-1.5">🌟</span> <span data-i18n="tab_ziwei">紫微斗数</span>
     </button>
   </div>
 </div>
@@ -186,11 +197,11 @@ body{
       </svg>
     </div>
     <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-200 bg-clip-text text-transparent">
+      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-purple-200 bg-clip-text text-transparent" data-i18n="hero_title">
         Discover Your Life K-Line
       </span>
     </h1>
-    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed" data-i18n-html="hero_subtitle">
       东方玄学智慧 × AI 科技<br>
       让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>
     </p>
@@ -198,25 +209,25 @@ body{
     <form id="birth-form" class="max-w-md mx-auto space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="text-left">
-          <label class="block text-sm font-medium text-gray-300 mb-2">出生日期 <span class="text-purple-400">*</span></label>
+          <label class="block text-sm font-medium text-gray-300 mb-2"><span data-i18n="birth_date">出生日期</span> <span class="text-purple-400">*</span></label>
           <input type="date" id="birth-date" required value="1990-06-15" class="input-field">
         </div>
         <div class="text-left">
-          <label class="block text-sm font-medium text-gray-300 mb-2">出生时间</label>
+          <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="birth_time">出生时间</label>
           <input type="time" id="birth-time" value="14:30" class="input-field">
-          <p class="text-xs text-gray-600 mt-1">未知可保留默认值</p>
+          <p class="text-xs text-gray-600 mt-1" data-i18n="birth_time_hint">未知可保留默认值</p>
         </div>
       </div>
       <div class="text-left">
-        <label class="block text-sm font-medium text-gray-300 mb-2">性别</label>
+        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="gender">性别</label>
         <div class="flex gap-6">
           <label class="flex items-center cursor-pointer group">
             <input type="radio" name="gender" value="男" checked class="w-4 h-4 text-purple-500 bg-gray-800 border-gray-600 focus:ring-purple-500">
-            <span class="ml-2 text-gray-300 group-hover:text-white transition">男</span>
+            <span class="ml-2 text-gray-300 group-hover:text-white transition" data-i18n="gender_male">男</span>
           </label>
           <label class="flex items-center cursor-pointer group">
             <input type="radio" name="gender" value="女" class="w-4 h-4 text-pink-500 bg-gray-800 border-gray-600 focus:ring-pink-500">
-            <span class="ml-2 text-gray-300 group-hover:text-white transition">女</span>
+            <span class="ml-2 text-gray-300 group-hover:text-white transition" data-i18n="gender_female">女</span>
           </label>
         </div>
       </div>
@@ -224,14 +235,14 @@ body{
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
         </svg>
-        Generate My Life K-Line
+        <span data-i18n="btn_generate">Generate My Life K-Line</span>
       </button>
     </form>
 
     <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
-      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Secure & Private</span>
-      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>AI Powered</span>
-      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>Shareable</span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><span data-i18n="badge_private">Secure & Private</span></span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span data-i18n="badge_ai">AI Powered</span></span>
+      <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg><span data-i18n="badge_share">Shareable</span></span>
     </div>
   </div>
 </section>
@@ -260,11 +271,11 @@ body{
       </svg>
     </div>
     <h1 class="text-3xl md:text-5xl font-bold mb-4 leading-tight">
-      <span class="bg-gradient-to-r from-pink-300 via-purple-300 to-pink-200 bg-clip-text text-transparent">
+      <span class="bg-gradient-to-r from-pink-300 via-purple-300 to-pink-200 bg-clip-text text-transparent" data-i18n="compat_title">
         Soulmate Compatibility
       </span>
     </h1>
-    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+    <p class="text-gray-400 text-lg mb-8 max-w-lg mx-auto leading-relaxed" data-i18n-html="compat_subtitle">
       输入两个人的出生信息<br>
       用东方智慧<strong class="text-pink-300">解码</strong>你们的关系能量图谱
     </p>
@@ -273,7 +284,7 @@ body{
       <div class="p-5 rounded-2xl" style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.15);">
         <div class="flex items-center gap-2 mb-4">
           <span class="compat-hero-avatar" style="background:rgba(244,114,182,.12);width:36px;height:36px;font-size:18px;">🧑</span>
-          <span class="text-sm font-semibold" style="color:#F472B6">第一个人</span>
+          <span class="text-sm font-semibold" style="color:#F472B6" data-i18n="person_a">第一个人</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="text-left">
@@ -303,7 +314,7 @@ body{
       <div class="p-5 rounded-2xl" style="background:rgba(168,85,247,.05);border:1px solid rgba(168,85,247,.15);">
         <div class="flex items-center gap-2 mb-4">
           <span class="compat-hero-avatar" style="background:rgba(168,85,247,.12);width:36px;height:36px;font-size:18px;">👤</span>
-          <span class="text-sm font-semibold" style="color:#A855F7">第二个人</span>
+          <span class="text-sm font-semibold" style="color:#A855F7" data-i18n="person_b">第二个人</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="text-left">
@@ -328,7 +339,7 @@ body{
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
         </svg>
-        Analyze Compatibility
+        <span data-i18n="btn_compat">Analyze Compatibility</span>
       </button>
     </form>
     <div class="flex justify-center gap-6 mt-6 text-xs text-gray-600">
@@ -399,7 +410,7 @@ body{
   <!-- ② 八字四柱 -->
   <div class="glass-card p-6 md:p-8 mb-6 slide-in">
     <h2 class="text-xl md:text-2xl font-bold mb-5 text-center">
-      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">八字四柱 · Eight Characters</span>
+      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="section_bazi">八字四柱 · Eight Characters</span>
     </h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5 grid-bazi">
       <div class="pillar-box">
@@ -441,7 +452,7 @@ body{
 
   <!-- ③ 五行平衡 -->
   <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
-    <h3 class="text-lg font-semibold mb-4">五行平衡 · Five Elements Balance</h3>
+    <h3 class="text-lg font-semibold mb-4" data-i18n="section_wuxing">五行平衡 · Five Elements Balance</h3>
     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4" id="wuxing-bars"></div>
   </div>
 
@@ -449,7 +460,7 @@ body{
   <div class="glass-card p-6 md:p-8 mb-6 slide-in-d1">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-3">
       <h2 class="text-xl md:text-2xl font-bold">
-        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">人生K线 · Life K-Line</span>
+        <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="section_kline">人生K线 · Life K-Line</span>
       </h2>
       <div class="flex gap-2 items-center flex-wrap">
         <span class="text-xs text-gray-500">跳转到</span>
@@ -457,7 +468,7 @@ body{
         <span class="tag tag-purple text-xs" id="chart-phase">--</span>
       </div>
     </div>
-    <p class="text-xs text-gray-600 mb-4">悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）</p>
+    <p class="text-xs text-gray-600 mb-4" data-i18n-html="chart_hint">悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）</p>
     <div style="position:relative;">
       <div id="chart-main" style="width:100%;height:400px;"></div>
       <div id="paywall">
@@ -465,18 +476,18 @@ body{
           <svg class="w-10 h-10 mx-auto mb-3 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
           </svg>
-          <p class="text-lg font-semibold mb-1">解锁完整报告</p>
-          <p class="text-sm text-gray-400 mb-5">查看完整百年运势曲线与六维深度解读</p>
+          <p class="text-lg font-semibold mb-1" data-i18n="paywall_title">解锁完整报告</p>
+          <p class="text-sm text-gray-400 mb-5" data-i18n="paywall_subtitle">查看完整百年运势曲线与六维深度解读</p>
           <div class="flex gap-3 justify-center flex-wrap">
             <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-5 py-2.5">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              解锁报告 (¥9.99)
+              <span data-i18n="btn_unlock_pay">解锁报告 (¥9.99)</span>
             </button>
             <button onclick="handleUnlock('share')" class="btn-secondary text-sm">
-              分享解锁
+              <span data-i18n="btn_unlock_share">分享解锁</span>
             </button>
           </div>
-          <p class="text-xs text-gray-600 mt-3">Demo模式 · 分享给好友即可免费解锁</p>
+          <p class="text-xs text-gray-600 mt-3" data-i18n="paywall_demo_hint">Demo模式 · 分享给好友即可免费解锁</p>
         </div>
       </div>
     </div>
@@ -533,16 +544,16 @@ body{
 
   <!-- ⑧ 操作按钮 -->
   <div class="glass-card p-6 md:p-8 text-center slide-in-d3">
-    <h3 class="text-lg font-bold mb-2">分享你的命运图谱</h3>
-    <p class="text-gray-400 text-sm mb-5">让朋友一起探索独特的人生K线</p>
+    <h3 class="text-lg font-bold mb-2" data-i18n="share_title">分享你的命运图谱</h3>
+    <p class="text-gray-400 text-sm mb-5" data-i18n="share_subtitle">让朋友一起探索独特的人生K线</p>
     <div class="flex justify-center gap-3 flex-wrap">
       <button onclick="handleCopyLink()" class="btn-secondary" id="btn-copy">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
-        <span id="btn-copy-text">复制链接</span>
+        <span id="btn-copy-text" data-i18n="btn_copy">复制链接</span>
       </button>
       <button onclick="handleNewReading()" class="btn-primary text-sm">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        重新测算
+        <span data-i18n="btn_recalc">重新测算</span>
       </button>
     </div>
   </div>
@@ -649,11 +660,11 @@ body{
     <div class="flex justify-center gap-3 flex-wrap">
       <button onclick="handleCompatShare()" class="btn-secondary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
-        分享关系图谱
+        <span data-i18n="btn_compat_share">分享关系图谱</span>
       </button>
       <button onclick="handleCompatReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#EC4899,#8B5CF6);">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        重新配对
+        <span data-i18n="btn_compat_reset">重新配对</span>
       </button>
     </div>
   </div>
@@ -664,29 +675,29 @@ body{
   <div class="glass p-8 md:p-10">
     <div class="text-center mb-8">
       <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌙</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">梦境回廊</h2>
-      <p class="text-gray-400 text-sm">记录你的梦境，AI 从东方周公解梦与西方心理学双维度为你解析</p>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="dream_title">梦境回廊</h2>
+      <p class="text-gray-400 text-sm" data-i18n="dream_subtitle">记录你的梦境，AI 从东方周公解梦与西方心理学双维度为你解析</p>
     </div>
 
     <form id="dream-form" class="space-y-5">
       <div>
-        <label class="block text-sm text-gray-400 mb-2">梦境日期</label>
+        <label class="block text-sm text-gray-400 mb-2" data-i18n="dream_date_label">梦境日期</label>
         <input type="date" id="dream-date" class="input-field w-full" />
       </div>
 
       <div>
-        <label class="block text-sm text-gray-400 mb-2">梦境标题（可选）</label>
-        <input type="text" id="dream-title" class="input-field w-full" placeholder="给你的梦起个名字..." maxlength="50" />
+        <label class="block text-sm text-gray-400 mb-2" data-i18n="dream_title_label">梦境标题（可选）</label>
+        <input type="text" id="dream-title" class="input-field w-full" data-i18n-placeholder="dream_title_ph" placeholder="给你的梦起个名字..." maxlength="50" />
       </div>
 
       <div>
-        <label class="block text-sm text-gray-400 mb-2">描述你的梦境 <span class="text-red-400">*</span></label>
-        <textarea id="dream-desc" class="input-field w-full" rows="6" placeholder="尽可能详细地描述梦境的内容、场景、人物、情绪感受..." required minlength="5" style="resize:vertical;min-height:120px;"></textarea>
+        <label class="block text-sm text-gray-400 mb-2"><span data-i18n="dream_desc_label">描述你的梦境</span> <span class="text-red-400">*</span></label>
+        <textarea id="dream-desc" class="input-field w-full" rows="6" data-i18n-placeholder="dream_desc_ph" placeholder="尽可能详细地描述梦境的内容、场景、人物、情绪感受..." required minlength="5" style="resize:vertical;min-height:120px;"></textarea>
         <div class="text-xs text-gray-600 mt-1 text-right"><span id="dream-char-count">0</span> 字</div>
       </div>
 
       <div>
-        <label class="block text-sm text-gray-400 mb-2">梦中的主要情绪</label>
+        <label class="block text-sm text-gray-400 mb-2" data-i18n="dream_mood_label">梦中的主要情绪</label>
         <div class="flex flex-wrap gap-2" id="mood-selector">
           <button type="button" class="mood-btn" data-mood="焦虑">😰 焦虑</button>
           <button type="button" class="mood-btn" data-mood="平静">😌 平静</button>
@@ -699,13 +710,13 @@ body{
 
       <button type="submit" id="dream-submit-btn" class="btn-primary w-full text-base py-3" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-        解析梦境
+        <span data-i18n="btn_dream_analyze">解析梦境</span>
       </button>
     </form>
 
     <div class="mt-6 text-center">
       <button onclick="loadDreamHistory()" class="text-sm text-purple-400 hover:text-purple-300 transition">
-        📖 查看梦境历史
+        📖 <span data-i18n="btn_dream_history">查看梦境历史</span>
       </button>
     </div>
   </div>
@@ -716,8 +727,8 @@ body{
   <div class="glass p-8 md:p-10">
     <div class="text-center mb-8">
       <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">🌟</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent">紫微斗数命盘</h2>
-      <p class="text-gray-400 text-sm">输入出生信息，查看您的紫微命盘·12宫位·主星格局</p>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-300 bg-clip-text text-transparent" data-i18n="ziwei_title">紫微斗数命盘</h2>
+      <p class="text-gray-400 text-sm" data-i18n="ziwei_subtitle">输入出生信息，查看您的紫微命盘·12宫位·主星格局</p>
     </div>
     <form id="ziwei-form" class="max-w-md mx-auto space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -728,7 +739,7 @@ body{
         <div class="text-left">
           <label class="block text-sm font-medium text-gray-300 mb-2">出生时辰</label>
           <input type="time" id="ziwei-time" value="14:30" class="input-field" style="border-color:rgba(251,191,36,.1);">
-          <p class="text-xs text-gray-600 mt-1">时辰影响命宫位置，建议填写</p>
+          <p class="text-xs text-gray-600 mt-1" data-i18n="ziwei_birth_time_hint">时辰影响命宫位置，建议填写</p>
         </div>
       </div>
       <div class="text-left">
@@ -743,10 +754,10 @@ body{
         </div>
       </div>
       <button type="submit" id="ziwei-submit-btn" class="btn-primary w-full" style="background:linear-gradient(135deg,#D97706 0%,#F59E0B 50%,#D97706 100%);">
-        <span>✨</span> 排命盘
+        <span>✨</span> <span data-i18n="btn_ziwei">排命盘</span>
       </button>
     </form>
-    <p class="text-center text-xs text-gray-600 mt-5">基于传统紫微斗数·安命宫·布十四主星·四化推演</p>
+    <p class="text-center text-xs text-gray-600 mt-5" data-i18n="ziwei_footer">基于传统紫微斗数·安命宫·布十四主星·四化推演</p>
   </div>
 </section>
 
@@ -844,7 +855,7 @@ body{
     <div class="flex justify-center gap-3 flex-wrap">
       <button onclick="handleZiweiReset()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#D97706,#F59E0B);">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-        重新排盘
+        <span data-i18n="btn_ziwei_reset">重新排盘</span>
       </button>
     </div>
   </div>
@@ -927,10 +938,10 @@ body{
   <div class="glass-card p-6 text-center slide-in-d3">
     <div class="flex justify-center gap-3 flex-wrap">
       <button onclick="handleDreamNew()" class="btn-primary text-sm" style="background:linear-gradient(135deg,#6366F1,#A855F7);">
-        记录新梦境
+        <span data-i18n="btn_dream_new">记录新梦境</span>
       </button>
       <button onclick="loadDreamHistory()" class="btn-secondary text-sm">
-        📖 梦境历史
+        📖 <span data-i18n="btn_dream_history">梦境历史</span>
       </button>
     </div>
   </div>
@@ -950,11 +961,351 @@ body{
 </section>
 
 <footer class="text-center py-8 text-xs text-gray-700">
-  Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI
+  <span data-i18n="footer">Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI</span>
 </footer>
 
 <!-- ══════════════════ Scripts ══════════════════ -->
 <script>
+// ════════════════════════════════════════════════
+//  i18n — Internationalization System (v1.0)
+//  Supports: 中文 (zh) · English (en) · 日本語 (ja)
+// ════════════════════════════════════════════════
+const I18N = {
+  zh: {
+    // Nav
+    nav_tagline: 'AI Soul Companion · 东方玄学 × AI',
+    // Module tabs
+    tab_kline: '灵境图谱', tab_persona: '灵境人格', tab_dream: '梦境回廊',
+    tab_compat: '缘分配对', tab_divination: '灵境占卜', tab_cultivation: '灵境修行',
+    tab_market: '灵境市集', tab_ziwei: '紫微斗数',
+    // Hero
+    hero_title: 'Discover Your Life K-Line',
+    hero_subtitle: '东方玄学智慧 × AI 科技<br>让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>',
+    birth_date: '出生日期', birth_time: '出生时间', birth_time_hint: '未知可保留默认值',
+    gender: '性别', gender_male: '男', gender_female: '女',
+    btn_generate: 'Generate My Life K-Line',
+    badge_private: 'Secure & Private', badge_ai: 'AI Powered', badge_share: 'Shareable',
+    // Compat
+    compat_title: 'Soulmate Compatibility',
+    compat_subtitle: '输入两个人的出生信息<br>用东方智慧<strong class="text-pink-300">解码</strong>你们的关系能量图谱',
+    person_a: '第一个人', person_b: '第二个人',
+    btn_compat: 'Analyze Compatibility',
+    // Results
+    section_bazi: '八字四柱 · Eight Characters',
+    section_wuxing: '五行平衡 · Five Elements Balance',
+    section_kline: '人生K线 · Life K-Line',
+    share_title: '分享你的命运图谱', share_subtitle: '让朋友一起探索独特的人生K线',
+    btn_copy: '复制链接', btn_recalc: '重新测算',
+    // Paywall
+    paywall_title: '解锁完整报告', paywall_subtitle: '查看完整百年运势曲线与六维深度解读',
+    btn_unlock_pay: '解锁报告 (¥9.99)', btn_unlock_share: '分享解锁',
+    paywall_demo_hint: 'Demo模式 · 分享给好友即可免费解锁',
+    // Summary cards
+    sum_peak_label: '峰值年龄', sum_peak_sub: '运势巅峰',
+    sum_valley_label: '低谷年龄', sum_valley_sub: '谨慎时期',
+    sum_avg_label: '命运均分', sum_body_label: '日主类型',
+    // Pillars
+    pillar_year: '年柱 Year', pillar_month: '月柱 Month',
+    pillar_day: '日柱 Day（日元）', pillar_hour: '时柱 Hour',
+    pillar_self: '自我·日主',
+    // Loading
+    loading_main: '正在计算您的八字命盘...', loading_sub: 'Consulting ancient wisdom',
+    step0: '排盘引擎计算八字四柱...', step1: '分析五行平衡与身强身弱...',
+    step2: 'AI大师预测100年运势曲线...', step3: '生成六维度深度解读...', step4: '绘制人生K线图谱...',
+    // Dream
+    dream_title: '梦境回廊', dream_subtitle: '记录你的梦境，AI 从东方周公解梦与西方心理学双维度为你解析',
+    dream_date_label: '梦境日期', dream_title_label: '梦境标题（可选）',
+    dream_title_ph: '给你的梦起个名字...',
+    dream_desc_label: '描述你的梦境', dream_desc_ph: '尽可能详细地描述梦境的内容、场景、人物、情绪感受...',
+    dream_mood_label: '梦中的主要情绪',
+    btn_dream_analyze: '解析梦境', btn_dream_history: '查看梦境历史',
+    btn_dream_new: '记录新梦境',
+    mood_anxious: '😰 焦虑', mood_calm: '😌 平静', mood_fear: '😨 恐惧',
+    mood_joy: '😊 喜悦', mood_confused: '😕 困惑', mood_sad: '😢 悲伤',
+    // Ziwei
+    ziwei_title: '紫微斗数命盘', ziwei_subtitle: '输入出生信息，查看您的紫微命盘·12宫位·主星格局',
+    ziwei_birth_time_hint: '时辰影响命宫位置，建议填写',
+    btn_ziwei: '排命盘', ziwei_footer: '基于传统紫微斗数·安命宫·布十四主星·四化推演',
+    btn_ziwei_reset: '重新排盘',
+    // Market
+    market_title: '灵境市集', market_subtitle: '数字周边 · 水晶能量 · 线下活动',
+    market_digital: '数字周边', market_crystals: '水晶', market_events: '线下',
+    // Chart hint
+    chart_hint: '悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）',
+    age_jump_placeholder: '岁',
+    // Footer
+    footer: 'Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI',
+    // Compat results
+    compat_score_label: '兼容指数', compat_radar_title: '五行能量对比',
+    compat_radar_subtitle: '两个人的五行分布叠加，看互补与冲突',
+    compat_dim_title: '五维兼容评分', compat_advice_title: '命理深度解读',
+    btn_compat_share: '分享关系图谱', btn_compat_reset: '重新配对',
+    // Six dims
+    dim_career: '事业', dim_wealth: '财运', dim_relationships: '感情',
+    dim_health: '健康', dim_mentors: '贵人', dim_challenges: '挑战',
+    dim_section_title: '六维度深度解读',
+    // Phases
+    phase_childhood: '童年', phase_youth: '青年', phase_adult: '壮年',
+    phase_middle: '中年', phase_senior: '晚年',
+    life_phase_growth: '成长期', life_phase_rise: '上升期', life_phase_golden: '黄金期',
+    life_phase_stable: '稳固期', life_phase_wisdom: '智慧期', life_phase_rest: '颐养期',
+  },
+
+  en: {
+    nav_tagline: 'AI Soul Companion · Eastern Wisdom × AI',
+    tab_kline: 'Life K-Line', tab_persona: 'Soul Persona', tab_dream: 'Dream Corridor',
+    tab_compat: 'Compatibility', tab_divination: 'Divination', tab_cultivation: 'Cultivation',
+    tab_market: 'Mystic Market', tab_ziwei: 'Zi Wei',
+    hero_title: 'Discover Your Life K-Line',
+    hero_subtitle: 'Eastern Mystical Wisdom × AI Technology<br>Make your destiny <strong class="text-purple-300">visible</strong>, <strong class="text-pink-300">interactive</strong>, <strong class="text-purple-300">shareable</strong>',
+    birth_date: 'Birth Date', birth_time: 'Birth Time', birth_time_hint: 'Leave default if unknown',
+    gender: 'Gender', gender_male: 'Male', gender_female: 'Female',
+    btn_generate: 'Generate My Life K-Line',
+    badge_private: 'Secure & Private', badge_ai: 'AI Powered', badge_share: 'Shareable',
+    compat_title: 'Soulmate Compatibility',
+    compat_subtitle: 'Enter two birth dates<br>Decode your relationship energy with <strong class="text-pink-300">Eastern wisdom</strong>',
+    person_a: 'Person A', person_b: 'Person B',
+    btn_compat: 'Analyze Compatibility',
+    section_bazi: 'Eight Characters · BaZi Chart',
+    section_wuxing: 'Five Elements Balance',
+    section_kline: 'Life K-Line · Fortune Curve',
+    share_title: 'Share Your Destiny Chart', share_subtitle: 'Let friends explore your unique life K-line',
+    btn_copy: 'Copy Link', btn_recalc: 'New Reading',
+    paywall_title: 'Unlock Full Report', paywall_subtitle: 'View full century fortune curve & 6-dimension deep analysis',
+    btn_unlock_pay: 'Unlock Report (¥9.99)', btn_unlock_share: 'Share to Unlock',
+    paywall_demo_hint: 'Demo Mode · Share with a friend to unlock for free',
+    sum_peak_label: 'Peak Age', sum_peak_sub: 'Fortune Peak',
+    sum_valley_label: 'Valley Age', sum_valley_sub: 'Caution Period',
+    sum_avg_label: 'Avg Fortune', sum_body_label: 'Day Master',
+    pillar_year: 'Year Pillar', pillar_month: 'Month Pillar',
+    pillar_day: 'Day Pillar (Self)', pillar_hour: 'Hour Pillar',
+    pillar_self: 'Self · Day Master',
+    loading_main: 'Calculating your BaZi chart...', loading_sub: 'Consulting ancient wisdom',
+    step0: 'Computing Eight Characters...', step1: 'Analyzing Five Elements balance...',
+    step2: 'AI master predicting 100-year fortune...', step3: 'Generating 6-dimension analysis...', step4: 'Drawing Life K-Line chart...',
+    dream_title: 'Dream Corridor', dream_subtitle: 'Record your dreams — AI interprets through Eastern Zhouyi & Western psychology',
+    dream_date_label: 'Dream Date', dream_title_label: 'Dream Title (optional)',
+    dream_title_ph: 'Give your dream a name...',
+    dream_desc_label: 'Describe Your Dream', dream_desc_ph: 'Describe the scenes, characters, emotions in as much detail as possible...',
+    dream_mood_label: 'Main Emotion in Dream',
+    btn_dream_analyze: 'Analyze Dream', btn_dream_history: 'Dream History',
+    btn_dream_new: 'New Dream Entry',
+    mood_anxious: '😰 Anxious', mood_calm: '😌 Calm', mood_fear: '😨 Fearful',
+    mood_joy: '😊 Joyful', mood_confused: '😕 Confused', mood_sad: '😢 Sad',
+    ziwei_title: 'Zi Wei Dou Shu Chart', ziwei_subtitle: 'Enter birth info to view your 12-Palace Zi Wei chart',
+    ziwei_birth_time_hint: 'Birth hour affects palace position — recommended',
+    btn_ziwei: 'Generate Chart', ziwei_footer: 'Based on traditional Zi Wei Dou Shu · 14 main stars · Four Transformations',
+    btn_ziwei_reset: 'New Chart',
+    market_title: 'Mystic Market', market_subtitle: 'Digital Goods · Crystal Energy · Live Events',
+    market_digital: 'Digital', market_crystals: 'Crystals', market_events: 'Events',
+    chart_hint: 'Hover data points for yearly fortune details · <span class="text-red-400">Red rise</span> = good fortune, <span class="text-green-400">Green drop</span> = caution (Chinese market convention)',
+    age_jump_placeholder: 'age',
+    footer: 'Nexus Ora v3.0 © 2026 · AI Soul Companion · Life K-Line + Compatibility + Zi Wei · Eastern Wisdom × Modern AI',
+    compat_score_label: 'Compatibility', compat_radar_title: 'Five Elements Comparison',
+    compat_radar_subtitle: 'Overlay of two charts — see harmony and conflict',
+    compat_dim_title: 'Five-Dimension Score', compat_advice_title: 'Destiny Deep Dive',
+    btn_compat_share: 'Share Chart', btn_compat_reset: 'New Pairing',
+    dim_career: 'Career', dim_wealth: 'Wealth', dim_relationships: 'Romance',
+    dim_health: 'Health', dim_mentors: 'Mentors', dim_challenges: 'Challenges',
+    dim_section_title: '6-Dimension Deep Analysis',
+    phase_childhood: 'Childhood', phase_youth: 'Youth', phase_adult: 'Prime',
+    phase_middle: 'Midlife', phase_senior: 'Senior',
+    life_phase_growth: 'Growth', life_phase_rise: 'Rising', life_phase_golden: 'Golden',
+    life_phase_stable: 'Stable', life_phase_wisdom: 'Wisdom', life_phase_rest: 'Twilight',
+  },
+
+  ja: {
+    nav_tagline: 'AIソウルコンパニオン · 東洋玄学 × AI',
+    tab_kline: '人生Kライン', tab_persona: '霊境人格', tab_dream: '夢の回廊',
+    tab_compat: '縁分配対', tab_divination: '霊境占い', tab_cultivation: '霊境修行',
+    tab_market: '霊境市場', tab_ziwei: '紫微斗数',
+    hero_title: '人生Kラインを発見する',
+    hero_subtitle: '東洋玄学の智慧 × AIテクノロジー<br>運命を<strong class="text-purple-300">可視化</strong>し、<strong class="text-pink-300">インタラクティブ</strong>に、<strong class="text-purple-300">シェア可能</strong>に',
+    birth_date: '生年月日', birth_time: '生まれた時間', birth_time_hint: '不明な場合はデフォルトのまま',
+    gender: '性別', gender_male: '男性', gender_female: '女性',
+    btn_generate: '人生Kラインを生成する',
+    badge_private: 'プライバシー保護', badge_ai: 'AI搭載', badge_share: 'シェア可能',
+    compat_title: 'ソウルメイト相性診断',
+    compat_subtitle: '2人の生年月日を入力<br>東洋の智慧で関係エネルギーを<strong class="text-pink-300">解読</strong>する',
+    person_a: '一人目', person_b: '二人目',
+    btn_compat: '相性を分析する',
+    section_bazi: '八字四柱 · 四柱推命',
+    section_wuxing: '五行バランス',
+    section_kline: '人生Kライン · 運勢曲線',
+    share_title: '運命チャートをシェア', share_subtitle: '友達と一緒に独自の人生Kラインを探索しよう',
+    btn_copy: 'リンクをコピー', btn_recalc: '再計算',
+    paywall_title: '完全レポートを解放', paywall_subtitle: '100年運勢曲線と6次元深度分析を見る',
+    btn_unlock_pay: 'レポートを解放 (¥9.99)', btn_unlock_share: 'シェアして解放',
+    paywall_demo_hint: 'デモモード · 友達にシェアして無料で解放',
+    sum_peak_label: 'ピーク年齢', sum_peak_sub: '運勢の絶頂',
+    sum_valley_label: '谷底年齢', sum_valley_sub: '注意時期',
+    sum_avg_label: '平均運勢', sum_body_label: '日主タイプ',
+    pillar_year: '年柱', pillar_month: '月柱',
+    pillar_day: '日柱（日元）', pillar_hour: '時柱',
+    pillar_self: '自己・日主',
+    loading_main: '八字命盤を計算中...', loading_sub: '古代の知恵を参照中',
+    step0: '八字四柱を計算中...', step1: '五行バランスを分析中...',
+    step2: 'AI師が100年運勢を予測中...', step3: '6次元深度解析を生成中...', step4: '人生Kラインを描画中...',
+    dream_title: '夢の回廊', dream_subtitle: '夢を記録 — AIが東洋周公解夢と西洋心理学の2つの視点で解析',
+    dream_date_label: '夢を見た日', dream_title_label: '夢のタイトル（任意）',
+    dream_title_ph: '夢に名前をつけてください...',
+    dream_desc_label: '夢を描写する', dream_desc_ph: 'シーン、人物、感情をできるだけ詳しく描写してください...',
+    dream_mood_label: '夢の中の主な感情',
+    btn_dream_analyze: '夢を解析する', btn_dream_history: '夢の履歴',
+    btn_dream_new: '新しい夢を記録',
+    mood_anxious: '😰 不安', mood_calm: '😌 穏やか', mood_fear: '😨 恐怖',
+    mood_joy: '😊 喜び', mood_confused: '😕 混乱', mood_sad: '😢 悲しみ',
+    ziwei_title: '紫微斗数命盤', ziwei_subtitle: '生年月日を入力して、12宮位紫微命盤を表示',
+    ziwei_birth_time_hint: '生まれた時間は命宮に影響します',
+    btn_ziwei: '命盤を生成', ziwei_footer: '伝統的な紫微斗数に基づく · 14主星 · 四化推演',
+    btn_ziwei_reset: '新しい命盤',
+    market_title: '霊境市場', market_subtitle: 'デジタルグッズ · クリスタルエネルギー · オフラインイベント',
+    market_digital: 'デジタル', market_crystals: 'クリスタル', market_events: 'イベント',
+    chart_hint: 'データポイントにホバーして年運詳細を見る · <span class="text-red-400">赤上昇</span> = 運勢良好，<span class="text-green-400">緑下落</span> = 注意（中国株式市場慣習）',
+    age_jump_placeholder: '歳',
+    footer: 'Nexus Ora v3.0 © 2026 · AIソウルコンパニオン · 人生Kライン + 縁分配対 + 紫微斗数 · 東洋玄学 × 現代AI',
+    compat_score_label: '相性指数', compat_radar_title: '五行エネルギー比較',
+    compat_radar_subtitle: '2つのチャートを重ねて調和と対立を見る',
+    compat_dim_title: '5次元スコア', compat_advice_title: '命理深度解読',
+    btn_compat_share: 'チャートをシェア', btn_compat_reset: '再ペアリング',
+    dim_career: 'キャリア', dim_wealth: '財運', dim_relationships: '恋愛',
+    dim_health: '健康', dim_mentors: '貴人', dim_challenges: '挑戦',
+    dim_section_title: '6次元深度解析',
+    phase_childhood: '幼少期', phase_youth: '青年期', phase_adult: '壮年期',
+    phase_middle: '中年期', phase_senior: '老年期',
+    life_phase_growth: '成長期', life_phase_rise: '上昇期', life_phase_golden: '黄金期',
+    life_phase_stable: '安定期', life_phase_wisdom: '智慧期', life_phase_rest: '晩年期',
+  }
+};
+
+// Current language (persisted in localStorage)
+let currentLang = localStorage.getItem('nexus_lang') || 'zh';
+
+function t(key, fallback) {
+  return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['zh'] && I18N['zh'][key]) || fallback || key;
+}
+
+function setLang(lang) {
+  if (!I18N[lang]) return;
+  currentLang = lang;
+  localStorage.setItem('nexus_lang', lang);
+
+  // Update active button
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('lang-' + lang);
+  if (btn) btn.classList.add('active');
+
+  // Update html lang attribute
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'ja' ? 'ja' : 'en';
+
+  // Apply all data-i18n text
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+
+  // Apply data-i18n-html (allows inner HTML with tags)
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    const val = t(key);
+    if (val) el.innerHTML = val;
+  });
+
+  // Apply data-i18n-placeholder
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const val = t(key);
+    if (val) el.placeholder = val;
+  });
+
+  // Update nav tagline
+  const tagline = document.getElementById('nav-tagline');
+  if (tagline) tagline.textContent = t('nav_tagline');
+
+  // Update pillar labels
+  const pillarLabels = ['year','month','day','hour'];
+  const pillarKeys   = ['pillar_year','pillar_month','pillar_day','pillar_hour'];
+  pillarLabels.forEach((id, i) => {
+    const el = document.querySelector(`#bazi-${id}`)?.closest('.pillar-box')?.querySelector('.text-xs.text-gray-500');
+    if (el) el.textContent = t(pillarKeys[i]);
+  });
+
+  // Update chart hint
+  const hint = document.querySelector('#section-results p.text-xs.text-gray-600');
+  if (hint) hint.innerHTML = t('chart_hint');
+
+  // Update age jump placeholder
+  const ageJump = document.getElementById('age-jump');
+  if (ageJump) ageJump.placeholder = t('age_jump_placeholder');
+
+  // Update summary card labels
+  const sumPeakLabel   = document.querySelector('#fortune-summary .stat-card:nth-child(1) .text-xs.text-gray-500');
+  const sumPeakSub     = document.getElementById('sum-peak-score');
+  const sumValleyLabel = document.querySelector('#fortune-summary .stat-card:nth-child(2) .text-xs.text-gray-500');
+  const sumValleySub   = document.getElementById('sum-valley-score');
+  const sumAvgLabel    = document.querySelector('#fortune-summary .stat-card:nth-child(3) .text-xs.text-gray-500');
+  const sumBodyLabel   = document.querySelector('#fortune-summary .stat-card:nth-child(4) .text-xs.text-gray-500');
+  if (sumPeakLabel)   sumPeakLabel.textContent   = t('sum_peak_label');
+  if (sumValleyLabel) sumValleyLabel.textContent  = t('sum_valley_label');
+  if (sumAvgLabel)    sumAvgLabel.textContent     = t('sum_avg_label');
+  if (sumBodyLabel)   sumBodyLabel.textContent    = t('sum_body_label');
+
+  // Re-render loading steps if visible
+  const steps = [
+    document.querySelector('#step-0 .step-label'),
+    document.querySelector('#step-1 .step-label'),
+    document.querySelector('#step-2 .step-label'),
+    document.querySelector('#step-3 .step-label'),
+    document.querySelector('#step-4 .step-label'),
+  ];
+  const stepKeys = ['step0','step1','step2','step3','step4'];
+  steps.forEach((el, i) => { if (el) el.textContent = t(stepKeys[i]); });
+  const loadingText = document.getElementById('loading-text');
+  if (loadingText && loadingText.textContent) loadingText.textContent = t('loading_main');
+
+  // Update gender values (for server submission, keep Chinese internally)
+  // Just update display text via data-i18n, keep actual radio values as 男/女
+
+  // Update dream mood buttons
+  const moodMap = {
+    '焦虑': 'mood_anxious', '平静': 'mood_calm', '恐惧': 'mood_fear',
+    '喜悦': 'mood_joy',   '困惑': 'mood_confused', '悲伤': 'mood_sad'
+  };
+  document.querySelectorAll('.mood-btn').forEach(btn => {
+    const mood = btn.getAttribute('data-mood');
+    if (moodMap[mood]) btn.textContent = t(moodMap[mood]);
+  });
+
+  // Update 6-dim section title if visible
+  const dimTitle = document.querySelector('#dimensions-wrap h3');
+  if (dimTitle) dimTitle.textContent = t('dim_section_title');
+
+  // Update compat section titles
+  const compatRadarTitle = document.querySelector('#section-compat-results .glass-card h3.text-lg.font-semibold');
+  if (compatRadarTitle) compatRadarTitle.textContent = t('compat_radar_title');
+
+  // Update ziwei footer
+  const ziweiFooter = document.querySelector('#section-hero-ziwei p.text-center.text-xs.text-gray-600');
+  if (ziweiFooter) ziweiFooter.textContent = t('ziwei_footer');
+
+  // Dispatch custom event so other modules can react
+  document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+}
+
+// Initialize on page load
+(function initLang() {
+  // Restore saved language
+  const saved = localStorage.getItem('nexus_lang') || 'zh';
+  // Mark active btn
+  const activeBtnInit = document.getElementById('lang-' + saved);
+  if (activeBtnInit) {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    activeBtnInit.classList.add('active');
+  }
+  if (saved !== 'zh') setLang(saved);
+})();
+
 // ── State ──────────────────────────────────────
 // 自动适配当前域名端口（本地开发/部署环境通用）
 const API_BASE = '';
@@ -1088,10 +1439,17 @@ document.getElementById('birth-form').addEventListener('submit', async e => {
   e.preventDefault();
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 计算中...';
+  btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> ' + t('loading_main','计算中...');
 
   hideAll();
   showSection('section-loading');
+  setText('loading-text', t('loading_main','正在计算您的八字命盘...'));
+  setText('loading-sub', t('loading_sub','Consulting ancient wisdom'));
+  // Update loading steps
+  ['step0','step1','step2','step3','step4'].forEach((k,i)=>{
+    const el = document.querySelector('#step-'+i+' .step-label');
+    if(el) el.textContent = t(k);
+  });
   activateStep(0);
 
   const [y, m, d] = document.getElementById('birth-date').value.split('-').map(Number);
@@ -1197,6 +1555,18 @@ function renderBazi() {
   const ids = ['year','month','day','hour'];
   const colors = ['text-purple-400','text-blue-400','text-amber-400','text-green-400'];
   const ttPfx = ['y','m','d','h'];
+  // Update pillar header labels
+  const pillarKeys = ['pillar_year','pillar_month','pillar_day','pillar_hour'];
+  ids.forEach((id, i) => {
+    const box = document.getElementById('bazi-' + id)?.closest('.pillar-box');
+    if (box) {
+      const lbl = box.querySelector('.text-xs.text-gray-500');
+      if (lbl) lbl.textContent = t(pillarKeys[i]);
+    }
+  });
+  // Update self label
+  const selfLabel = document.querySelector('.pillar-box.self .text-xs.text-amber-400\\/70');
+  if (selfLabel) selfLabel.textContent = t('pillar_self','自我·日主');
 
   pillars.forEach((pl, i) => {
     const pid = ids[i];
@@ -1373,9 +1743,11 @@ function renderKLineInterp() {
   const worst = phaseAvgs[phaseAvgs.length-1];
 
   const stages = [
-    { n:'童年',  r:[0,12],  c:'#60A5FA' }, { n:'青年',  r:[13,29], c:'#F59E0B' },
-    { n:'壮年',  r:[30,49], c:'#EF4444' }, { n:'中年',  r:[50,65], c:'#A855F7' },
-    { n:'晚年',  r:[66,100],c:'#34D399' }
+    { n: t('phase_childhood','童年'),  r:[0,12],  c:'#60A5FA' },
+    { n: t('phase_youth','青年'),      r:[13,29], c:'#F59E0B' },
+    { n: t('phase_adult','壮年'),      r:[30,49], c:'#EF4444' },
+    { n: t('phase_middle','中年'),     r:[50,65], c:'#A855F7' },
+    { n: t('phase_senior','晚年'),     r:[66,100],c:'#34D399' }
   ];
 
   let html = '';
@@ -1443,13 +1815,26 @@ function renderKLineInterp() {
 // ── ⑥ Summary Cards ──────────────────────────
 function renderSummary() {
   const s = reportData?.data?.summary || {};
-  setText('sum-peak',       (s.peak_age ?? '--') + ' 岁');
-  setText('sum-peak-score', `得分 ${s.peak_score ?? '--'}`);
-  setText('sum-valley',     (s.valley_age ?? '--') + ' 岁');
-  setText('sum-valley-score', `得分 ${s.valley_score ?? '--'}`);
+  const ageUnit = t('age_jump_placeholder','岁');
+  const scoreLabel = currentLang==='en'?'Score ':currentLang==='ja'?'スコア ':'得分 ';
+  setText('sum-peak',       (s.peak_age ?? '--') + ' ' + ageUnit);
+  setText('sum-peak-score', scoreLabel + (s.peak_score ?? '--'));
+  setText('sum-valley',     (s.valley_age ?? '--') + ' ' + ageUnit);
+  setText('sum-valley-score', scoreLabel + (s.valley_score ?? '--'));
   setText('sum-avg',        s.average_score ?? '--');
   setText('sum-body',       `${s.day_master || '--'}${s.day_wuxing || ''}日`);
   setText('sum-body-sub',   s.body_strength || '--');
+  // Update card labels
+  const labels = [
+    ['.stat-card:nth-child(1) .text-xs.text-gray-500', t('sum_peak_label')],
+    ['.stat-card:nth-child(2) .text-xs.text-gray-500', t('sum_valley_label')],
+    ['.stat-card:nth-child(3) .text-xs.text-gray-500', t('sum_avg_label')],
+    ['.stat-card:nth-child(4) .text-xs.text-gray-500', t('sum_body_label')],
+  ];
+  labels.forEach(([sel, txt]) => {
+    const el = document.querySelector('#fortune-summary ' + sel);
+    if (el) el.textContent = txt;
+  });
 }
 
 // ── ⑦ Dimensions (radar + cards) ──────────────
@@ -1458,12 +1843,12 @@ function renderDimensions() {
   if (!dims) return;
 
   const DIM_CFG = [
-    { key:'career',        label:'事业', color:'#60A5FA', icon:'💼' },
-    { key:'wealth',        label:'财运', color:'#FBBF24', icon:'💰' },
-    { key:'relationships', label:'感情', color:'#F472B6', icon:'💕' },
-    { key:'health',        label:'健康', color:'#34D399', icon:'🌿' },
-    { key:'mentors',       label:'贵人', color:'#A78BFA', icon:'⭐' },
-    { key:'challenges',    label:'挑战', color:'#FB7185', icon:'🛡️' }
+    { key:'career',        label: t('dim_career','事业'), color:'#60A5FA', icon:'💼' },
+    { key:'wealth',        label: t('dim_wealth','财运'), color:'#FBBF24', icon:'💰' },
+    { key:'relationships', label: t('dim_relationships','感情'), color:'#F472B6', icon:'💕' },
+    { key:'health',        label: t('dim_health','健康'), color:'#34D399', icon:'🌿' },
+    { key:'mentors',       label: t('dim_mentors','贵人'), color:'#A78BFA', icon:'⭐' },
+    { key:'challenges',    label: t('dim_challenges','挑战'), color:'#FB7185', icon:'🛡️' }
   ];
 
   // Radar chart
@@ -1638,13 +2023,17 @@ document.getElementById('compat-form').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = document.getElementById('compat-submit-btn');
     btn.disabled = true;
-    btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> 分析中...';
+    btn.innerHTML = '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> ' + (currentLang==='en'?'Analyzing...':currentLang==='ja'?'分析中...':'分析中...');
 
     hideAll();
     showSection('section-loading');
     activateStep(0);
-    setText('loading-text', '正在计算双方八字命盘...');
-    setText('loading-sub', 'Analyzing two destinies');
+    setText('loading-text', currentLang==='en'?'Calculating both BaZi charts...':currentLang==='ja'?'双方の八字命盤を計算中...':'正在计算双方八字命盘...');
+    setText('loading-sub', currentLang==='en'?'Analyzing two destinies':currentLang==='ja'?'二つの運命を分析中':'Analyzing two destinies');
+    ['step0','step1','step2','step3','step4'].forEach((k,i)=>{
+      const el = document.querySelector('#step-'+i+' .step-label');
+      if(el) el.textContent = t(k);
+    });
 
     const parsePerson = prefix => {
         const [y, m, d] = document.getElementById(`compat-${prefix}-date`).value.split('-').map(Number);
@@ -1764,6 +2153,14 @@ function renderCompatAll() {
     const a = compatData?.personA;
     const b = compatData?.personB;
     if (!d || !a || !b) return;
+
+    // Update section titles with current lang
+    const radarTitleEl = document.querySelector('#section-compat-results h3.text-lg.font-semibold');
+    if (radarTitleEl) radarTitleEl.textContent = t('compat_radar_title');
+    const dimTitleEl = document.querySelector('#compat-dim-bars')?.closest('.glass-card')?.querySelector('h3');
+    if (dimTitleEl) dimTitleEl.textContent = t('compat_dim_title');
+    const adviceTitleEl = document.querySelector('#compat-advice')?.closest('.glass-card')?.querySelector('h3');
+    if (adviceTitleEl) adviceTitleEl.textContent = t('compat_advice_title');
 
     // ① Overview
     setText('compat-emoji', d.relation_icon || '💞');
@@ -3155,14 +3552,14 @@ function buyDemo(name) {
   <div class="glass p-6 md:p-8">
     <div class="text-center mb-6">
       <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🛍️</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">灵境市集</h2>
-      <p class="text-gray-400 text-sm">数字周边 · 水晶能量 · 线下活动</p>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="market_title">灵境市集</h2>
+      <p class="text-gray-400 text-sm" data-i18n="market_subtitle">数字周边 · 水晶能量 · 线下活动</p>
     </div>
 
     <div class="module-tabs mb-6" style="max-width:480px">
-      <button class="module-tab active market-tab" id="market-tab-digital" onclick="selectMarketTab('digital')">📄 数字周边</button>
-      <button class="module-tab market-tab" id="market-tab-crystals" onclick="selectMarketTab('crystals')">💎 水晶</button>
-      <button class="module-tab market-tab" id="market-tab-events" onclick="selectMarketTab('events')">🏯 线下</button>
+      <button class="module-tab active market-tab" id="market-tab-digital" onclick="selectMarketTab('digital')">📄 <span data-i18n="market_digital">数字周边</span></button>
+      <button class="module-tab market-tab" id="market-tab-crystals" onclick="selectMarketTab('crystals')">💎 <span data-i18n="market_crystals">水晶</span></button>
+      <button class="module-tab market-tab" id="market-tab-events" onclick="selectMarketTab('events')">🏯 <span data-i18n="market_events">线下</span></button>
     </div>
 
     <div id="market-loading" class="hidden-section text-center py-6">
