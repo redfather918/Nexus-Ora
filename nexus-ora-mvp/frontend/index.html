@@ -533,9 +533,9 @@ body{
       <h3 class="text-lg font-bold">六维度深度解读</h3>
       <span id="dim-ai-tag" class="tag tag-purple text-xs hidden-section">AI Enhanced</span>
     </div>
-    <!-- 雷达图居中置顶 -->
+    <!-- 雷达图居中置顶（正方形容器保证雷达图比例正确） -->
     <div class="flex justify-center mb-5">
-      <div id="chart-radar" style="width:100%;max-width:340px;height:280px;"></div>
+      <div id="chart-radar" style="width:100%;max-width:320px;aspect-ratio:1/1;"></div>
     </div>
     <!-- 维度卡片 2列/3列网格 -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="dim-cards"></div>
