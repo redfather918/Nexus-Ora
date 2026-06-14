@@ -47,11 +47,25 @@ async function initDatabase() {
         try {
             db = new SQL.Database(fs.readFileSync(CFG.db));
             console.log('[DB] loaded');
-            return;
         } catch { db = new SQL.Database(); }
     } else {
         db = new SQL.Database();
     }
+
+    // ── Schema migration: ensure columns exist on old DB files ──
+    const migrations = [
+        { table: 'fortune_reports', col: 'llm_enhanced', sql: 'ALTER TABLE fortune_reports ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
+        { table: 'dreams',       col: 'llm_enhanced', sql: 'ALTER TABLE dreams ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
+        { table: 'divination_log',col:'llm_enhanced', sql: 'ALTER TABLE divination_log ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
+    ];
+    for (const m of migrations) {
+        try {
+            const cols = db.exec(`PRAGMA table_info(${m.table})`);
+            const hasCol = cols[0]?.values?.some(c => c[1] === m.col);
+            if (!hasCol) { db.run(m.sql); console.log(`[DB] migration: added ${m.col} to ${m.table}`); }
+        } catch(e) { /* table may not exist yet */ }
+    }
+
     db.run(`CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY, gender TEXT, birth_date TEXT,
         created_at TEXT DEFAULT (datetime('now')))`);
