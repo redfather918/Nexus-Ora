@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="card">
+    <text style="font-size:36rpx;font-weight:700;color:#a78bfa">灵境占卜</text>
+    <text class="text-sm mt-12">塔罗</text>
+    <view class="mt-24" wx:if="{{result}}">
+      <block wx:for="{{result.items||[]}}" wx:key="id">
+        <view class="card">{{item.text}}</view>
+      </block>
+    </view>
+    <view wx:else>
+      <button class="btn-primary" bindtap="load">开始</button>
+    </view>
+  </view>
+</view>

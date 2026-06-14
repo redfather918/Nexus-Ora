@@ -1,0 +1,13 @@
+<view class="container">
+  <view class="card"><text style="font-size:36rpx;font-weight:700;color:#a78bfa">📜 灵境预言</text>
+    <text class="text-sm" style="margin-top:8rpx;display:block">八字排盘·百年运势</text>
+    <picker mode="date" value="{{birth}}" bindchange="onBirth">
+      <view class="inp mt-24">{{birth||'选择出生日期'}}</view>
+    </picker>
+    <view class="flex-row gap-16 mt-12">
+      <view class="gen {{g==1?'on':''}}" bindtap="setG" data-g="1">男</view>
+      <view class="gen {{g==2?'on':''}}" bindtap="setG" data-g="2">女</view>
+    </view>
+    <button class="btn-primary mt-24" bindtap="doFortune">🔮 开始排盘</button>
+  </view>
+</view>

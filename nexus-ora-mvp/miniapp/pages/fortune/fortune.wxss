@@ -1,0 +1,9 @@
+.inp{padding:24rpx;background:rgba(0,0,0,.2);border-radius:16rpx;text-align:center;color:#94a3b8}
+.gen{padding:16rpx 48rpx;border-radius:16rpx;background:rgba(0,0,0,.2);color:#94a3b8;text-align:center;flex:1}
+.gen.on{background:rgba(139,92,246,.3);color:#c4b5fd;border:1rpx solid #7c3aed}
+.chart-wrap{height:400rpx;width:100%}
+.chart-wrap{height:400rpx;width:100%}
+.bazi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8rpx}
+.bazi-item{background:rgba(0,0,0,.2);border-radius:12rpx;padding:16rpx;text-align:center}
+.bazi-label{font-size:20rpx;color:#64748b}
+.bazi-val{font-size:28rpx;color:#e2e8f0;font-weight:600}
