@@ -89,9 +89,10 @@ body{
 #paywall.hidden{display:none;}
 
 /* ── 六维度 ── */
-.dim-card{padding:16px 18px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);transition:all .3s;}
-.dim-card:hover{background:rgba(0,0,0,.32);border-color:rgba(255,255,255,.08);}
-.dim-score-ring{width:48px;height:48px;flex-shrink:0;}
+.dim-card{padding:14px 16px;border-radius:14px;background:rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.04);transition:all .3s;display:flex;flex-direction:column;gap:6px;}
+.dim-card:hover{background:rgba(0,0,0,.32);border-color:rgba(255,255,255,.08);transform:translateY(-1px);}
+.dim-score-ring{width:44px;height:44px;flex-shrink:0;}
+.line-clamp-3{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .dim-score-text{fill:#E5E7EB;font-size:10px;font-weight:700;dominant-baseline:middle;text-anchor:middle;}
 
 /* ── interpret block ── */
@@ -527,19 +528,17 @@ body{
   </div>
 
   <!-- ⑦ 六维度解读（雷达图 + 卡片） -->
-  <div id="dimensions-wrap" class="glass-card p-6 md:p-8 mb-6 slide-in-d3 hidden-section">
-    <div class="flex items-center gap-3 mb-5 flex-wrap">
+  <div id="dimensions-wrap" class="glass-card p-5 md:p-7 mb-6 slide-in-d3 hidden-section">
+    <div class="flex items-center gap-3 mb-4 flex-wrap">
       <h3 class="text-lg font-bold">六维度深度解读</h3>
       <span id="dim-ai-tag" class="tag tag-purple text-xs hidden-section">AI Enhanced</span>
     </div>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- 雷达图 -->
-      <div>
-        <div id="chart-radar" style="width:100%;height:300px;"></div>
-      </div>
-      <!-- 维度卡片 -->
-      <div class="space-y-3" id="dim-cards"></div>
+    <!-- 雷达图居中置顶 -->
+    <div class="flex justify-center mb-5">
+      <div id="chart-radar" style="width:100%;max-width:340px;height:280px;"></div>
     </div>
+    <!-- 维度卡片 2列/3列网格 -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="dim-cards"></div>
   </div>
 
   <!-- ⑧ 操作按钮 -->
@@ -1993,22 +1992,21 @@ function renderDimensions() {
     const sc   = dim.score || 60;
     const pct  = Math.round(2 * Math.PI * 18 * sc / 100);
     const circ = Math.round(2 * Math.PI * 18);
-    return `<div class="dim-card flex items-start gap-3">
-      <div class="flex-shrink-0">
-        <svg class="dim-score-ring" viewBox="0 0 48 48">
-          <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/>
-          <circle cx="24" cy="24" r="18" fill="none" stroke="${d.color}" stroke-width="3"
+    return `<div class="dim-card">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-base">${d.icon}</span>
+          <span class="text-sm font-semibold" style="color:${d.color}">${d.label}</span>
+        </div>
+        <svg class="dim-score-ring" viewBox="0 0 44 44">
+          <circle cx="22" cy="22" r="17" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="3"/>
+          <circle cx="22" cy="22" r="17" fill="none" stroke="${d.color}" stroke-width="3"
             stroke-dasharray="${pct} ${circ}" stroke-dashoffset="${circ/4}"
-            stroke-linecap="round" transform="rotate(-90 24 24)"/>
-          <text x="24" y="24" class="dim-score-text" style="font-size:9px;fill:#E5E7EB;font-weight:700;dominant-baseline:middle;text-anchor:middle;">${sc}</text>
+            stroke-linecap="round" transform="rotate(-90 22 22)"/>
+          <text x="22" y="22" style="font-size:10px;fill:#E5E7EB;font-weight:700;dominant-baseline:middle;text-anchor:middle;">${sc}</text>
         </svg>
       </div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1">
-          <span class="text-sm font-semibold" style="color:${d.color}">${d.icon} ${d.label}</span>
-        </div>
-        <p class="text-xs text-gray-400 leading-relaxed">${dim.advice || dim.summary || '--'}</p>
-      </div>
+      <p class="text-xs text-gray-400 leading-relaxed line-clamp-3">${dim.advice || dim.summary || '--'}</p>
     </div>`;
   }).join('');
 
