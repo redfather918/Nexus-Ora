@@ -1,6 +1,6 @@
 # Nexus Ora — 技术需求文档 (TRD)
 
-> 版本：v3.8 | 更新日期：2026-06-14 | 8 大模块 + 多语言 i18n (中/英/日)
+> 版本：v4.0 | 更新日期：2026-06-14 | 8 大模块 + 多语言 i18n + 分享主图 + 小程序架构
 
 ---
 
@@ -16,13 +16,17 @@
 │  │   Tailwind CSS (CDN) + ECharts (CDN)            │ │
 │  │   Zero-build, 双模块入口（人生K线 + 缘分配对）    │ │
 │  └──────────────────┬──────────────────────────────┘ │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │    frontend/share_cards.html (分享主图生成器)     │ │
+│  │    8 张 9:16 竖版主题卡片, 星空光晕+粒子          │ │
+│  └──────────────────┬──────────────────────────────┘ │
 └─────────────────────┼────────────────────────────────┘
                       │ HTTP POST
                       │ /api/fortune · /api/compatibility
                       ▼
 ┌─────────────────────────────────────────────────────┐
 │              Node.js Express Server                   │
-│              (server_unified.js — v3.7)               │
+│              (server_unified.js — v3.9)               │
 │  ┌─────────────┬──────────────┬────────────────────┐ │
 │  │ Paipan Engine│  LLM Client  │  8 Module Handlers │ │
 │  │ (纯 JS)      │ (DeepSeek)   │  K / Compat / Dream│ │
@@ -37,6 +41,20 @@
 │  │  diary / wishlist / events                       │ │
 │  └──────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│           微信小程序 (v4.0 — 规划中)                   │
+│  ┌─────────────────────────────────────────────────┐ │
+│  │       miniprogram/ (Taro React 框架)             │ │
+│  │   pages/: home/fortune/dream/persona/             │ │
+│  │          compat/oracle/cultivation/market        │ │
+│  │   components/: navbar/card/ring/chart             │ │
+│  │   utils/: api.js i18n.js auth.js                 │ │
+│  └──────────────────┬──────────────────────────────┘ │
+└─────────────────────┼────────────────────────────────┘
+                      │ HTTPS (同后端 API)
+                      ▼
+              复用现有 Express 后端
 ```
 
 ### 1.2 设计原则
@@ -327,14 +345,38 @@ GET   /api/market/wishlist     # 我的心愿单
 ```
 nexus-ora-mvp/
 ├── frontend/
-│   └── index.html              # 单页应用 (2480+ 行)
+│   ├── index.html              # 单页应用 (3600+ 行)
+│   └── share_cards.html        # 8 大模块分享主图 (740+ 行, v3.9)
 ├── backend/
-│   ├── server_unified.js       # Express 服务器 (640+ 行)
+│   ├── server_unified.js       # Express 服务器 (1500+ 行)
 │   ├── paipan_engine.js        # JS 排盘引擎 (130+ 行)
 │   ├── paipan_engine.py        # Python 排盘引擎 (保留参考)
+│   ├── ziwei_engine.js         # 紫微斗数引擎 (v3.2)
 │   ├── verify.js               # 全链路验证测试
 │   ├── package.json            # Node.js 依赖
 │   └── .env.example            # 环境变量模板
+├── miniprogram/                # 微信小程序 (v4.0)
+│   ├── project.config.json     # 小程序项目配置
+│   ├── app.js / app.json / app.wxss
+│   ├── pages/
+│   │   ├── home/               # 首页（8模块入口）
+│   │   ├── fortune/            # 灵境图谱
+│   │   ├── compat/             # 缘分配对
+│   │   ├── dream/              # 梦境回廊
+│   │   ├── persona/            # 灵境人格
+│   │   ├── oracle/             # 灵境占卜
+│   │   ├── cultivation/        # 灵境修行
+│   │   ├── market/             # 灵境市集
+│   │   └── ziwei/              # 紫微命盘
+│   ├── components/
+│   │   ├── navbar/             # 导航栏
+│   │   ├── score-ring/        # 分数环
+│   │   ├── module-card/       # 模块卡片
+│   │   └── tag/               # 标签组件
+│   └── utils/
+│       ├── api.js              # API 请求封装
+│       ├── auth.js             # 微信登录
+│       └── i18n.js             # 多语言
 ├── docs/
 │   ├── PRD.md                  # 产品需求文档
 │   └── TRD.md                  # 技术需求文档
@@ -464,6 +506,85 @@ const API_BASE = '';
 - **决策**：商品和活动仅展示，不实现真实下单 / 支付 / 库存逻辑
 - **理由**：MVP 阶段聚焦"内容+AI"，电商非核心；商品数据硬编码在 `MARKET_DATA` 常量中
 - **影响**：心愿单可正常增删，但点击"购买"显示"Demo 模式"提示
+
+### ADR-013: 分享主图独立页面 (v3.9)
+- **决策**：8 大模块分享主图放在独立 `share_cards.html`，不嵌入主 SPA
+- **理由**：分享页是静态展示卡片（360×640 竖版），独立文件可单独截图/部署，不影响主 SPA 性能
+- **影响**：用户通过导航栏"分享"入口跳转到独立页面；未来小程序端用 Canvas 绘制等效卡片
+
+### ADR-014: 微信小程序技术选型 (v4.0)
+- **决策**：采用**微信原生小程序**框架开发，不使用 Taro/uni-app 等跨端框架
+- **理由**：
+  - 目标用户 100% 在微信生态，无需跨端
+  - 原生框架性能最优（尤其 ECharts 图表渲染）
+  - 生态成熟：微信登录、支付、订阅消息、分享等 API 原生支持
+  - 包体更小，审核更顺畅
+- **影响**：无法复用 Web 端 HTML/CSS 代码，但后端 API 完全复用
+
+### ADR-015: 小程序后端复用 (v4.0)
+- **决策**：小程序前端直接调用现有 Express 后端 API，不新建服务
+- **理由**：8 大模块 API 已完善且稳定（v3.1-v3.7 迭代验证），增加小程序端仅需：
+  1. 后端增加微信登录接口 (`/api/auth/wx-login`)
+  2. 后端增加微信支付回调接口
+  3. 后端配置 `HOST=0.0.0.0` 对外服务 + HTTPS
+- **影响**：小程序与 Web 端共享同一后端，数据互通
+
+---
+
+## 9. 小程序技术方案 (v4.0)
+
+### 9.1 技术栈
+
+| 层级 | 技术 | 选型理由 |
+|------|------|----------|
+| 框架 | 微信原生小程序 | 性能最优，生态完善 |
+| 图表 | ec-canvas (ECharts 小程序版) | 与 Web 端图表一致 |
+| 样式 | WXSS + rpx 响应式 | 原生支持，无额外构建 |
+| 请求 | wx.request + Promise 封装 | 原生网络请求 |
+| 登录 | wx.login + code2session | 微信一键授权 |
+| 支付 | wx.requestPayment | 微信支付 |
+| 分享 | onShareAppMessage + Canvas 海报 | 小程序卡片 + 图片分享 |
+
+### 9.2 页面结构
+
+```
+pages/
+├── home/home           # 首页 - 8 模块入口网格
+├── fortune/fortune     # 灵境图谱 - 排盘 + K线
+├── compat/compat       # 缘分配对 - 双人信息 + 雷达图
+├── dream/dream         # 梦境回廊 - 录入 + 解析 + 趋势
+├── persona/persona     # 灵境人格 - 画像 + 对话
+├── oracle/oracle       # 灵境占卜 - 塔罗/杯筊/签
+├── cultivation/cultivation  # 灵境修行 - 打卡/冥想/日记
+├── market/market       # 灵境市集 - 商品/心愿单
+└── ziwei/ziwei         # 紫微命盘 - 十二宫展示
+```
+
+### 9.3 后端新增接口
+
+```
+POST /api/auth/wx-login          # 微信登录
+Body: { code: string }           # wx.login 获取的 code
+Response: { token, openid, user }
+
+POST /api/payment/wx-pay         # 微信支付下单
+Body: { plan, report_id }
+Response: { timeStamp, nonceStr, package, signType, paySign }
+
+POST /api/payment/wx-notify      # 微信支付回调（微信服务器调用）
+```
+
+### 9.4 小程序与 Web 端差异
+
+| 功能 | Web 端实现 | 小程序端实现 |
+|------|-----------|-------------|
+| 图表 | ECharts (CDN) | ec-canvas 组件 |
+| 分享 | 截图/URL | 小程序卡片 + Canvas 海报 |
+| 登录 | 无 | wx.login + code2session |
+| 支付 | Stripe Checkout | wx.requestPayment |
+| 推送 | 无 | 订阅消息 (wx.requestSubscribeMessage) |
+| 样式 | Tailwind CSS | WXSS + rpx |
+| 路由 | SPA hash 路由 | 小程序页面栈 |
 
 ---
 

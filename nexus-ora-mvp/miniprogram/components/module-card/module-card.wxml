@@ -1,0 +1,11 @@
+<!-- components/module-card/module-card.wxml -->
+<view class="module-card" bindtap="onTap">
+  <view class="mc-icon-wrap" style="background:{{bgColor}}">
+    <text class="mc-icon">{{icon}}</text>
+  </view>
+  <view class="mc-info">
+    <text class="mc-title">{{title}}</text>
+    <text class="mc-desc" wx:if="{{desc}}">{{desc}}</text>
+  </View>
+  <text class="mc-arrow">›</text>
+</view>

@@ -48,3 +48,11 @@ backend/resp*.json
 backend/t.json
 backend/test_*.js
 backend/test_*.json
+
+# WorkBuddy workspace
+../.workbuddy/
+.workbuddy/
+
+# Clipboard images
+../clipboard_*.png
+clipboard_*.png

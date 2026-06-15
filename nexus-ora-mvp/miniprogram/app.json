@@ -1,0 +1,54 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/fortune/fortune",
+    "pages/compat/compat",
+    "pages/dream/dream",
+    "pages/persona/persona",
+    "pages/oracle/oracle",
+    "pages/cultivation/cultivation",
+    "pages/market/market",
+    "pages/ziwei/ziwei"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#0F0C1F",
+    "navigationBarTitleText": "Nexus Ora",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#080618"
+  },
+  "tabBar": {
+    "color": "#6B7280",
+    "selectedColor": "#A855F7",
+    "backgroundColor": "#0F0C1F",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/fortune/fortune",
+        "text": "排盘",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/cultivation/cultivation",
+        "text": "修行",
+        "iconPath": "",
+        "selectedIconPath": ""
+      },
+      {
+        "pagePath": "pages/market/market",
+        "text": "市集",
+        "iconPath": "",
+        "selectedIconPath": ""
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

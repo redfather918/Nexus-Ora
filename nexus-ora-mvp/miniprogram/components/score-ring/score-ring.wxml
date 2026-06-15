@@ -1,0 +1,8 @@
+<!-- components/score-ring/score-ring.wxml -->
+<view class="score-ring-wrap" style="width:{{size}}rpx;height:{{size}}rpx;">
+  <canvas class="ring-canvas" type="2d" id="ringCanvas" style="width:{{size}}rpx;height:{{size}}rpx;"></canvas>
+  <view class="score-content">
+    <text class="score-val" style="color:{{color}};font-size:{{valSize}}rpx;">{{value}}</text>
+    <text class="score-label" wx:if="{{label}}">{{label}}</text>
+  </view>
+</view>

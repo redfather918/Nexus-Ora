@@ -1,0 +1,26 @@
+<!-- pages/home/home.wxml -->
+<view class="container home-container">
+  <!-- 品牌区 -->
+  <view class="brand-area">
+    <view class="brand-logo">✦</view>
+    <text class="brand-name">NEXUS ORA</text>
+  </view>
+  <text class="brand-slogan">探索你的命运密码</text>
+
+  <!-- 八模块入口网格 -->
+  <view class="module-grid">
+    <view class="module-item" wx:for="{{modules}}" wx:key="id" bindtap="goModule" data-url="{{item.url}}">
+      <view class="module-icon-wrap" style="background: {{item.bgColor}};">
+        <text class="module-icon">{{item.icon}}</text>
+      </view>
+      <text class="module-name">{{item.name}}</text>
+      <text class="module-desc">{{item.desc}}</text>
+    </view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="home-footer">
+    <text class="footer-text">AI 原生玄学平台 · 灵境八部</text>
+    <text class="footer-sub">仅供娱乐参考，不构成任何决策建议</text>
+  </view>
+</view>
