@@ -1,14 +1,96 @@
-<view class="container">
-  <view class="card">
-    <text style="font-size:36rpx;font-weight:700;color:#a78bfa">灵境修行</text>
-    <text class="text-sm mt-12">冥想</text>
-    <view class="mt-24" wx:if="{{result}}">
-      <block wx:for="{{result.items||[]}}" wx:key="id">
-        <view class="card">{{item.text}}</view>
-      </block>
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">🧘</text>
+    <view>
+      <text class="page-title">灵境修行</text>
+      <text class="page-subtitle">冥想 · 打卡 · 日记</text>
     </view>
-    <view wx:else>
-      <button class="btn-primary" bindtap="load">开始</button>
+  </view>
+
+  <!-- 修炼中 -->
+  <view wx:if="{{activePractice}}" class="practice-modal">
+    <view class="card practice-card">
+      <text class="prac-emoji">{{activePractice.emoji}}</text>
+      <text class="prac-name">{{activePractice.name}}</text>
+
+      <!-- 感恩日记模式 -->
+      <view wx:if="{{showJournal}}">
+        <text class="prac-hint">记录今天的三件感恩之事</text>
+        <textarea class="textarea mt-16" placeholder="今天我感恩..." value="{{journalText}}" bindinput="onJournalInput" rows="5" maxlength="500"></textarea>
+        <button class="btn-primary mt-24" bindtap="completePractice">✅ 完成记录</button>
+      </view>
+
+      <!-- 计时器模式 -->
+      <view wx:else>
+        <text class="timer-display">{{timerStr}}</text>
+        <view class="timer-bar-bg">
+          <view class="timer-bar-fill" style="width:{{(timer/timerMax)*100}}%"></view>
+        </view>
+        <text class="timer-hint">{{activePractice.desc}}</text>
+        <view class="prac-btns">
+          <button class="btn-secondary" bindtap="cancelPractice">放弃</button>
+          <button class="btn-primary" bindtap="completePractice" wx:if="{{timer > 30}}">提前完成</button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主页 -->
+  <view wx:else>
+    <!-- 连续打卡 -->
+    <view class="card streak-card">
+      <view class="streak-row">
+        <view>
+          <text class="streak-num">{{streak}}</text>
+          <text class="streak-lbl">天连续修炼</text>
+        </view>
+        <text class="streak-fire">🔥</text>
+        <view>
+          <text class="done-num">{{todayDone.length}}/{{practices.length}}</text>
+          <text class="done-lbl">今日完成</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- Tab -->
+    <view class="tab-nav">
+      <view class="tab {{tab=='today' ? 'active' : ''}}" bindtap="switchTab" data-t="today">今日修炼</view>
+      <view class="tab {{tab=='history' ? 'active' : ''}}" bindtap="switchTab" data-t="history">修炼日志</view>
+    </view>
+
+    <!-- 今日修炼 -->
+    <view wx:if="{{tab=='today'}}">
+      <view
+        class="card prac-item {{todayDone.includes(item.id) ? 'done' : ''}}"
+        wx:for="{{practices}}"
+        wx:key="id"
+        bindtap="startPractice"
+        data-id="{{item.id}}"
+      >
+        <text class="pi-emoji">{{item.emoji}}</text>
+        <view class="pi-info">
+          <text class="pi-name">{{item.name}}</text>
+          <text class="pi-desc">{{item.desc}} · {{item.duration}}分钟</text>
+        </view>
+        <text class="pi-check">{{todayDone.includes(item.id) ? '✅' : '▶'}}</text>
+      </view>
+    </view>
+
+    <!-- 历史 -->
+    <view wx:elif="{{tab=='history'}}">
+      <view wx:if="{{history.length==0}}" class="card empty-state">
+        <text class="empty-icon">🧘</text>
+        <text class="empty-title">开始您的修行之旅</text>
+        <text class="empty-desc">每日坚持，积累灵性能量</text>
+      </view>
+      <view class="card h-item" wx:else wx:for="{{history}}" wx:key="date">
+        <view class="hi-top">
+          <text class="hi-practice">{{item.practice}}</text>
+          <text class="hi-date">{{item.date}}</text>
+        </view>
+        <text class="hi-duration">修炼 {{item.duration}} 分钟</text>
+        <text class="hi-journal" wx:if="{{item.journal}}">📖 {{item.journal}}</text>
+      </view>
     </view>
   </view>
 </view>

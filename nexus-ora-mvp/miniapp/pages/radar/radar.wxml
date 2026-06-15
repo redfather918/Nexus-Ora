@@ -1,14 +1,84 @@
-<view class="container">
-  <view class="card">
-    <text style="font-size:36rpx;font-weight:700;color:#a78bfa">灵境图谱</text>
-    <text class="text-sm mt-12">六维度</text>
-    <view class="mt-24" wx:if="{{result}}">
-      <block wx:for="{{result.items||[]}}" wx:key="id">
-        <view class="card">{{item.text}}</view>
-      </block>
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">🎯</text>
+    <view>
+      <text class="page-title">灵境图谱</text>
+      <text class="page-subtitle">六维度深度分析</text>
     </view>
-    <view wx:else>
-      <button class="btn-primary" bindtap="load">开始</button>
+  </view>
+
+  <!-- 未设置个人信息 -->
+  <view wx:if="{{!hasProfile}}">
+    <view class="card empty-state">
+      <text class="empty-icon">👤</text>
+      <text class="empty-title">请先完善个人信息</text>
+      <text class="empty-desc">前往"我的"页面输入出生日期，即可开启六维度命运分析</text>
+      <button class="btn-primary mt-32" bindtap="goProfile" style="width:60%">去完善信息</button>
+    </view>
+  </view>
+
+  <!-- Loading -->
+  <view wx:elif="{{loading}}">
+    <view class="card" style="text-align:center;padding:80rpx;">
+      <view class="loader-ring"></view>
+      <text class="text-gray mt-24" style="display:block">命盘分析中，请稍候...</text>
+    </view>
+  </view>
+
+  <!-- 结果 -->
+  <view wx:elif="{{result}}">
+    <!-- 总分 -->
+    <view class="card score-hero">
+      <view class="score-circle">
+        <text class="score-big">{{result.total_score || '--'}}</text>
+        <text class="score-lbl">综合命格</text>
+      </view>
+      <view class="score-tags">
+        <text class="stag">{{result.day_master || '日主'}}</text>
+        <text class="stag">{{result.body_strength || '中和'}}</text>
+        <text class="stag">{{result.lucky_element || '喜神--'}}</text>
+      </view>
+    </view>
+
+    <!-- 六维度 -->
+    <view class="card">
+      <text class="section-title">六维度分析</text>
+      <view class="dim-list">
+        <view class="dim-row" wx:for="{{result.items}}" wx:key="name">
+          <view class="dim-left">
+            <text class="dim-name">{{item.name}}</text>
+            <view class="dim-bar-bg">
+              <view class="dim-bar-fill" style="width:{{item.barW}};background:{{item.color}}"></view>
+            </view>
+          </view>
+          <text class="dim-score" style="color:{{item.color}}">{{item.score}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 维度详情 -->
+    <view class="card" wx:for="{{result.items}}" wx:key="name" wx:if="{{item.desc}}">
+      <view class="dim-detail-header">
+        <text class="dim-detail-name" style="color:{{item.color}}">{{item.name}}</text>
+        <text class="dim-detail-score" style="color:{{item.color}}">{{item.score}}分</text>
+      </view>
+      <text class="dim-detail-desc">{{item.desc}}</text>
+    </view>
+
+    <!-- AI 总结 -->
+    <view class="card" wx:if="{{result.ai_summary}}">
+      <text class="section-title">✨ AI 深度解读</text>
+      <text class="insight-text">{{result.ai_summary}}</text>
+    </view>
+
+    <button class="btn-outline mt-16" bindtap="refresh">重新分析</button>
+  </view>
+
+  <!-- 有档案但无结果 -->
+  <view wx:elif="{{hasProfile}}">
+    <view class="card" style="text-align:center;padding:60rpx;">
+      <text class="empty-icon" style="font-size:80rpx;">🎯</text>
+      <button class="btn-primary mt-24" bindtap="load">开始六维度分析</button>
     </view>
   </view>
 </view>

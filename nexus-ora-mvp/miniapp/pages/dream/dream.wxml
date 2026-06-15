@@ -1,14 +1,100 @@
-<view class="container">
-  <view class="card">
-    <text style="font-size:36rpx;font-weight:700;color:#a78bfa">梦境回廊</text>
-    <text class="text-sm mt-12">解梦</text>
-    <view class="mt-24" wx:if="{{result}}">
-      <block wx:for="{{result.items||[]}}" wx:key="id">
-        <view class="card">{{item.text}}</view>
-      </block>
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">🌙</text>
+    <view>
+      <text class="page-title">梦境回廊</text>
+      <text class="page-subtitle">周公解梦 · 心理分析</text>
+    </view>
+  </view>
+
+  <!-- Tab -->
+  <view class="tab-nav">
+    <view class="tab {{tab=='input' ? 'active' : ''}}" bindtap="switchTab" data-t="input">记录梦境</view>
+    <view class="tab {{tab=='history' ? 'active' : ''}}" bindtap="switchTab" data-t="history">梦境日志</view>
+  </view>
+
+  <!-- 输入 Tab -->
+  <view wx:if="{{tab=='input' && !result}}">
+    <view class="card">
+      <text class="form-label">描述您的梦境</text>
+      <textarea class="textarea mt-12" placeholder="在这里描述您梦到的场景、人物、情节..." value="{{content}}" bindinput="onInput" maxlength="500"></textarea>
+      <text class="char-count">{{content.length}}/500</text>
+
+      <text class="form-label mt-24">梦中情绪</text>
+      <view class="emotion-grid">
+        <view
+          class="emo-btn {{emotion==item.key ? 'active' : ''}}"
+          wx:for="{{emotions}}"
+          wx:key="key"
+          bindtap="setEmotion"
+          data-key="{{item.key}}"
+        >
+          <text class="emo-emoji">{{item.emoji}}</text>
+          <text class="emo-label">{{item.label}}</text>
+        </view>
+      </view>
+
+      <button class="btn-primary mt-24 {{loading ? 'loading' : ''}}" bindtap="interpret" disabled="{{loading}}">
+        <text wx:if="{{!loading}}">🔮 开始解梦</text>
+        <text wx:else>解梦中...</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 结果 -->
+  <view wx:elif="{{tab=='input' && result}}">
+    <!-- 周公解梦 -->
+    <view class="card interp-card">
+      <view class="interp-header">
+        <text class="interp-icon">📜</text>
+        <text class="interp-title">周公解梦</text>
+        <text class="interp-score" wx:if="{{result.zhougong.score}}">{{result.zhougong.score}}分</text>
+      </view>
+      <text class="interp-summary">{{result.zhougong.summary || result.zhougong.interpretation || ''}}</text>
+      <view class="keyword-row" wx:if="{{result.zhougong.keywords}}">
+        <text class="kw" wx:for="{{result.zhougong.keywords}}" wx:key="*this">{{item}}</text>
+      </view>
+      <text class="interp-detail mt-16" wx:if="{{result.zhougong.detail}}">{{result.zhougong.detail}}</text>
+    </view>
+
+    <!-- 心理解析 -->
+    <view class="card interp-card">
+      <view class="interp-header">
+        <text class="interp-icon">🧠</text>
+        <text class="interp-title">心理分析</text>
+      </view>
+      <text class="interp-summary">{{result.psychology.summary || result.psychology.interpretation || ''}}</text>
+      <view class="psych-tag-row" wx:if="{{result.psychology.themes}}">
+        <text class="psych-tag" wx:for="{{result.psychology.themes}}" wx:key="*this">{{item}}</text>
+      </view>
+      <text class="interp-detail mt-16" wx:if="{{result.psychology.suggestion}}">💡 {{result.psychology.suggestion}}</text>
+    </view>
+
+    <!-- 五行关联 -->
+    <view class="card" wx:if="{{result.wuxing}}">
+      <text class="section-title">五行能量解读</text>
+      <text class="insight-text">{{result.wuxing}}</text>
+    </view>
+
+    <button class="btn-secondary" bindtap="reset">记录另一个梦</button>
+  </view>
+
+  <!-- 历史 Tab -->
+  <view wx:elif="{{tab=='history'}}">
+    <view wx:if="{{history.length == 0}}" class="card empty-state">
+      <text class="empty-icon">🌙</text>
+      <text class="empty-title">还没有梦境记录</text>
+      <text class="empty-desc">记录您的梦境，探索潜意识的秘密</text>
     </view>
     <view wx:else>
-      <button class="btn-primary" bindtap="load">开始</button>
+      <view class="card h-card" wx:for="{{history}}" wx:key="id">
+        <view class="h-card-top">
+          <text class="h-content">{{item.content}}</text>
+          <text class="h-date">{{item.date}}</text>
+        </view>
+        <text class="h-result" wx:if="{{item.zhougong}}">📜 {{item.zhougong}}</text>
+        <text class="h-result psych" wx:if="{{item.psych}}">🧠 {{item.psych}}</text>
+      </view>
     </view>
   </view>
 </view>
