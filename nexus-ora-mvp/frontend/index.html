@@ -115,17 +115,46 @@ body{
 .compat-score-ring-lg{width:120px;height:120px;position:relative;}
 .compat-score-ring-lg .score-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;}
 
-/* ── Product Matrix Cards ── */
-.matrix-card{cursor:pointer;position:relative;border-radius:16px;background:rgba(255,255,255,.02);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.05);transition:all .35s cubic-bezier(.4,0,.2,1);overflow:hidden;}
-.matrix-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--card-accent,#A855F7),transparent);opacity:0;transition:opacity .35s;}
-.matrix-card:hover{transform:translateY(-4px);border-color:rgba(168,85,247,.2);box-shadow:0 12px 40px rgba(168,85,247,.08),0 0 0 1px rgba(168,85,247,.05);}
-.matrix-card:hover::before{opacity:1;}
-.matrix-card-inner{padding:20px 18px;position:relative;}
-.matrix-icon{width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:rgba(168,85,247,.06);flex-shrink:0;}
-.matrix-tag{display:inline-flex;align-items:center;padding:3px 10px;background:rgba(255,255,255,.05);border-radius:12px;font-size:11px;color:var(--dim);border:1px solid rgba(255,255,255,.06);}
-.matrix-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:14px;color:rgba(168,85,247,.4);opacity:0;transition:all .3s;}
-.matrix-card:hover .matrix-arrow{opacity:1;right:10px;color:rgba(168,85,247,.7);}
-.matrix-relation-svg text{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;}
+/* ── User Value Matrix Tabs ── */
+.vm-tabs{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.03);border-radius:16px;max-width:480px;margin:0 auto 28px;}
+.vm-tab{flex:1;padding:10px 8px;border-radius:13px;font-size:13px;font-weight:600;cursor:pointer;transition:all .35s;text-align:center;border:none;background:transparent;color:var(--dim);position:relative;}
+.vm-tab.active{background:linear-gradient(135deg,rgba(168,85,247,.18),rgba(236,72,153,.08));color:var(--text);box-shadow:0 4px 20px rgba(168,85,247,.12);}
+.vm-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
+.vm-panel{display:none;animation:slide-up .4s ease-out;}
+.vm-panel.active{display:block;}
+/* Life stage phases */
+.vm-phase{position:relative;padding:20px 22px 18px 62px;margin-bottom:18px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);transition:all .3s;}
+.vm-phase:hover{border-color:rgba(168,85,247,.15);background:rgba(255,255,255,.035);}
+.vm-phase-dot{position:absolute;left:14px;top:20px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
+.vm-phase-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.vm-phase-desc{font-size:12px;color:var(--dim);margin-bottom:12px;line-height:1.5;}
+.vm-phase-cards{display:flex;gap:8px;flex-wrap:wrap;}
+.vm-pcard{border-radius:10px;padding:10px 13px;font-size:12px;font-weight:500;line-height:1.45;max-width:49%;flex:1 1 140px;}
+.vm-pcard-name{font-size:13px;font-weight:600;margin-bottom:2px;}
+.vm-pcard-val{font-size:11px;opacity:.82;font-weight:400;}
+/* Timeline */
+.vm-tl{position:relative;padding-left:32px;margin-bottom:8px;}
+.vm-tl-line{position:absolute;left:11px;top:4px;bottom:0;width:2px;background:rgba(255,255,255,.08);}
+.vm-tl-item{position:relative;margin-bottom:18px;}
+.vm-tl-dot{position:absolute;left:-26px;top:3px;width:10px;height:10px;border-radius:50%;border:2px solid rgba(168,85,247,.5);background:transparent;}
+.vm-tl-dot.fill{background:rgba(168,85,247,.5);border-color:rgba(168,85,247,.7);}
+.vm-tl-time{font-size:11px;color:var(--dim);font-weight:500;margin-bottom:3px;}
+.vm-tl-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:5px;}
+.vm-tl-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.vm-tl-tag{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11px;color:#fff;font-weight:400;}
+/* Emotion grid */
+.vm-egrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.vm-ecard{border-radius:14px;padding:16px 15px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.015);transition:all .3s;}
+.vm-ecard:hover{border-color:rgba(168,85,247,.15);background:rgba(255,255,255,.03);}
+.vm-ecard-q{font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.5;}
+.vm-ecard-sub{font-size:11px;color:var(--dim);margin-bottom:10px;}
+.vm-ecard-tags{display:flex;gap:5px;flex-wrap:wrap;}
+.vm-ecard-tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:11px;color:#fff;font-weight:400;}
+@media(max-width:640px){
+  .vm-egrid{grid-template-columns:1fr;}
+  .vm-phase-cards{flex-direction:column}
+  .vm-pcard{max-width:100%;}
+}
 
 /* ── Language switcher ── */
 .lang-btn{padding:3px 8px;font-size:11px;font-weight:700;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:var(--dim);cursor:pointer;transition:all .2s;}
@@ -169,309 +198,117 @@ var _hmt = _hmt || [];
   </div>
 </nav>
 
-<!-- ══════════════════ Product Matrix Hero ══════════════════ -->
+<!-- ══════════════════ User Value Matrix ══════════════════ -->
 <section id="section-matrix" class="max-w-6xl mx-auto px-6 py-6">
-  <!-- 主标题 -->
-  <div class="text-center mb-10 slide-in">
+  <div class="text-center mb-8 slide-in">
     <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border mb-5" style="background:rgba(168,85,247,.08);border-color:rgba(168,85,247,.2);">
       <span class="w-2 h-2 rounded-full bg-purple-400 animate-pulse"></span>
       <span class="text-xs text-purple-300 font-semibold tracking-wide">AI 原生玄学平台</span>
     </div>
     <h1 class="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-amber-200 bg-clip-text text-transparent">
-        Nexus Ora · 灵境八部
-      </span>
+      <span class="bg-gradient-to-r from-purple-300 via-pink-300 to-amber-200 bg-clip-text text-transparent">Nexus Ora · 灵境八部</span>
     </h1>
     <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
       东方玄学智慧 <span class="text-purple-300 font-semibold">×</span> AI 科技 &nbsp;·&nbsp;
       八字命理 <span class="text-pink-300 font-semibold">×</span> 数据可视化 &nbsp;·&nbsp;
       古老智慧 <span class="text-amber-300 font-semibold">×</span> 现代交互
     </p>
-    <p class="text-sm text-gray-600 mt-3 max-w-xl mx-auto">
-      将千年东方玄学体系重构为可交互、可视化、可分享的 AI 原生数字产品
-    </p>
+    <p class="text-sm text-gray-600 mt-3 max-w-xl mx-auto">将千年东方玄学体系重构为可交互、可视化、可分享的 AI 原生数字产品</p>
   </div>
 
-  <!-- 产品矩阵卡片 2行×4列 -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12" id="product-grid">
-    <!-- 1. 灵境图谱 — 核心入口 -->
-    <div class="matrix-card slide-in-d1" data-module="kline" onclick="switchModule('kline')" style="--card-accent:#A855F7;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">📈</span>
-          <div>
-            <h3 class="font-bold text-base">灵境图谱</h3>
-            <span class="text-xs text-purple-400/80">Life K-Line</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">八字排盘 · 五行分析 · 人生K线图</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-purple">核心引擎</span>
-          <span class="matrix-tag">六维解读</span>
-        </div>
-        <div class="matrix-arrow">→</div>
+  <!-- Tab Switcher -->
+  <div class="vm-tabs slide-in-d1">
+    <button class="vm-tab active" data-tab="life-stage" onclick="switchValueMatrix('life-stage',this)">人生阶段</button>
+    <button class="vm-tab" data-tab="daily" onclick="switchValueMatrix('daily',this)">每日节奏</button>
+    <button class="vm-tab" data-tab="emotion" onclick="switchValueMatrix('emotion',this)">情绪场景</button>
+  </div>
+
+  <!-- Panel 1: Life Stages -->
+  <div id="vm-panel-life-stage" class="vm-panel active slide-in-d2">
+    <div class="vm-phase">
+      <div class="vm-phase-dot" style="background:linear-gradient(135deg,#A855F7,#EC4899);">18+</div>
+      <div class="vm-phase-title">探索期 · 找到自己</div>
+      <div class="vm-phase-desc">迷茫不知道适合什么？用玄学工具认识自己的天赋底色</div>
+      <div class="vm-phase-cards">
+        <div class="vm-pcard" style="background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);"><div class="vm-pcard-name">📈 灵境图谱</div><div class="vm-pcard-val">八字排盘 + 六维度分析，找到你的天赋方向</div></div>
+        <div class="vm-pcard" style="background:rgba(236,72,153,.08);border:1px solid rgba(236,72,153,.15);"><div class="vm-pcard-name">🎭 灵境人格</div><div class="vm-pcard-val">十神生成性格画像，AI 对话深度探索自我</div></div>
+        <div class="vm-pcard" style="background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.15);"><div class="vm-pcard-name">🌟 紫微斗数</div><div class="vm-pcard-val">十二宫命盘，看清楚你的人生格局和潜能</div></div>
       </div>
     </div>
-
-    <!-- 2. 灵境人格 — AI 伴侣 -->
-    <div class="matrix-card slide-in-d1" data-module="persona" onclick="switchModule('persona')" style="--card-accent:#EC4899;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">💞</span>
-          <div>
-            <h3 class="font-bold text-base">灵境人格</h3>
-            <span class="text-xs text-pink-400/80">AI Soul Companion</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">十神生成 · 虚拟伴侣 · AI 对话</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-purple">AI驱动</span>
-          <span class="matrix-tag">情绪支持</span>
-        </div>
-        <div class="matrix-arrow">→</div>
+    <div class="vm-phase">
+      <div class="vm-phase-dot" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">25+</div>
+      <div class="vm-phase-title">成长期 · 做对选择</div>
+      <div class="vm-phase-desc">事业方向、感情选择——重要决策前获得参考依据</div>
+      <div class="vm-phase-cards">
+        <div class="vm-pcard" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.15);"><div class="vm-pcard-name">🃏 灵境占卜</div><div class="vm-pcard-val">塔罗/签筒/六爻，为重要决策提供直觉参考</div></div>
+        <div class="vm-pcard" style="background:rgba(244,114,182,.08);border:1px solid rgba(244,114,182,.15);"><div class="vm-pcard-name">💫 缘分配对</div><div class="vm-pcard-val">双人合盘分析，看清关系的契合度与挑战</div></div>
       </div>
     </div>
-
-    <!-- 3. 梦境回廊 — 记录解析 -->
-    <div class="matrix-card slide-in-d1" data-module="dream" onclick="switchModule('dream')" style="--card-accent:#6366F1;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">🌙</span>
-          <div>
-            <h3 class="font-bold text-base">梦境回廊</h3>
-            <span class="text-xs text-indigo-400/80">Dream Corridor</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">梦境记录 · 周公+心理学双维解析</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-purple">双维解读</span>
-          <span class="matrix-tag">趋势追踪</span>
-        </div>
-        <div class="matrix-arrow">→</div>
+    <div class="vm-phase">
+      <div class="vm-phase-dot" style="background:linear-gradient(135deg,#22C55E,#06B6D4);">30+</div>
+      <div class="vm-phase-title">深耕期 · 内在平衡</div>
+      <div class="vm-phase-desc">工作与生活的平衡点在哪里？建立内在秩序</div>
+      <div class="vm-phase-cards">
+        <div class="vm-pcard" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);"><div class="vm-pcard-name">🌙 梦境回廊</div><div class="vm-pcard-val">记录梦境 + 周公/心理双维度解读，对话潜意识</div></div>
+        <div class="vm-pcard" style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);"><div class="vm-pcard-name">🧘 灵境修行</div><div class="vm-pcard-val">冥想计时器 + 连续打卡 + 感恩日记，养成内在习惯</div></div>
       </div>
     </div>
-
-    <!-- 4. 缘分配对 — 关系合盘 -->
-    <div class="matrix-card slide-in-d1" data-module="compat" onclick="switchModule('compat')" style="--card-accent:#F472B6;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">💫</span>
-          <div>
-            <h3 class="font-bold text-base">缘分配对</h3>
-            <span class="text-xs text-pink-300/80">Soulmate Match</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">双人合盘 · 五维评分 · 关系图谱</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-purple">合盘算法</span>
-          <span class="matrix-tag">深度关系</span>
-        </div>
-        <div class="matrix-arrow">→</div>
+    <div class="vm-phase">
+      <div class="vm-phase-dot" style="background:linear-gradient(135deg,#06B6D4,#A855F7);">35+</div>
+      <div class="vm-phase-title">丰盛期 · 生活升华</div>
+      <div class="vm-phase-desc">从工具使用者到生活方式的践行者</div>
+      <div class="vm-phase-cards">
+        <div class="vm-pcard" style="background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.15);"><div class="vm-pcard-name">🛍️ 灵境市集</div><div class="vm-pcard-val">五行适配的能量好物，让玄学智慧融入日常</div></div>
       </div>
     </div>
-
-    <!-- 5. 灵境占卜 — 神秘娱乐 -->
-    <div class="matrix-card slide-in-d2" data-module="divination" onclick="switchModule('divination')" style="--card-accent:#F59E0B;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">🃏</span>
-          <div>
-            <h3 class="font-bold text-base">灵境占卜</h3>
-            <span class="text-xs text-amber-400/80">Mystic Oracle</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">塔罗牌阵 · 摇杯筊 · 每日一签</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-amber">78张塔罗</span>
-          <span class="matrix-tag">100支灵签</span>
-        </div>
-        <div class="matrix-arrow">→</div>
-      </div>
-    </div>
-
-    <!-- 6. 灵境修行 — 日常精进 -->
-    <div class="matrix-card slide-in-d2" data-module="cultivation" onclick="switchModule('cultivation')" style="--card-accent:#22C55E;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">🧘</span>
-          <div>
-            <h3 class="font-bold text-base">灵境修行</h3>
-            <span class="text-xs text-green-400/80">Daily Cultivation</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">了凡打卡 · 冥想引导 · 能量日记</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-green">修行等级</span>
-          <span class="matrix-tag">周报分析</span>
-        </div>
-        <div class="matrix-arrow">→</div>
-      </div>
-    </div>
-
-    <!-- 7. 灵境市集 — 价值变现 -->
-    <div class="matrix-card slide-in-d2" data-module="market" onclick="switchModule('market')" style="--card-accent:#06B6D4;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">🛍️</span>
-          <div>
-            <h3 class="font-bold text-base">灵境市集</h3>
-            <span class="text-xs text-cyan-400/80">Spirit Market</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">数字周边 · 水晶商城 · 线下活动</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag">20+ SKU</span>
-          <span class="matrix-tag tag-purple">五行适配</span>
-        </div>
-        <div class="matrix-arrow">→</div>
-      </div>
-    </div>
-
-    <!-- 8. 紫微斗数 — 星盘命宫 -->
-    <div class="matrix-card slide-in-d2" data-module="ziwei" onclick="switchModule('ziwei')" style="--card-accent:#EAB308;">
-      <div class="matrix-card-inner">
-        <div class="flex items-center gap-3 mb-3">
-          <span class="matrix-icon text-3xl">🌟</span>
-          <div>
-            <h3 class="font-bold text-base">紫微斗数</h3>
-            <span class="text-xs text-yellow-400/80">Ziwei Astrology</span>
-          </div>
-        </div>
-        <p class="text-sm text-gray-400 leading-relaxed mb-3">紫微排盘 · 十二宫 · 四化飞星</p>
-        <div class="flex gap-1.5 flex-wrap">
-          <span class="matrix-tag tag-purple">星盘解读</span>
-          <span class="matrix-tag">14主星</span>
-        </div>
-        <div class="matrix-arrow">→</div>
-      </div>
+    <div class="text-center mt-6 mb-4">
+      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm" style="background:rgba(168,85,247,.05);border:1px dashed rgba(168,85,247,.2);color:#A78BFA;">💡 从「找自己」到「过好每一天」—— 一条完整的成长路径</div>
     </div>
   </div>
 
-  <!-- 产品关系图 — 数据流与用户路径 -->
-  <div class="glass-card p-6 md:p-8 mb-8 slide-in-d2">
-    <h2 class="text-xl font-bold mb-6 text-center">
-      <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">产品矩阵关系图</span>
-    </h2>
-    <p class="text-sm text-gray-500 text-center mb-6">数据流转 · 用户路径 · 价值闭环</p>
-
-    <!-- 关系图 SVG -->
-    <div class="flex justify-center mb-6">
-      <svg viewBox="0 0 800 480" style="max-width:100%;height:auto;" class="matrix-relation-svg">
-        <defs>
-          <linearGradient id="flowGrad1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#EC4899"/></linearGradient>
-          <linearGradient id="flowGrad2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#EC4899"/><stop offset="100%" stop-color="#6366F1"/></linearGradient>
-          <linearGradient id="flowGrad3" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient>
-          <linearGradient id="flowGrad4" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#22C55E"/></linearGradient>
-          <linearGradient id="flowGrad5" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#22C55E"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient>
-          <linearGradient id="flowGrad6" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#A855F7"/><stop offset="100%" stop-color="#EAB308"/></linearGradient>
-          <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#A855F7"/></marker>
-          <marker id="arrowPink" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#EC4899"/></marker>
-          <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#22C55E"/></marker>
-          <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-
-        <!-- 第一层：核心引擎 -->
-        <!-- 灵境图谱 — 中心 -->
-        <rect x="320" y="30" width="160" height="72" rx="14" fill="rgba(168,85,247,.12)" stroke="rgba(168,85,247,.4)" stroke-width="1.5" filter="url(#glow)"/>
-        <text x="400" y="56" text-anchor="middle" fill="#C084FC" font-size="15" font-weight="700">📈 灵境图谱</text>
-        <text x="400" y="76" text-anchor="middle" fill="#9CA3AF" font-size="11">八字排盘 · 五行分析 · K线</text>
-        <text x="400" y="94" text-anchor="middle" fill="#A855F7" font-size="10" font-weight="600">⬤ 核心入口 · 数据引擎</text>
-
-        <!-- 从灵境图谱辐射出的数据流 -->
-        <!-- → 灵境人格 (右上) -->
-        <path d="M480,66 C540,66 560,120 580,140" stroke="url(#flowGrad1)" stroke-width="1.8" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowPink)"/>
-        <rect x="580" y="135" width="140" height="52" rx="12" fill="rgba(236,72,153,.08)" stroke="rgba(236,72,153,.25)" stroke-width="1"/>
-        <text x="650" y="156" text-anchor="middle" fill="#F472B6" font-size="13" font-weight="700">💞 灵境人格</text>
-        <text x="650" y="174" text-anchor="middle" fill="#9CA3AF" font-size="10">十神 → AI 虚拟伴侣</text>
-
-        <!-- → 缘分配对 (右下) -->
-        <path d="M480,66 C540,66 560,230 580,250" stroke="url(#flowGrad2)" stroke-width="1.8" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowPink)"/>
-        <rect x="580" y="245" width="140" height="52" rx="12" fill="rgba(244,114,182,.08)" stroke="rgba(244,114,182,.25)" stroke-width="1"/>
-        <text x="650" y="266" text-anchor="middle" fill="#F472B6" font-size="13" font-weight="700">💫 缘分配对</text>
-        <text x="650" y="284" text-anchor="middle" fill="#9CA3AF" font-size="10">双人八字 → 五维合盘</text>
-
-        <!-- → 紫微斗数 (下方) -->
-        <path d="M400,102 C400,160 400,180 400,200" stroke="url(#flowGrad6)" stroke-width="1.8" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowPurple)"/>
-        <rect x="320" y="200" width="160" height="52" rx="12" fill="rgba(234,179,8,.08)" stroke="rgba(234,179,8,.25)" stroke-width="1"/>
-        <text x="400" y="221" text-anchor="middle" fill="#FACC15" font-size="13" font-weight="700">🌟 紫微斗数</text>
-        <text x="400" y="239" text-anchor="middle" fill="#9CA3AF" font-size="10">紫微排盘 · 十二宫 · 四化</text>
-
-        <!-- 第二层：用户路径 — 横向流程 -->
-        <!-- 日常陪伴线 -->
-        <path d="M80,310 L200,310" stroke="url(#flowGrad3)" stroke-width="1.5" fill="none" marker-end="url(#arrowPurple)"/>
-        <rect x="200" y="288" width="130" height="46" rx="10" fill="rgba(245,158,11,.08)" stroke="rgba(245,158,11,.25)" stroke-width="1"/>
-        <text x="265" y="308" text-anchor="middle" fill="#FCD34D" font-size="12" font-weight="700">🃏 灵境占卜</text>
-        <text x="265" y="324" text-anchor="middle" fill="#9CA3AF" font-size="9">塔罗 · 杯筊 · 每日签</text>
-
-        <path d="M330,310 L440,310" stroke="url(#flowGrad4)" stroke-width="1.5" fill="none" marker-end="url(#arrowGreen)"/>
-        <rect x="440" y="288" width="130" height="46" rx="10" fill="rgba(34,197,94,.08)" stroke="rgba(34,197,94,.25)" stroke-width="1"/>
-        <text x="505" y="308" text-anchor="middle" fill="#4ADE80" font-size="12" font-weight="700">🧘 灵境修行</text>
-        <text x="505" y="324" text-anchor="middle" fill="#9CA3AF" font-size="9">打卡 · 冥想 · 能量日记</text>
-
-        <path d="M570,310 L680,310" stroke="url(#flowGrad5)" stroke-width="1.5" fill="none" marker-end="url(#arrowPurple)"/>
-        <rect x="680" y="288" width="130" height="46" rx="10" fill="rgba(6,182,212,.08)" stroke="rgba(6,182,212,.25)" stroke-width="1"/>
-        <text x="745" y="308" text-anchor="middle" fill="#22D3EE" font-size="12" font-weight="700">🛍️ 灵境市集</text>
-        <text x="745" y="324" text-anchor="middle" fill="#9CA3AF" font-size="9">周边 · 水晶 · 线下</text>
-
-        <!-- 梦境回廊 — 独立记录模块 -->
-        <rect x="40" y="288" width="130" height="46" rx="10" fill="rgba(99,102,241,.08)" stroke="rgba(99,102,241,.25)" stroke-width="1"/>
-        <text x="105" y="308" text-anchor="middle" fill="#A5B4FC" font-size="12" font-weight="700">🌙 梦境回廊</text>
-        <text x="105" y="324" text-anchor="middle" fill="#9CA3AF" font-size="9">周公 + 心理学解析</text>
-
-        <!-- 标签 -->
-        <rect x="40" y="260" width="120" height="20" rx="6" fill="rgba(255,255,255,.04)" stroke="rgba(255,255,255,.08)" stroke-width="0.5"/>
-        <text x="100" y="274" text-anchor="middle" fill="#9CA3AF" font-size="9">📝 记录层</text>
-
-        <rect x="310" y="260" width="180" height="20" rx="6" fill="rgba(168,85,247,.08)" stroke="rgba(168,85,247,.15)" stroke-width="0.5"/>
-        <text x="400" y="274" text-anchor="middle" fill="#C084FC" font-size="9">🎯 日常陪伴 · 娱乐层</text>
-
-        <rect x="570" y="260" width="240" height="20" rx="6" fill="rgba(34,197,94,.06)" stroke="rgba(34,197,94,.12)" stroke-width="0.5"/>
-        <text x="690" y="274" text-anchor="middle" fill="#4ADE80" font-size="9">💰 价值变现层</text>
-
-        <!-- 底部闭环箭头 -->
-        <path d="M745,334 C745,380 400,430 400,430 C400,430 100,380 100,334" stroke="rgba(168,85,247,.2)" stroke-width="1" fill="none" stroke-dasharray="4,4"/>
-        <text x="400" y="450" text-anchor="middle" fill="#6B7280" font-size="10">🔄 数据回流：用户行为反哺八字模型 · 形成增长飞轮</text>
-
-        <!-- 图例 -->
-        <rect x="20" y="400" width="8" height="8" rx="2" fill="#A855F7" opacity="0.6"/>
-        <text x="34" y="408" fill="#6B7280" font-size="9">数据流</text>
-        <rect x="85" y="400" width="8" height="8" rx="2" fill="#22C55E" opacity="0.6"/>
-        <text x="99" y="408" fill="#6B7280" font-size="9">用户路径</text>
-        <rect x="155" y="400" width="8" height="8" rx="2" fill="rgba(168,85,247,.3)" stroke="rgba(168,85,247,.4)" stroke-width="0.5"/>
-        <text x="169" y="408" fill="#6B7280" font-size="9">核心模块</text>
-      </svg>
+  <!-- Panel 2: Daily Rhythm -->
+  <div id="vm-panel-daily" class="vm-panel">
+    <div class="vm-tl">
+      <div class="vm-tl-line"></div>
+      <div class="vm-tl-item"><div class="vm-tl-dot fill"></div><div class="vm-tl-time">07:00 · 起床</div><div class="vm-tl-title">开启一天的仪式感 ☀️</div><div class="vm-tl-tags"><span class="vm-tl-tag" style="background:rgba(245,158,11,.2);color:#FCD34D;">每日一签</span><span class="vm-tl-tag" style="background:rgba(168,85,247,.2);color:#C084FC;">今日五行</span><span class="vm-tl-tag" style="background:rgba(234,179,8,.2);color:#FACC15;">流年运势</span></div></div>
+      <div class="vm-tl-item"><div class="vm-tl-dot fill"></div><div class="vm-tl-time">09:00 · 通勤/工作间隙</div><div class="vm-tl-title">重要决策前的参考 🎯</div><div class="vm-tl-tags"><span class="vm-tl-tag" style="background:rgba(245,158,11,.2);color:#FCD34D;">塔罗牌阵</span><span class="vm-tl-tag" style="background:rgba(234,179,8,.2);color:#FACC15;">紫微宫位</span><span class="vm-tl-tag" style="background:rgba(168,85,247,.2);color:#C084FC;">六维图谱</span></div></div>
+      <div class="vm-tl-item"><div class="vm-tl-dot fill"></div><div class="vm-tl-time">12:00 · 午休</div><div class="vm-tl-title">情感需求窗口 💕</div><div class="vm-tl-tags"><span class="vm-tl-tag" style="background:rgba(244,114,182,.2);color:#F472B6;">缘分配对</span><span class="vm-tl-tag" style="background:rgba(236,72,153,.2);color:#EC4899;">AI 伴聊</span></div></div>
+      <div class="vm-tl-item"><div class="vm-tl-dot fill"></div><div class="vm-tl-time">20:00 · 下班后</div><div class="vm-tl-title">情绪切换 🧘</div><div class="vm-tl-tags"><span class="vm-tl-tag" style="background:rgba(34,197,94,.2);color:#4ADE80;">冥想 10 分钟</span><span class="vm-tl-tag" style="background:rgba(99,102,241,.2);color:#A5B4FC;">记录梦境</span></div></div>
+      <div class="vm-tl-item"><div class="vm-tl-dot fill"></div><div class="vm-tl-time">22:00 · 睡前</div><div class="vm-tl-title">与潜意识对话 🌙</div><div class="vm-tl-tags"><span class="vm-tl-tag" style="background:rgba(99,102,241,.2);color:#A5B4FC;">梦境记录</span><span class="vm-tl-tag" style="background:rgba(34,197,94,.2);color:#4ADE80;">感恩日记</span><span class="vm-tl-tag" style="background:rgba(6,182,212,.2);color:#22D3EE;">修行打卡</span></div></div>
+    </div>
+    <div class="text-center mt-6 mb-4">
+      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm" style="background:rgba(34,197,94,.05);border:1px dashed rgba(34,197,94,.2);color:#4ADE80;">⏱ 日均陪伴 5-10 分钟，全天候待命的微触点</div>
     </div>
   </div>
 
-  <!-- 核心优势 -->
-  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 slide-in-d3">
-    <div class="glass-card p-5 text-center">
-      <div class="text-3xl mb-3">🧠</div>
-      <h4 class="font-semibold mb-1">AI 原生驱动</h4>
-      <p class="text-xs text-gray-500">DeepSeek AI 加持<br>智能解读命盘玄机</p>
+  <!-- Panel 3: Emotion Scenarios -->
+  <div id="vm-panel-emotion" class="vm-panel">
+    <div class="vm-egrid">
+      <div class="vm-ecard"><div class="vm-ecard-q">「我不知道自己适合做什么」</div><div class="vm-ecard-sub">迷茫期 — 需要自我认知</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(168,85,247,.25);">灵境图谱</span><span class="vm-ecard-tag" style="background:rgba(234,179,8,.25);">紫微斗数</span><span class="vm-ecard-tag" style="background:rgba(236,72,153,.25);">灵境人格</span></div></div>
+      <div class="vm-ecard"><div class="vm-ecard-q">「好孤独，想找人说话」</div><div class="vm-ecard-sub">孤独感 — 需要情感陪伴</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(236,72,153,.25);">AI 伴侣对话</span><span class="vm-ecard-tag" style="background:rgba(34,197,94,.25);">冥想陪伴</span></div></div>
+      <div class="vm-ecard"><div class="vm-ecard-q">「我和 TA 合适吗？」</div><div class="vm-ecard-sub">心动期 — 关系决策参考</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(244,114,182,.25);">缘分配对</span><span class="vm-ecard-tag" style="background:rgba(245,158,11,.25);">感情塔罗</span></div></div>
+      <div class="vm-ecard"><div class="vm-ecard-q">「这个选择对不对？」</div><div class="vm-ecard-sub">犹豫期 — 决策参考</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(245,158,11,.25);">灵境占卜</span><span class="vm-ecard-tag" style="background:rgba(168,85,247,.25);">大运趋势</span><span class="vm-ecard-tag" style="background:rgba(99,102,241,.25);">流年推演</span></div></div>
+      <div class="vm-ecard"><div class="vm-ecard-q">「昨晚的梦好奇怪…」</div><div class="vm-ecard-sub">好奇心 — 探索潜意识</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(99,102,241,.25);">梦境回廊</span><span class="vm-ecard-tag" style="background:rgba(168,85,247,.25);">周公解梦</span><span class="vm-ecard-tag" style="background:rgba(34,197,94,.25);">心理学解读</span></div></div>
+      <div class="vm-ecard"><div class="vm-ecard-q">「最近状态不好」</div><div class="vm-ecard-sub">疲惫期 — 需要能量恢复</div><div class="vm-ecard-tags"><span class="vm-ecard-tag" style="background:rgba(34,197,94,.25);">打卡计划</span><span class="vm-ecard-tag" style="background:rgba(6,182,212,.25);">能量水晶</span><span class="vm-ecard-tag" style="background:rgba(168,85,247,.25);">五行调适</span></div></div>
     </div>
-    <div class="glass-card p-5 text-center">
-      <div class="text-3xl mb-3">📊</div>
-      <h4 class="font-semibold mb-1">数据可视化</h4>
-      <p class="text-xs text-gray-500">人生K线 · 雷达图 · 五行柱<br>命运一目了然</p>
-    </div>
-    <div class="glass-card p-5 text-center">
-      <div class="text-3xl mb-3">🔒</div>
-      <h4 class="font-semibold mb-1">隐私安全</h4>
-      <p class="text-xs text-gray-500">本地 SQLite 存储<br>数据不出设备</p>
-    </div>
-    <div class="glass-card p-5 text-center">
-      <div class="text-3xl mb-3">🌍</div>
-      <h4 class="font-semibold mb-1">多语言支持</h4>
-      <p class="text-xs text-gray-500">中/英/日三语切换<br>300+ 翻译词条</p>
+    <div class="text-center mt-6 mb-4">
+      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm" style="background:rgba(236,72,153,.05);border:1px dashed rgba(236,72,153,.2);color:#EC4899;">🎯 你不需要「学习功能」，而是在需要的时刻自然触达</div>
     </div>
   </div>
 
-  <!-- CTA 引导 -->
+  <!-- Core Advantages -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 mt-10 slide-in-d3">
+    <div class="glass-card p-5 text-center"><div class="text-3xl mb-3">🧠</div><h4 class="font-semibold mb-1">AI 原生驱动</h4><p class="text-xs text-gray-500">DeepSeek AI 加持<br/>智能解读命盘玄机</p></div>
+    <div class="glass-card p-5 text-center"><div class="text-3xl mb-3">📊</div><h4 class="font-semibold mb-1">数据可视化</h4><p class="text-xs text-gray-500">人生K线 · 雷达图 · 五行柱<br/>命运一目了然</p></div>
+    <div class="glass-card p-5 text-center"><div class="text-3xl mb-3">🔒</div><h4 class="font-semibold mb-1">隐私安全</h4><p class="text-xs text-gray-500">本地 SQLite 存储<br/>数据不出设备</p></div>
+    <div class="glass-card p-5 text-center"><div class="text-3xl mb-3">🌍</div><h4 class="font-semibold mb-1">多语言支持</h4><p class="text-xs text-gray-500">中/英/日三语切换<br/>300+ 翻译词条</p></div>
+  </div>
+
+  <!-- CTA -->
   <div class="text-center slide-in-d3">
     <button onclick="document.getElementById('section-matrix').classList.add('hidden-section');document.getElementById('module-switcher').scrollIntoView({behavior:'smooth'})" class="btn-primary text-lg px-10 py-4">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      开始探索你的灵境图谱
+      <span>开始探索你的灵境图谱</span>
     </button>
     <p class="text-xs text-gray-600 mt-3">输入出生信息，即刻生成你的专属人生K线</p>
   </div>
@@ -1409,6 +1246,34 @@ const I18N = {
     cult_stat_total: '修行值', cult_stat_streak: '连续天数', cult_stat_level: '修行等级',
     cult_level_beginner: '初学者', cult_tasks_title: '今日功课', cult_meditation_title: '冥想引导',
     cult_alert_updated: '已更新今日日记', cult_alert_saved: '已保存今日日记', cult_alert_medit_fail: '加载冥想引导失败：',
+
+    // Matrix section (homepage)
+    matrix_badge: 'AI 原生玄学平台',
+    matrix_hero_title: 'Nexus Ora · 灵境八部',
+    matrix_hero_desc: '东方玄学智慧 <span class="text-purple-300 font-semibold">×</span> AI 科技 &nbsp;·;&nbsp;八字命理 <span class="text-pink-300 font-semibold">×</span> 数据可视化 &nbsp;·;&nbsp;古老智慧 <span class="text-amber-300 font-semibold">×</span> 现代交互',
+    matrix_hero_sub: '将千年东方玄学体系重构为可交互、可视化、可分享的 AI 原生数字产品',
+    matrix_card_kline_sub: 'Life K-Line', matrix_card_kline_desc: '八字排盘 · 五行分析 · 人生K线图',
+    matrix_tag_core: '核心引擎', matrix_tag_6dim: '六维解读',
+    matrix_card_persona_sub: 'AI Soul Companion', matrix_card_persona_desc: '十神生成 · 虚拟伴侣 · AI 对话',
+    matrix_tag_ai: 'AI驱动', matrix_tag_emotion: '情绪支持',
+    matrix_card_dream_sub: 'Dream Corridor', matrix_card_dream_desc: '梦境记录 · 周公+心理学双维解析',
+    matrix_tag_dual: '双维解读', matrix_tag_trend: '趋势追踪',
+    matrix_card_compat_sub: 'Soulmate Match', matrix_card_compat_desc: '双人合盘 · 五维评分 · 关系图谱',
+    matrix_tag_hepan: '合盘算法', matrix_tag_deeprel: '深度关系',
+    matrix_card_divi_sub: 'Mystic Oracle', matrix_card_divi_desc: '塔罗牌阵 · 摇杯筊 · 每日一签',
+    matrix_tag_78tarot: '78张塔罗', matrix_tag_100qian: '100支灵签',
+    matrix_card_cult_sub: 'Daily Cultivation', matrix_card_cult_desc: '了凡打卡 · 冥想引导 · 能量日记',
+    matrix_tag_level: '修行等级', matrix_tag_weekly: '周报分析',
+    matrix_card_market_sub: 'Spirit Market', matrix_card_market_desc: '数字周边 · 水晶商城 · 线下活动',
+    matrix_tag_sku: '20+ SKU', matrix_tag_wuxing: '五行适配',
+    matrix_card_ziwei_sub: 'Ziwei Astrology', matrix_card_ziwei_desc: '紫微排盘 · 十二宫 · 四化飞星',
+    matrix_tag_star: '星盘解读', matrix_tag_14star: '14主星',
+    matrix_relation_title: '产品矩阵关系图', matrix_relation_sub: '数据流转 · 用户路径 · 价值闭环',
+    matrix_adv1_title: 'AI 原生驱动', matrix_adv1_desc: 'DeepSeek AI 加持<br>智能解读命盘玄机',
+    matrix_adv2_title: '数据可视化', matrix_adv2_desc: '人生K线 · 雷达图 · 五行柱<br>命运一目了然',
+    matrix_adv3_title: '隐私安全', matrix_adv3_desc: '本地 SQLite 存储<br>数据不出设备',
+    matrix_adv4_title: '多语言支持', matrix_adv4_desc: '中/英/日三语切换<br>300+ 翻译词条',
+    matrix_cta: '开始探索你的灵境图谱', matrix_cta_hint: '输入出生信息，即刻生成你的专属人生K线',
   },
 
   en: {
@@ -1499,6 +1364,34 @@ const I18N = {
     cult_stat_total: 'XP', cult_stat_streak: 'Day Streak', cult_stat_level: 'Level',
     cult_level_beginner: 'Beginner', cult_tasks_title: 'Daily Practice', cult_meditation_title: 'Meditation Guide',
     cult_alert_updated: 'Diary updated', cult_alert_saved: 'Diary saved', cult_alert_medit_fail: 'Failed to load meditation: ',
+
+    // Matrix section
+    matrix_badge: 'AI Native Mystical Platform',
+    matrix_hero_title: 'Nexus Ora · Eight Realms',
+    matrix_hero_desc: 'Eastern Wisdom <span class="text-purple-300 font-semibold">×</span> AI Tech &nbsp;·;&nbsp;BaZi <span class="text-pink-300 font-semibold">×</span> Data Viz &nbsp;·;&nbsp;Ancient <span class="text-amber-300 font-semibold">×</span> Modern UX',
+    matrix_hero_sub: 'Rebuilding millennia of Eastern mysticism as interactive, visual, shareable AI-native products',
+    matrix_card_kline_sub: 'Life K-Line', matrix_card_kline_desc: 'BaZi Chart · Five Elements · Life K-Line',
+    matrix_tag_core: 'Core Engine', matrix_tag_6dim: '6-Dim Analysis',
+    matrix_card_persona_sub: 'AI Soul Companion', matrix_card_persona_desc: 'Ten Gods · Virtual Companion · AI Chat',
+    matrix_tag_ai: 'AI Powered', matrix_tag_emotion: 'Emotional Support',
+    matrix_card_dream_sub: 'Dream Corridor', matrix_card_dream_desc: 'Dream Journal · Zhouyi + Psychology',
+    matrix_tag_dual: 'Dual Analysis', matrix_tag_trend: 'Trend Tracking',
+    matrix_card_compat_sub: 'Soulmate Match', matrix_card_compat_desc: 'Synastry · 5-Dim Score · Relationship Map',
+    matrix_tag_hepan: 'Synastry Algo', matrix_tag_deeprel: 'Deep Relations',
+    matrix_card_divi_sub: 'Mystic Oracle', matrix_card_divi_desc: 'Tarot · Jiaobei · Daily Fortune',
+    matrix_tag_78tarot: '78 Tarot Cards', matrix_tag_100qian: '100 Fortune Slips',
+    matrix_card_cult_sub: 'Daily Cultivation', matrix_card_cult_desc: 'Liao Fan · Meditation · Energy Diary',
+    matrix_tag_level: 'XP Level', matrix_tag_weekly: 'Weekly Report',
+    matrix_card_market_sub: 'Spirit Market', matrix_card_market_desc: 'Digital Goods · Crystal Shop · Events',
+    matrix_tag_sku: '20+ SKU', matrix_tag_wuxing: 'Wuxing Match',
+    matrix_card_ziwei_sub: 'Ziwei Astrology', matrix_card_ziwei_desc: 'Zi Wei Chart · 12 Palaces · 4 Transformations',
+    matrix_tag_star: 'Star Reading', matrix_tag_14star: '14 Main Stars',
+    matrix_relation_title: 'Product Matrix', matrix_relation_sub: 'Data Flow · User Journey · Value Loop',
+    matrix_adv1_title: 'AI Native', matrix_adv1_desc: 'DeepSeek AI Powered<br>Smart destiny解读',
+    matrix_adv2_title: 'Data Visualization', matrix_adv2_desc: 'Life K-Line · Radar · Wuxing Bars<br>Fate at a glance',
+    matrix_adv3_title: 'Privacy First', matrix_adv3_desc: 'Local SQLite Storage<br>Data stays on device',
+    matrix_adv4_title: 'Multilingual', matrix_adv4_desc: 'ZH / EN / JA<br>300+ translated terms',
+    matrix_cta: 'Explore Your Life K-Line', matrix_cta_hint: 'Enter birth info to generate your unique K-Line',
   },
 
   ja: {
@@ -1589,6 +1482,34 @@ const I18N = {
     cult_stat_total: '修行値', cult_stat_streak: '連続日数', cult_stat_level: '修行レベル',
     cult_level_beginner: '初学者', cult_tasks_title: '本日の課題', cult_meditation_title: '瞑想ガイド',
     cult_alert_updated: '日記を更新しました', cult_alert_saved: '日記を保存しました', cult_alert_medit_fail: '瞑想ガイドの読み込みに失敗：',
+
+    // Matrix section
+    matrix_badge: 'AIネイティブ玄学プラットフォーム',
+    matrix_hero_title: 'Nexus Ora · 霊境八部',
+    matrix_hero_desc: '東洋玄学の智慧 <span class="text-purple-300 font-semibold">×</span> AIテクノロジー &nbsp;·;&nbsp;八字命理 <span class="text-pink-300 font-semibold">×</span> データ可視化 &nbsp;·;&nbsp;古代の智慧 <span class="text-amber-300 font-semibold">×</span> モダンUX',
+    matrix_hero_sub: '千年の東洋玄学を、インタラクティブで可視化・シェア可能なAIネイティブデジタルプロダクトに再構築',
+    matrix_card_kline_sub: 'Life K-Line', matrix_card_kline_desc: '八字排盤 · 五行分析 · 人生Kライン',
+    matrix_tag_core: 'コアエンジン', matrix_tag_6dim: '6次元解析',
+    matrix_card_persona_sub: 'AIソウルコンパニオン', matrix_card_persona_desc: '十神生成 · バーチャルコンパニオン · AI対話',
+    matrix_tag_ai: 'AI搭載', matrix_tag_emotion: '感情サポート',
+    matrix_card_dream_sub: 'Dream Corridor', matrix_card_dream_desc: '夢の記録 · 周公+心理学デュアル解析',
+    matrix_tag_dual: 'デュアル解析', matrix_tag_trend: 'トレンド追跡',
+    matrix_card_compat_sub: 'Soulmate Match', matrix_card_compat_desc: '双人合盤 · 5次元スコア · 関係マップ',
+    matrix_tag_hepan: '合盤アルゴ', matrix_tag_deeprel: 'ディープリレーション',
+    matrix_card_divi_sub: 'Mystic Oracle', matrix_card_divi_desc: 'タロット · 杯筊 · 毎日おみくじ',
+    matrix_tag_78tarot: '78枚タロット', matrix_tag_100qian: '100本おみくじ',
+    matrix_card_cult_sub: 'Daily Cultivation', matrix_card_cult_desc: '了凡打カ · 瞑想ガイド · エネルギー日記',
+    matrix_tag_level: '修行レベル', matrix_tag_weekly: '週次レポート',
+    matrix_card_market_sub: 'Spirit Market', matrix_card_market_desc: 'デジタルグッズ · クリスタルショップ · イベント',
+    matrix_tag_sku: '20+ SKU', matrix_tag_wuxing: '五行マッチ',
+    matrix_card_ziwei_sub: 'Ziwei Astrology', matrix_card_ziwei_desc: '紫微排盤 · 十二宮 · 四化飛星',
+    matrix_tag_star: '星盤リーディング', matrix_tag_14star: '14主星',
+    matrix_relation_title: 'プロダクトマトリックス', matrix_relation_sub: 'データフロー · ユーザー旅程 · 価値ループ',
+    matrix_adv1_title: 'AIネイティブ', matrix_adv1_desc: 'DeepSeek AI搭載<br>命盤をスマートに解読',
+    matrix_adv2_title: 'データ可視化', matrix_adv2_desc: '人生Kライン · レーダー · 五行バー<br>運命を一目で把握',
+    matrix_adv3_title: 'プライバシー保護', matrix_adv3_desc: 'ローカル SQLite保存<br>データはデバイス外に出ない',
+    matrix_adv4_title: '多言語対応', matrix_adv4_desc: '中/英/日 3言語切替<br>300+ 翻訳語句',
+    matrix_cta: '人生Kラインを探索する', matrix_cta_hint: '生年月日を入力して、あなただけの人生Kラインを生成',
   }
 };
 
@@ -2643,6 +2564,15 @@ function downloadShareCard() {
   } else {
     showToast('📱 请长按图片保存截图', '#60A5FA');
   }
+}
+
+// ── Value Matrix Tab Switching ──────────────────
+function switchValueMatrix(tab, btn) {
+  document.querySelectorAll('.vm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.vm-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = document.getElementById('vm-panel-' + tab);
+  if (panel) panel.classList.add('active');
 }
 
 // ── Module Switching ──────────────────────────
