@@ -107,7 +107,7 @@
 <link rel="dns-prefetch" href="https://api.github.com">
 
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" onerror="console.warn('ECharts CDN failed, will use demo mode')"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -299,6 +299,16 @@ var _hmt = _hmt || [];
 </script>
 </head>
 <body>
+<!-- ════ 调试 Banner（提交表单时可见）════ -->
+<script>
+// 页面可见调试工具（不需要控制台）
+  if (ms) { ms.textContent = msg; }
+  console.log('[DEBUG]', msg);
+}
+// 全局错误捕获 → 直接显示在页面顶部
+});
+
+</script>
 
 <!-- ── Nav ── -->
 <nav class="flex justify-between items-center max-w-6xl mx-auto px-6 py-5">
@@ -1899,9 +1909,12 @@ function closeProfileModal() {
   document.getElementById('profile-modal').classList.remove('open');
 }
 // 点击遮罩关闭
-document.getElementById('profile-modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) closeProfileModal();
+(function() {
+const _pm = document.getElementById('profile-modal');
+if (_pm) _pm.addEventListener('click', e => {
+  if (e.target === _pm) closeProfileModal();
 });
+})();
 
 function updateProfileUI() {
   const pf = getProfile();
@@ -2106,7 +2119,7 @@ function buildDemoReport(y, m, d, h, gender) {
 }
 
 // ── UI helpers ─────────────────────────────────
-function showSection(id) { document.getElementById(id).classList.remove('hidden-section'); }
+function showSection(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden-section'); }
 function show(id)    { document.getElementById(id).classList.remove('hidden-section'); }
 function hide(id)    { document.getElementById(id).classList.add('hidden-section'); }
 function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
@@ -2208,7 +2221,11 @@ document.getElementById('birth-form').addEventListener('submit', async e => {
 
   hideAll();
   showSection('section-results');
-  renderAll();
+  try {
+    renderAll();
+  } catch(e) {
+    console.error('renderAll failed:', e);
+  }
 
   if (isDemoMode) {
     const bar = document.createElement('div');
@@ -2320,6 +2337,10 @@ function renderWuxing() {
 
 // ── ④ K-Line Chart ─────────────────────────────
 function renderChart() {
+  if (typeof echarts === 'undefined') {
+    console.warn('ECharts not loaded, skipping chart render');
+    return;
+  }
   const fortune = reportData?.data?.fortune || [];
   if (!fortune.length) return;
 
@@ -2680,227 +2701,82 @@ function closeShareCard() {
 }
 
 function generateShareCardHTML() {
+  // ═════════ v2.0 SHARE CARD GENERATOR ═════════
+  // Upgraded: 360x640, emotional storytelling, life elevation SVG
+  // See share_cards.html for reference design
   const mod = currentModule;
   const d = reportData?.data;
-  const bazi = d?.bazi;
-  const sum = d?.summary;
-  const dims = d?.dimensions;
+  const sum = d?.summary || {};
 
-  // Common brand bar
-  const brand = `<div style="display:flex;align-items:center;gap:8px;margin-bottom:auto;position:relative;z-index:1;"><div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8B5CF6,#EC4899);display:flex;align-items:center;justify-content:center;font-size:14px;">✦</div><div style="font-size:11px;color:#9CA3AF;letter-spacing:1px;">NEXUS ORA</div></div>`;
-  // Common footer
-  const footer = `<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;position:relative;z-index:1;"><div style="font-size:10px;color:#6B7280;">@NexusOra · AI玄学平台</div><div style="width:48px;height:48px;border-radius:8px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:8px;color:#4B5563;text-align:center;line-height:1.2;">扫码<br/>测算</div></div>`;
+  // ── Common helpers (v2.0) ──
+  const APP_URL = (typeof window.__APP_URL !== 'undefined' && window.__APP_URL)
+    || (document.querySelector('meta[name="app-url"]')?.content)
+    || (typeof window.location !== 'undefined' ? window.location.origin : '')
+    || 'https://nexus-ora.example.com';
 
-  // Score ring SVG helper
-  function ringSVG(score, color, size) {
-    const r = size || 42;
-    const circ = Math.round(2 * Math.PI * r);
-    const pct = Math.round(circ * score / 100);
-    return `<svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);"><circle cx="50" cy="50" r="${r}" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle cx="50" cy="50" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${pct} ${circ}"/></svg>`;
-  }
+  function _brand() { return '<div style="display:flex;align-items:center;gap:10px;position:relative;z-index:2;margin-bottom:16px;"><div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px rgba(168,85,247,.4);">✦</div><div style="font-size:11px;color:#9CA3AF;letter-spacing:2px;font-weight:500;">NEXUS ORA</div></div>'; }
+  function _footer(l, s) { s=s||'免费'; return '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;position:relative;z-index:2;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);"><div style="font-size:10px;color:#6B7280;">@NexusOra · AI玄学平台</div><a href="'+APP_URL+'" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;color:#9CA3AF;text-align:center;line-height:1.3;">扫码<br/>'+l+'</div><div style="font-size:8px;color:#4B5563;">'+s+'</div></a></div>'; }
+  function _insight(lbl, txt) { return '<div style="position:relative;z-index:2;margin:4px 0 10px;padding:12px 14px;border-radius:14px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);"><div style="font-size:9px;color:#7C3AED;letter-spacing:1px;margin-bottom:4px;">'+lbl+'</div><div style="font-size:13px;color:#E5E7EB;line-height:1.65;font-weight:500;">'+txt+'</div></div>'; }
+  function _ring(sc, cl) { var r=42,c=Math.round(2*Math.PI*r),p=Math.round(c*sc/100); return '<svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg)"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+cl+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+p+' '+c+'"/></svg>'; }
+  function _tag(t,v){v=v||'purple';var o={purple:['rgba(168,85,247,.18)','#C084FC','rgba(168,85,247,.2)'],pink:['rgba(236,72,153,.18)','#F472B6','rgba(236,72,153,.2)'],blue:['rgba(96,165,250,.18)','#60A5FA','rgba(96,165,250,.2)'],green:['rgba(34,197,94,.18)','#4ADE80','rgba(34,197,94,.2)'],amber:['rgba(245,158,11,.18)','#FCD34D','rgba(245,158,11,.2)']};var c=o[v]||o.purple;return'<span style="padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+';">'+t+'</span>';}
+  function _wrap(inner, gc) { gc=gc||'168,85,247'; return '<div style="width:360px;height:640px;position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(170deg,#100828 0%,#0D1525 50%,#100828 100%);border:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;padding:22px 22px 18px;"><div style="position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(circle at 80% 10%, rgba('+gc+',.18) 0%, transparent 40%),radial-gradient(circle at 15% 75%, rgba(236,72,153,.12) 0%, transparent 35%),radial-gradient(circle at 50% 50%, rgba(96,165,250,.04) 0%, transparent 60%);pointer-events:none;z-index:0;"></div>'+inner+'</div>'; }
 
+  // ═══════════ CARD 1: KLINE - ELEVATION MAP ═══════════
   if (mod === 'kline') {
-    const avg = sum?.average_score || 72;
-    const peak = sum?.peak_age || 35;
-    const peakSc = sum?.peak_score || 89;
-    const dm = sum?.day_master || '辛';
-    const wx = sum?.day_wuxing || '金';
-    const animal = sum?.animal || '马';
-    const bodyStr = sum?.body_strength || '偏弱';
-    const scores = d?.fortune || [];
-    const bars = scores.slice(0, 30).map((s, i) => {
-      const h = Math.max(4, Math.round(s.score / 100 * 52));
-      const up = i === 0 || s.score >= scores[i-1].score;
-      return `<div style="width:6px;height:${h}px;border-radius:3px 3px 0 0;background:${up ? 'linear-gradient(to top,#EF4444,#F87171)' : 'linear-gradient(to top,#22C55E,#4ADE80)'};"></div>`;
-    }).join('');
-    const avgPct = Math.round(2 * Math.PI * 42 * avg / 100);
+    var avg = sum.average_score || 72;
+    var peak = sum.peak_age || 35;
+    var peakSc = sum.peak_score || 89;
+    var dm = sum.day_master || '辛';
+    var wx = sum.day_wuxing || '金';
+    var scores = d?.fortune || [];
+    var sp='', sa='';
+    if(scores.length>0){var pts=scores.slice(0,30).map(function(s,i){return{x:Math.round(i*320/30),y:Math.round(70-s.score/100*58)}});sp='M '+pts[0].x+' '+pts[0].y;for(var i=1;i<pts.length;i++){var cx=(pts[i-1].x+pts[i].x)/2;sp+=' C '+cx+' '+pts[i-1].y+', '+cx+' '+pts[i].y+', '+pts[i].x+' '+pts[i].y;}sa=sp+' L 320 80 L 0 80 Z';}else{sp='M0,55C10,52 20,48 30,58C40,52 50,42 60,55C70,62 80,58 90,45C100,35 110,22 120,18C130,12 140,20 150,28C160,35 170,40 180,40';sa=sp+' L320 80 L0 80 Z';}
+    var dcx=scores.length?Math.round((sum.peak_age||35)/80*320):200, dcy=scores.length?Math.round(70-(sum.peak_score||89)/100*58):12;
 
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#1A1028 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(168,85,247,.12),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">📈</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的命运K线</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="display:flex;align-items:flex-end;gap:2px;justify-content:center;height:56px;margin-bottom:12px;">${bars}</div>
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(avg, '#A855F7')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#C084FC;">${avg}</div><div style="font-size:9px;color:#9CA3AF;">综合运势</div></div></div></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">${dm}${wx}日主</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(245,158,11,.15);color:#FCD34D;">🔥 黄金期</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(34,197,94,.15);color:#4ADE80;">峰值${peakSc}分</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"${peak}岁步入黄金期，事业财运双线飙升"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+
+      '<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;line-height:1;display:block;">⛰️</div><div style="font-size:24px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的人生海拔图</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">命运 K线 · 灵境图谱测算</div></div>'+
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;">'+
+      '<div style="width:100%;height:80px;position:relative;margin-bottom:14px;overflow:hidden;border-radius:12px;"><svg viewBox="0 0 320 80" preserveAspectRatio="none" style="width:100%;height:100%;"><defs><linearGradient id="lgLife" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A855F7" stop-opacity=".8"/><stop offset="60%" stop-color="#3B0764" stop-opacity=".4"/><stop offset="100%" stop-color="#100828" stop-opacity="0"/></linearGradient><linearGradient id="lgLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3B82F6"/><stop offset="40%" stop-color="#A855F7"/><stop offset="75%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path fill="url(#lgLife)" opacity=".6" d="'+sa+'"/><path fill="none" stroke="url(#lgLine)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" d="'+sp+'"/><circle r="5" fill="#F59E0B" filter="url(#glow)" opacity=".9" cx="'+dcx+'" cy="'+dcy+'"/><line x1="80" y1="0" x2="80" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="160" y1="0" x2="160" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="240" y1="0" x2="240" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><text x="40" y="76" text-anchor="middle" font-size="7" fill="rgba(99,102,241,.7)">蛰伏积累</text><text x="120" y="76" text-anchor="middle" font-size="7" fill="rgba(168,85,247,.7)">初露锋芒</text><text x="200" y="76" text-anchor="middle" font-size="7" fill="rgba(245,158,11,.9)">主升浪 🔥</text><text x="280" y="76" text-anchor="middle" font-size="7" fill="rgba(236,72,153,.7)">厚积薄发</text></svg></div>'+
+      '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag(dm+wx+'日主','purple')+_tag('🔥 主升浪中','amber')+_tag('峰值 '+peakSc+'分','green')+'</div>'+
+      _insight('✦ 命理洞察', peak+'岁前你一直在<span style="color:#C084FC;font-weight:700;">积蓄能量</span>，<br/>步入黄金期后事业财运<span style="color:#C084FC;font-weight:700;">双线飙升</span>——<br/>贵人会在最意外的地方出现。')+
+      '<div style="text-align:center;font-size:11px;color:#6B7280;padding:10px 4px 0;border-top:1px solid rgba(255,255,255,.04);margin-top:6px;">「你不是晚熟，你是在等最好的时机一鸣惊人」</div></div>'+
+      _footer('测算'), '168,85,247');
   }
+
+  // ═══════════ CARD 2-8: SIMPLIFIED v2.0 CARDS ═══════════
+  // (Full v2.0 design with insight blocks, see share_cards.html for reference)
 
   if (mod === 'persona') {
-    const pType = 'INFJ';
-    const traits = ['深度共情','内在驱动','战略思维'];
-    const dims = [{n:'直觉',v:88,c:'#C084FC'},{n:'共情',v:92,c:'#F472B6'},{n:'决断',v:65,c:'#60A5FA'},{n:'韧性',v:78,c:'#4ADE80'}];
-    const dimBars = dims.map(d => `<div style="display:flex;align-items:center;gap:8px;"><span style="font-size:10px;color:#9CA3AF;width:28px;text-align:right;">${d.n}</span><div style="flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${d.v}%;background:${d.c};border-radius:3px;"></div></div></div>`).join('');
-    const tags = traits.map(t => `<span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">${t}</span>`).join('');
-
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#1A1028 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(236,72,153,.12),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">🧬</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的灵境人格</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="display:flex;justify-content:center;margin-bottom:16px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(76, '#EC4899')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:22px;font-weight:800;color:#F472B6;">${pType}</div><div style="font-size:9px;color:#9CA3AF;">守卫者</div></div></div></div>
-        <div style="display:flex;flex-direction:column;gap:6px;width:100%;">${dimBars}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:12px;">${tags}</div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;margin-top:10px;">"天生的守护者，以温柔力量照亮他人"</div>
-      </div>
-      ${footer}
-    </div>`;
+    var pt=currentPersona?(currentPersona.mbti||'INFJ'):'INFJ', pn=currentPersona?(currentPersona.name||'守护者'):'守护者';
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">🧬</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的灵境人格</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">五行 × MBTI 命格融合解析</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="display:flex;justify-content:center;margin-bottom:14px;"><div style="width:120px;height:120px;position:relative;">'+_ring(78,'#EC4899')+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:24px;font-weight:800;background:linear-gradient(135deg,#F472B6,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">'+pt+'</div><div style="font-size:10px;color:#9CA3AF;">'+pn+'型</div></div></div></div><div style="display:flex;flex-direction:column;gap:7px;width:100%;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:#9CA3AF;width:28px;text-align:right;">直觉</span><div style="flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;"><div style="height:100%;width:88%;background:linear-gradient(90deg,#A855F7,#C084FC);border-radius:4px;"></div></div><span style="font-size:10px;color:#6B7280;">88%</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:#9CA3AF;width:28px;text-align:right;">共情</span><div style="flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;"><div style="height:100%;width:92%;background:linear-gradient(90deg,#EC4899,#F472B6);border-radius:4px;"></div></div><span style="font-size:10px;color:#6B7280;">92%</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:#9CA3AF;width:28px;text-align:right;">决断</span><div style="flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;"><div style="height:100%;width:65%;background:linear-gradient(90deg,#3B82F6,#60A5FA);border-radius:4px;"></div></div><span style="font-size:10px;color:#6B7280;">65%</span></div><div style="display:flex;align-items:center;gap:10px;"><span style="font-size:11px;color:#9CA3AF;width:28px;text-align:right;">韧性</span><div style="flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;"><div style="height:100%;width:78%;background:linear-gradient(90deg,#16A34A,#4ADE80);border-radius:4px;"></div></div><span style="font-size:10px;color:#6B7280;">78%</span></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag('隐藏完美主义者','pink')+_tag('天生读心术','purple')+'</div>'+_insight('✦ 人格密码', '表面温柔，内心藏着<span style="color:#C084FC;font-weight:700;">整个宇宙</span>——<br/>你的善良不是软弱，是被低估的力量。')+'</div>'+_footer('测算'),'236,72,153');
   }
 
   if (mod === 'dream') {
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#111128 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(129,140,248,.12),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">🌙</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#A5B4FC,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的梦境解析</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="text-align:center;font-size:48px;margin-bottom:8px;filter:drop-shadow(0 0 12px rgba(168,85,247,.3));">🌕</div>
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(85, '#818CF8')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#A5B4FC;">85</div><div style="font-size:9px;color:#9CA3AF;">吉梦指数</div></div></div></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">🌊 水梦</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(96,165,250,.15);color:#60A5FA;">财运征兆</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(34,197,94,.15);color:#4ADE80;">大吉</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"水主财，此梦预示近期财运亨通"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">🌙</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#A5B4FC,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的梦境解析</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">AI × 周公 · 双视角解读</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="font-size:52px;text-align:center;margin-bottom:4px;filter:drop-shadow(0 0 16px rgba(168,85,247,.5));">🌊</div><div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">'+_ring(85,'#818CF8')+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#A5B4FC;">85</div><div style="font-size:10px;color:#9CA3AF;">吉梦指数</div></div></div></div><div style="display:flex;gap:8px;margin-bottom:12px;"><div style="flex:1;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);text-align:center;"><div style="font-size:18px;margin-bottom:4px;">📜</div><div style="font-size:9px;color:#9CA3AF;margin-bottom:4px;">周公解梦</div><div style="font-size:10px;color:#C084FC;font-weight:600;line-height:1.4;">水主财，近期<br/>意外之财将至</div></div><div style="flex:1;padding:10px 8px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);text-align:center;"><div style="font-size:18px;margin-bottom:4px;">🧠</div><div style="font-size:9px;color:#9CA3AF;margin-bottom:4px;">潜意识解读</div><div style="font-size:10px;color:#C084FC;font-weight:600;line-height:1.4;">你的内心正在<br/>释放对改变的渴望</div></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag('🌊 流水大吉','blue')+_tag('财运征兆','green')+'</div>'+_insight('✦ 梦境预言', '梦见水，是<span style="color:#C084FC;font-weight:700;">潜意识在给你提示</span>——<br/>你的运势转折点，就在这几天。')+'</div>'+_footer('解梦'),'129,140,248');
   }
 
   if (mod === 'compat') {
-    const score = 78;
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#1A0F20 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(244,114,182,.15),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">💞</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#F472B6,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我们的缘分</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;">
-          <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(168,85,247,.15);border:2px solid rgba(168,85,247,.3);">🐴</div>
-          <div style="font-size:20px;">💕</div>
-          <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;background:rgba(236,72,153,.15);border:2px solid rgba(236,72,153,.3);">🐍</div>
-        </div>
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(score, '#F472B6')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#F472B6;">${score}</div><div style="font-size:9px;color:#9CA3AF;">缘分指数</div></div></div></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(236,72,153,.15);color:#F472B6;">偏财·偏印</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">五行互补</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"金水相生，彼此成就——一起做创造性的事"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">💞</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#F472B6,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我们的缘分</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">生辰八字 · 缘分配对测算</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;"><div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(168,85,247,.15);border:2px solid rgba(168,85,247,.35);">🐴</div><div style="font-size:24px;">💕</div><div style="width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(236,72,153,.15);border:2px solid rgba(236,72,153,.35);">🐍</div></div><div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">'+_ring(78,'#F472B6')+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#F472B6;">78</div><div style="font-size:10px;color:#9CA3AF;">缘分指数</div></div></div></div><div style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;"><div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#C084FC;">91%</div><div style="font-size:9px;color:#6B7280;">性格契合</div></div><div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#F472B6;">84%</div><div style="font-size:9px;color:#6B7280;">情感共鸣</div></div><div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#60A5FA;">76%</div><div style="font-size:9px;color:#6B7280;">五行互补</div></div></div>'+_insight('✦ 缘分解读', '金水相生格局——你们<span style="color:#C084FC;font-weight:700;">越走越近</span>，<br/>对方会成为你事业路上最好的<span style="color:#C084FC;font-weight:700;">引路人</span>。')+'</div>'+_footer('配对'),'244,114,182');
   }
 
   if (mod === 'divination') {
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#1A1828 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(252,211,77,.1),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">🔮</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#FCD34D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">今日占卜</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="display:flex;justify-content:center;margin-bottom:12px;">
-          <div style="width:70px;height:110px;border-radius:10px;border:1px solid rgba(168,85,247,.3);background:linear-gradient(160deg,rgba(168,85,247,.08),rgba(236,72,153,.05));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;">
-            <div style="position:absolute;inset:4px;border:1px solid rgba(168,85,247,.15);border-radius:7px;"></div>
-            <div style="font-size:18px;font-weight:800;color:#C084FC;">XVII</div>
-            <div style="font-size:22px;">🌟</div>
-            <div style="font-size:7px;color:#6B7280;">The Star</div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(88, '#FCD34D')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:28px;font-weight:800;color:#FCD34D;">吉</div><div style="font-size:9px;color:#9CA3AF;">今日运势</div></div></div></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(245,158,11,.15);color:#FCD34D;">⭐ 星星</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">正位</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"黎明将至，保持信念，好运正在靠近"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">🔮</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#FCD34D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">今日占卜</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">AI 塔罗 · 每日指引</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:76px;height:118px;border-radius:12px;border:1px solid rgba(168,85,247,.35);background:linear-gradient(160deg,rgba(124,58,237,.12),rgba(236,72,153,.08));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;position:relative;box-shadow:0 0 20px rgba(168,85,247,.15);"><div style="position:absolute;inset:5px;border:1px solid rgba(168,85,247,.2);border-radius:8px;"></div><div style="font-size:18px;font-weight:900;color:#C084FC;">XVII</div><div style="font-size:24px;">🌟</div><div style="font-size:8px;color:#6B7280;">The Star</div></div></div><div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">'+_ring(88,'#FCD34D')+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:26px;font-weight:800;color:#FCD34D;">吉</div><div style="font-size:10px;color:#9CA3AF;">今日运势</div></div></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag('⭐ 星星牌','amber')+_tag('希望与指引','green')+'</div>'+_insight('✦ 今日启示', '「星星正位」出现，代表<span style="color:#C084FC;font-weight:700;">黎明已经到来</span>——<br/>你等待的那件事，<span style="color:#C084FC;font-weight:700;">今天会有消息</span>。')+'</div>'+_footer('占卜'),'252,211,77');
   }
 
   if (mod === 'cultivation') {
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#0F1A20 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(34,197,94,.1),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">🧘</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#4ADE80,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的修行之路</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="font-size:56px;font-weight:900;text-align:center;line-height:1;background:linear-gradient(135deg,#4ADE80,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">127</div>
-        <div style="text-align:center;font-size:12px;color:#6B7280;margin-bottom:10px;">连续修行天数</div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(34,197,94,.15);color:#4ADE80;">Lv.8 觉者</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">🧘 冥想32次</span>
-        </div>
-        <div style="display:flex;justify-content:center;gap:20px;margin-top:8px;">
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#4ADE80;">92%</div><div style="font-size:9px;color:#6B7280;">本周能量</div></div>
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#60A5FA;">85%</div><div style="font-size:9px;color:#6B7280;">感恩指数</div></div>
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:800;color:#C084FC;">78%</div><div style="font-size:9px;color:#6B7280;">内心平静</div></div>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;margin-top:12px;">"日日精进，方能见性明心"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">🧘</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#4ADE80,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的修行之路</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">灵魂成长轨迹 · 连续打卡</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="font-size:68px;font-weight:900;text-align:center;line-height:1;background:linear-gradient(135deg,#4ADE80,#22D3EE);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(74,222,128,.2));margin-bottom:2px;">127</div><div style="text-align:center;font-size:12px;color:#6B7280;margin-bottom:12px;">连续修行天数</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;">'+_tag('Lv.8 觉者','green')+_tag('🧘 冥想 32次','purple')+'</div><div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;"><div style="flex:1;text-align:center;padding:10px 4px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);"><div style="font-size:20px;font-weight:800;line-height:1;color:#4ADE80;">92%</div><div style="font-size:9px;color:#6B7280;margin-top:3px;">本周能量</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);"><div style="font-size:20px;font-weight:800;line-height:1;color:#60A5FA;">85%</div><div style="font-size:9px;color:#6B7280;margin-top:3px;">感恩指数</div></div><div style="flex:1;text-align:center;padding:10px 4px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);"><div style="font-size:20px;font-weight:800;line-height:1;color:#C084FC;">78%</div><div style="font-size:9px;color:#6B7280;margin-top:3px;">内心平静</div></div></div>'+_insight('✦ 修行感悟', '127天的坚持，<span style="color:#C084FC;font-weight:700;">悄悄改变了你的磁场</span>——<br/>身边人都感觉到你变了，<span style="color:#C084FC;font-weight:700;">越来越对了</span>。')+'</div>'+_footer('修行'),'34,197,94');
   }
 
   if (mod === 'market') {
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#1A1828 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(252,211,77,.1),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">🏪</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#FCD34D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">灵境市集</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="text-align:center;font-size:14px;color:#9CA3AF;margin-bottom:14px;">解锁东方玄学的深层力量</div>
-        <div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">
-          <div style="width:64px;height:80px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;"><div style="font-size:22px;">📜</div><div style="font-size:7px;color:#9CA3AF;">完整报告</div></div>
-          <div style="width:64px;height:80px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;"><div style="font-size:22px;">🔮</div><div style="font-size:7px;color:#9CA3AF;">深度占卜</div></div>
-          <div style="width:64px;height:80px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;"><div style="font-size:22px;">🧬</div><div style="font-size:7px;color:#9CA3AF;">人格解析</div></div>
-        </div>
-        <div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:100px;height:100px;position:relative;">${ringSVG(95, '#FCD34D')}<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:24px;font-weight:800;color:#FCD34D;">VIP</div><div style="font-size:9px;color:#9CA3AF;">会员特权</div></div></div></div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(245,158,11,.15);color:#FCD34D;">🏆 尊享会员</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">无限次测算</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"掌握命运，从认识自己开始"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">🏪</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#FCD34D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">灵境市集</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">解锁你命格里的隐藏能量</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="text-align:center;font-size:12px;color:#9CA3AF;margin-bottom:12px;line-height:1.6;">解锁东方玄学的深层力量</div><div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;"><div style="width:76px;height:90px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><div style="font-size:26px;">📜</div><div style="font-size:9px;color:#9CA3AF;text-align:center;">完整报告</div></div><div style="width:76px;height:90px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><div style="font-size:26px;">🔮</div><div style="font-size:9px;color:#9CA3AF;text-align:center;">深度占卜</div></div><div style="width:76px;height:90px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;"><div style="font-size:26px;">🧬</div><div style="font-size:9px;color:#9CA3AF;text-align:center;">人格解析</div></div></div><div style="display:flex;justify-content:center;margin-bottom:12px;"><div style="width:110px;height:110px;position:relative;">'+_ring(95,'#FCD34D')+'<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:22px;font-weight:800;color:#FCD34D;">VIP</div><div style="font-size:10px;color:#9CA3AF;">会员特权</div></div></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag('🏆 尊享无限测算','amber')+_tag('AI 深度增强','purple')+'</div>'+_insight('✦ 灵境提示', '认识自己是所有改变的起点——<br/>你的<span style="color:#C084FC;font-weight:700;">命格密码</span>，正在等你解开。')+'</div>'+_footer('开启','限免'),'252,211,77');
   }
 
   if (mod === 'ziwei') {
-    const cells = [
-      {n:'巳',s:'天机'},{n:'午',s:'太阳'},{n:'未',s:'紫微',hl:1},{n:'申',s:'天同'},
-      {n:'辰',s:'七杀'},{n:'酉',s:'武曲'},
-      {n:'卯',s:'天梁'},{n:'戌',s:'廉贞'},
-      {n:'寅',s:'破军'},{n:'丑',s:'贪狼'},{n:'子',s:'巨门'},{n:'亥',s:'太阴'}
-    ];
-    const cellHTML = cells.map(c => `<div style="background:${c.hl?'rgba(168,85,247,.08)':'rgba(255,255,255,.03)'};border:1px solid ${c.hl?'rgba(168,85,247,.2)':'rgba(255,255,255,.04)'};border-radius:6px;padding:5px 4px;text-align:center;"><div style="font-size:7px;color:#6B7280;">${c.n}</div><div style="font-size:10px;font-weight:700;color:${c.hl?'#FCD34D':'#C084FC'};">${c.s}</div></div>`).join('');
-
-    return `<div style="width:360px;height:480px;position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(160deg,#0F0C1F 0%,#15102A 40%,#0F1A2E 100%);border:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:28px 24px;">
-      <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(252,211,77,.1),transparent 70%);pointer-events:none;"></div>
-      ${brand}
-      <div style="margin-bottom:16px;position:relative;z-index:1;margin-top:12px;"><div style="font-size:36px;margin-bottom:8px;">⭐</div><div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#FCD34D,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">紫微命盘</div></div>
-      <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:1;">
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:10px;">
-          ${cellHTML.slice(0, cells.slice(0,4).length * 100)}
-          ${cells.slice(0,4).map(c => `<div style="background:${c.hl?'rgba(168,85,247,.08)':'rgba(255,255,255,.03)'};border:1px solid ${c.hl?'rgba(168,85,247,.2)':'rgba(255,255,255,.04)'};border-radius:6px;padding:5px 4px;text-align:center;"><div style="font-size:7px;color:#6B7280;">${c.n}</div><div style="font-size:10px;font-weight:700;color:${c.hl?'#FCD34D':'#C084FC'};">${c.s}</div></div>`).join('')}
-          ${cells.slice(4,5).map(c => `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);border-radius:6px;padding:5px 4px;text-align:center;"><div style="font-size:7px;color:#6B7280;">${c.n}</div><div style="font-size:10px;font-weight:700;color:#C084FC;">${c.s}</div></div>`).join('')}
-          <div style="grid-column:span 2;grid-row:span 2;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;padding:8px;"><div style="text-align:center;"><div style="font-size:7px;color:#6B7280;">命宫</div><div style="font-size:12px;font-weight:700;color:#C084FC;">紫微·天相</div></div></div>
-          ${cells.slice(5,6).map(c => `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);border-radius:6px;padding:5px 4px;text-align:center;"><div style="font-size:7px;color:#6B7280;">${c.n}</div><div style="font-size:10px;font-weight:700;color:#C084FC;">${c.s}</div></div>`).join('')}
-          ${cells.slice(6).map(c => `<div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.04);border-radius:6px;padding:5px 4px;text-align:center;"><div style="font-size:7px;color:#6B7280;">${c.n}</div><div style="font-size:10px;font-weight:700;color:#C084FC;">${c.s}</div></div>`).join('')}
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(245,158,11,.15);color:#FCD34D;">⭐ 紫微星</span>
-          <span style="padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(168,85,247,.15);color:#C084FC;">命宫天相</span>
-        </div>
-        <div style="text-align:center;font-size:12px;color:#9CA3AF;line-height:1.7;">"紫微天相同宫，天生领袖格局"</div>
-      </div>
-      ${footer}
-    </div>`;
+    return _wrap(_brand()+'<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;">⭐</div><div style="font-size:24px;font-weight:900;background:linear-gradient(135deg,#C084FC,#FCD34D);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">紫微命盘</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">千年古法 × AI 精算</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;"><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:3px;width:100%;margin-bottom:10px;"><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">巳</div><div style="font-size:11px;font-weight:700;color:#C084FC;">天机</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">午</div><div style="font-size:11px;font-weight:700;color:#C084FC;">太阳</div></div><div style="background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 12px rgba(168,85,247,.08);"><div style="font-size:8px;color:#4B5563;">未</div><div style="font-size:11px;font-weight:700;color:#FCD34D;">紫微</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">申</div><div style="font-size:11px;font-weight:700;color:#C084FC;">天同</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">辰</div><div style="font-size:11px;font-weight:700;color:#C084FC;">七杀</div></div><div style="grid-column:span 2;grid-row:span 2;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15)!important;border-radius:8px;display:flex;align-items:center;justify-content:center;"><div style="text-align:center;"><div style="font-size:8px;color:#6B7280;margin-bottom:4px;">命宫主星</div><div style="font-size:13px;font-weight:700;color:#C084FC;white-space:nowrap;">紫微·天相</div></div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">酉</div><div style="font-size:11px;font-weight:700;color:#C084FC;">武曲</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">卯</div><div style="font-size:11px;font-weight:700;color:#C084FC;">天梁</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">戌</div><div style="font-size:11px;font-weight:700;color:#C084FC;">廉贞</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">寅</div><div style="font-size:11px;font-weight:700;color:#C084FC;">破军</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">丑</div><div style="font-size:11px;font-weight:700;color:#C084FC;">贪狼</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">子</div><div style="font-size:11px;font-weight:700;color:#C084FC;">巨门</div></div><div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:5px 3px;text-align:center;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="font-size:8px;color:#4B5563;">亥</div><div style="font-size:11px;font-weight:700;color:#F472B6;">太阴</div></div></div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag('⭐ 紫微星入命','amber')+_tag('大器晚成格','blue')+'</div>'+_insight('✦ 命格解析', '紫微天相同宫，<span style="color:#C084FC;font-weight:700;">天生领袖格局</span>——<br/>30岁后每一步都是蜕变，你的时代刚刚开始。')+'</div>'+_footer('排盘'),'252,211,77');
   }
 
-  // Fallback
-  return `<div style="width:360px;height:480px;border-radius:20px;background:#0F0C1F;display:flex;align-items:center;justify-content:center;color:#6B7280;">敬请期待</div>`;
+  // Fallback (v2.0)
+  return _wrap('<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#6B7280;position:relative;z-index:2;">敬请期待</div>');
 }
 
 function downloadShareCard() {
@@ -2970,7 +2846,7 @@ function hideAll() {
     ['section-hero', 'section-hero-compat', 'section-hero-ziwei', 'section-hero-dream',
      'section-hero-persona', 'section-hero-divination', 'section-hero-cultivation', 'section-hero-market',
      'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results',
-     'section-dream-results', 'section-dream-history']
+     'section-dream-results', 'section-dream-history', 'section-matrix']
         .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
 }
 

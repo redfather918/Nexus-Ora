@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus Ora 分享主图生成器</title>
+<title>Nexus Ora 分享主图生成器 v2.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{
@@ -36,7 +36,7 @@ h1{
   flex-shrink:0;
 }
 
-/* 背景星光粒子 */
+/* 背景星光 */
 .share-card::before{
   content:'';position:absolute;top:0;left:0;right:0;bottom:0;
   background:
@@ -45,18 +45,11 @@ h1{
     radial-gradient(circle at 50% 50%, rgba(96,165,250,.04) 0%, transparent 60%);
   pointer-events:none;z-index:0;
 }
-/* 星点装饰 */
-.share-card::after{
-  content:'· · ·  ✦  · · ·';
-  position:absolute;bottom:58px;right:14px;
-  font-size:7px;color:rgba(255,255,255,.08);
-  letter-spacing:2px;pointer-events:none;z-index:0;
-}
 
 /* ── 顶部品牌 ── */
 .card-brand{
   display:flex;align-items:center;gap:10px;
-  position:relative;z-index:2;margin-bottom:18px;
+  position:relative;z-index:2;margin-bottom:16px;
 }
 .brand-logo{
   width:32px;height:32px;border-radius:10px;
@@ -67,22 +60,21 @@ h1{
 .brand-text{font-size:11px;color:#9CA3AF;letter-spacing:2px;font-weight:500;}
 
 /* ── 模块标题 ── */
-.card-header{
-  position:relative;z-index:2;margin-bottom:20px;
-}
-.card-icon{font-size:40px;margin-bottom:10px;line-height:1;display:block;}
+.card-header{position:relative;z-index:2;margin-bottom:14px;}
+.card-icon{font-size:36px;margin-bottom:8px;line-height:1;display:block;}
 .card-title{
-  font-size:26px;font-weight:900;line-height:1.2;
+  font-size:24px;font-weight:900;line-height:1.2;
   background:linear-gradient(135deg,#C084FC 0%,#F472B6 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
 }
+.card-subtitle{font-size:11px;color:#6B7280;margin-top:3px;letter-spacing:.5px;}
 
 /* ── 内容区 ── */
 .card-body{flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;}
 
 /* ── 大分数环 ── */
-.score-ring-wrap{display:flex;justify-content:center;margin-bottom:16px;}
-.score-ring{position:relative;width:110px;height:110px;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:14px;}
+.score-ring{position:relative;}
 .score-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
 .ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:7;}
 .ring-fg{fill:none;stroke-width:7;stroke-linecap:round;}
@@ -93,8 +85,8 @@ h1{
 .score-val{font-size:30px;font-weight:900;line-height:1;}
 .score-label{font-size:10px;color:#9CA3AF;margin-top:2px;}
 
-/* ── 标签 ── */
-.tag-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:12px;}
+/* ── 标签行 ── */
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;}
 .stag{padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;}
 .stag-purple{background:rgba(168,85,247,.18);color:#C084FC;border:1px solid rgba(168,85,247,.2);}
 .stag-pink{background:rgba(236,72,153,.18);color:#F472B6;border:1px solid rgba(236,72,153,.2);}
@@ -102,51 +94,91 @@ h1{
 .stag-green{background:rgba(34,197,94,.18);color:#4ADE80;border:1px solid rgba(34,197,94,.2);}
 .stag-amber{background:rgba(245,158,11,.18);color:#FCD34D;border:1px solid rgba(245,158,11,.2);}
 .stag-red{background:rgba(239,68,68,.18);color:#F87171;border:1px solid rgba(239,68,68,.2);}
+.stag-teal{background:rgba(20,184,166,.18);color:#2DD4BF;border:1px solid rgba(20,184,166,.2);}
 
-/* ── 引用文字 ── */
+/* ── 高亮金句（故事型文案）── */
+.card-insight{
+  position:relative;z-index:2;
+  margin:4px 0 10px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:rgba(168,85,247,.08);
+  border:1px solid rgba(168,85,247,.15);
+}
+.insight-label{font-size:9px;color:#7C3AED;letter-spacing:1px;margin-bottom:4px;text-transform:uppercase;}
+.insight-text{font-size:13px;color:#E5E7EB;line-height:1.65;font-weight:500;}
+.insight-accent{color:#C084FC;font-weight:700;}
+
+/* ── 卡片引言（副标语）── */
 .card-quote{
-  text-align:center;font-size:12px;color:#9CA3AF;line-height:1.8;
-  padding:0 4px;border-top:1px solid rgba(255,255,255,.05);padding-top:12px;
-  margin-top:4px;
+  text-align:center;font-size:11px;color:#6B7280;line-height:1.7;
+  padding:10px 4px 0;
+  border-top:1px solid rgba(255,255,255,.04);
+  margin-top:6px;
 }
 
 /* ── 底部 ── */
 .card-footer{
   display:flex;justify-content:space-between;align-items:flex-end;
-  margin-top:auto;position:relative;z-index:2;padding-top:12px;
+  margin-top:auto;position:relative;z-index:2;padding-top:10px;
   border-top:1px solid rgba(255,255,255,.04);
 }
 .card-user{font-size:10px;color:#6B7280;letter-spacing:.3px;}
+
+/* 扫码区 —— 嵌 URL 二维码 */
 .card-qr{
-  width:46px;height:46px;border-radius:8px;
-  background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;text-decoration:none;
+}
+.card-qr-box{
+  width:44px;height:44px;border-radius:8px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
   display:flex;align-items:center;justify-content:center;
-  font-size:8px;color:#6B7280;text-align:center;line-height:1.4;
+  font-size:9px;color:#9CA3AF;text-align:center;line-height:1.3;
+  transition:background .2s,border-color .2s;
+  padding:3px;
 }
+.card-qr:hover .card-qr-box{background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.35);}
+.card-qr-label{font-size:8px;color:#4B5563;letter-spacing:.5px;}
 
-/* ══════════════════════════════════════
-   模块特有样式
-══════════════════════════════════════ */
-
-/* 1. 灵境图谱 K线 */
-.mini-kline{
-  height:72px;display:flex;align-items:flex-end;
-  gap:3px;justify-content:center;margin-bottom:14px;
-  padding:0 8px;
+/* ══════════════════════════════
+   CARD 1 ─ 命运K线  →  人生海拔图
+══════════════════════════════ */
+.lifeline-wrap{
+  width:100%;height:80px;
+  position:relative;margin-bottom:14px;
+  overflow:hidden;border-radius:12px;
 }
-.kline-bar{width:10px;border-radius:3px 3px 0 0;}
+.lifeline-svg{width:100%;height:100%;}
 
-/* 2. 灵境人格：维度条 */
-.dim-bars{display:flex;flex-direction:column;gap:8px;width:100%;margin-bottom:14px;}
+/* 阶段标签 */
+.stage-labels{
+  display:flex;justify-content:space-between;
+  margin-top:-6px;margin-bottom:10px;
+  padding:0 4px;
+}
+.stage-lbl{
+  font-size:8px;color:#4B5563;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:1px;
+}
+.stage-lbl .age{font-size:9px;color:#6B7280;font-weight:600;}
+.stage-lbl .phase{font-size:8px;}
+
+/* ══════════════════════════════
+   CARD 2 ─ 灵境人格  维度条
+══════════════════════════════ */
+.dim-bars{display:flex;flex-direction:column;gap:7px;width:100%;margin-bottom:12px;}
 .dim-bar-row{display:flex;align-items:center;gap:10px;}
 .dim-bar-name{font-size:11px;color:#9CA3AF;width:28px;text-align:right;flex-shrink:0;}
 .dim-bar-track{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden;}
 .dim-bar-fill{height:100%;border-radius:4px;}
 .dim-bar-pct{font-size:10px;color:#6B7280;width:30px;flex-shrink:0;}
 
-/* 3. 梦境 */
-.dream-moon{font-size:56px;text-align:center;margin-bottom:6px;line-height:1;filter:drop-shadow(0 0 16px rgba(168,85,247,.5));}
-.dream-dual{display:flex;gap:8px;margin-bottom:14px;}
+/* ══════════════════════════════
+   CARD 3 ─ 梦境解析
+══════════════════════════════ */
+.dream-moon{font-size:52px;text-align:center;margin-bottom:4px;line-height:1;filter:drop-shadow(0 0 16px rgba(168,85,247,.5));}
+.dream-dual{display:flex;gap:8px;margin-bottom:12px;}
 .dream-item{
   flex:1;padding:10px 8px;border-radius:12px;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
@@ -156,50 +188,57 @@ h1{
 .dream-item-title{font-size:9px;color:#9CA3AF;margin-bottom:4px;}
 .dream-item-text{font-size:10px;color:#C084FC;font-weight:600;line-height:1.4;}
 
-/* 4. 缘分配对 */
-.compat-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:16px;}
+/* ══════════════════════════════
+   CARD 4 ─ 缘分配对
+══════════════════════════════ */
+.compat-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:12px;}
 .compat-avatar{
-  width:68px;height:68px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:30px;
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
 }
 .compat-heart{font-size:24px;animation:pulse 1.5s ease-in-out infinite;}
-@keyframes pulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(236,72,153,.3))}
-  50%{transform:scale(1.25);filter:drop-shadow(0 0 10px rgba(236,72,153,.6))}}
-.compat-stats{display:flex;gap:14px;justify-content:center;margin-bottom:14px;}
+@keyframes pulse{
+  0%,100%{transform:scale(1);filter:drop-shadow(0 0 4px rgba(236,72,153,.3))}
+  50%{transform:scale(1.25);filter:drop-shadow(0 0 10px rgba(236,72,153,.6))}
+}
+.compat-stats{display:flex;gap:12px;justify-content:center;margin-bottom:12px;}
 .compat-stat{text-align:center;}
 .compat-stat-val{font-size:18px;font-weight:800;}
 .compat-stat-label{font-size:9px;color:#6B7280;margin-top:2px;}
 
-/* 5. 占卜 */
-.tarot-display{display:flex;justify-content:center;margin-bottom:14px;}
+/* ══════════════════════════════
+   CARD 5 ─ 今日占卜
+══════════════════════════════ */
+.tarot-display{display:flex;justify-content:center;margin-bottom:12px;}
 .tarot-card{
-  width:80px;height:124px;border-radius:12px;
+  width:76px;height:118px;border-radius:12px;
   border:1px solid rgba(168,85,247,.35);
   background:linear-gradient(160deg,rgba(124,58,237,.12),rgba(236,72,153,.08));
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;position:relative;
+  gap:4px;position:relative;
   box-shadow:0 0 20px rgba(168,85,247,.15);
 }
 .tarot-card::after{
   content:'';position:absolute;inset:5px;
   border:1px solid rgba(168,85,247,.2);border-radius:8px;
 }
-.tarot-num{font-size:20px;font-weight:900;color:#C084FC;}
-.tarot-suit{font-size:12px;color:#9CA3AF;letter-spacing:3px;}
-.tarot-icon{font-size:26px;}
+.tarot-num{font-size:18px;font-weight:900;color:#C084FC;}
+.tarot-suit{font-size:11px;color:#9CA3AF;letter-spacing:3px;}
+.tarot-icon{font-size:24px;}
 .tarot-name{font-size:8px;color:#6B7280;}
 
-/* 6. 修行 */
+/* ══════════════════════════════
+   CARD 6 ─ 修行之路
+══════════════════════════════ */
 .cultivation-big{
-  font-size:72px;font-weight:900;text-align:center;line-height:1;
+  font-size:68px;font-weight:900;text-align:center;line-height:1;
   background:linear-gradient(135deg,#4ADE80,#22D3EE);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;
   filter:drop-shadow(0 0 20px rgba(74,222,128,.2));
   margin-bottom:2px;
 }
-.cultivation-unit{text-align:center;font-size:12px;color:#6B7280;margin-bottom:14px;}
-.cultivation-stats{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+.cultivation-unit{text-align:center;font-size:12px;color:#6B7280;margin-bottom:12px;}
+.cultivation-stats{display:flex;gap:8px;justify-content:center;margin-bottom:12px;}
 .cult-stat{
   flex:1;text-align:center;padding:10px 4px;border-radius:12px;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);
@@ -207,38 +246,40 @@ h1{
 .cult-stat-val{font-size:20px;font-weight:800;line-height:1;}
 .cult-stat-label{font-size:9px;color:#6B7280;margin-top:3px;}
 
-/* 7. 灵境市集 */
-.market-products{display:flex;gap:10px;justify-content:center;margin-bottom:16px;}
+/* ══════════════════════════════
+   CARD 7 ─ 灵境市集
+══════════════════════════════ */
+.market-products{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
 .market-item{
-  width:80px;height:96px;border-radius:14px;
+  width:76px;height:90px;border-radius:14px;
   background:rgba(255,255,255,.05);
   border:1px solid rgba(255,255,255,.08);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:6px;
-  transition:border-color .2s;
+  gap:5px;
 }
-.market-item:hover{border-color:rgba(168,85,247,.3);}
-.mi-icon{font-size:28px;}
+.mi-icon{font-size:26px;}
 .mi-name{font-size:9px;color:#9CA3AF;text-align:center;}
-.market-subtitle{text-align:center;font-size:13px;color:#9CA3AF;margin-bottom:14px;line-height:1.6;}
+.market-subtitle{text-align:center;font-size:12px;color:#9CA3AF;margin-bottom:12px;line-height:1.6;}
 
-/* 8. 紫微斗数 */
+/* ══════════════════════════════
+   CARD 8 ─ 紫微命盘
+══════════════════════════════ */
 .ziwei-grid{
   display:grid;grid-template-columns:repeat(4,1fr);
-  gap:3px;width:100%;margin-bottom:12px;
+  gap:3px;width:100%;margin-bottom:10px;
 }
 .ziwei-cell{
   background:rgba(255,255,255,.03);
   border:1px solid rgba(255,255,255,.05);
-  border-radius:8px;padding:6px 4px;text-align:center;
-  min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border-radius:8px;padding:5px 3px;text-align:center;
+  min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
 .ziwei-cell.highlight{
   background:rgba(168,85,247,.1);
   border-color:rgba(168,85,247,.25);
   box-shadow:inset 0 0 12px rgba(168,85,247,.08);
 }
-.zc-name{font-size:8px;color:#4B5563;margin-bottom:3px;}
+.zc-name{font-size:8px;color:#4B5563;margin-bottom:2px;}
 .zc-star{font-size:11px;font-weight:700;color:#C084FC;}
 .ziwei-center{
   grid-column:span 2;grid-row:span 2;
@@ -246,17 +287,32 @@ h1{
   background:rgba(168,85,247,.06);
   border-color:rgba(168,85,247,.15)!important;
 }
+
+/* ══════════════════════════════
+   五行能量脉动图 (CARD 1 可选)
+══════════════════════════════ */
+.wuxing-energy{
+  display:flex;align-items:flex-end;justify-content:center;
+  gap:4px;height:56px;margin-bottom:10px;
+}
+.wx-bar{
+  width:28px;border-radius:6px 6px 0 0;
+  display:flex;flex-direction:column;align-items:center;
+  padding-top:4px;font-size:8px;font-weight:700;
+  transition:height .3s;
+}
+
 </style>
 </head>
 <body>
 
-<h1>✦ Nexus Ora 分享主图</h1>
-<p class="subtitle">8大模块 · 抖音/小红书分享主图 · 长按截图保存</p>
+<h1>✦ Nexus Ora 分享主图 v2.0</h1>
+<p class="subtitle">8大模块 · 故事化文案 · 情绪驱动 · 抖音/小红书适配</p>
 
 <div class="card-grid">
 
 <!-- ════════════════════════════════
-     1. 我的命运K线（灵境图谱）
+     1. 我的命运K线 → 人生海拔线
 ════════════════════════════════ -->
 <div class="share-card" id="card-kline">
   <div class="card-brand">
@@ -264,39 +320,72 @@ h1{
     <div class="brand-text">NEXUS ORA</div>
   </div>
   <div class="card-header">
-    <span class="card-icon">📈</span>
-    <div class="card-title">我的命运K线</div>
+    <span class="card-icon">⛰️</span>
+    <div class="card-title">我的人生海拔图</div>
+    <div class="card-subtitle">命运 K线 · 灵境图谱测算</div>
   </div>
   <div class="card-body">
-    <div class="mini-kline" id="mini-kline-bars"></div>
-    <div class="score-ring-wrap">
-      <div class="score-ring">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad1)" stroke-dasharray="220 264"/>
-          <defs>
-            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#A855F7"/>
-              <stop offset="100%" stop-color="#EC4899"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="score-num">
-          <div class="score-val" style="background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">72</div>
-          <div class="score-label">综合运势</div>
-        </div>
-      </div>
+
+    <!-- 地形起伏式生命线 -->
+    <div class="lifeline-wrap">
+      <svg class="lifeline-svg" viewBox="0 0 320 80" preserveAspectRatio="none" id="lifeline-svg">
+        <!-- 山谷+山峰渐变填充 -->
+        <defs>
+          <linearGradient id="lgLife" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#A855F7" stop-opacity="0.8"/>
+            <stop offset="60%" stop-color="#3B0764" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#100828" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="lgLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#3B82F6"/>
+            <stop offset="40%" stop-color="#A855F7"/>
+            <stop offset="75%" stop-color="#F59E0B"/>
+            <stop offset="100%" stop-color="#EC4899"/>
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- 面积填充 -->
+        <path id="life-area" fill="url(#lgLife)" opacity="0.6"/>
+        <!-- 主线 -->
+        <path id="life-line" fill="none" stroke="url(#lgLine)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)"/>
+        <!-- 当前位置高亮点 -->
+        <circle id="life-dot" r="5" fill="#F59E0B" filter="url(#glow)" opacity="0.9"/>
+        <!-- 阶段分隔线 -->
+        <line x1="80" y1="0" x2="80" y2="80" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="160" y1="0" x2="160" y2="80" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="3,3"/>
+        <line x1="240" y1="0" x2="240" y2="80" stroke="rgba(255,255,255,.06)" stroke-width="1" stroke-dasharray="3,3"/>
+        <!-- 阶段文字 -->
+        <text x="40" y="76" text-anchor="middle" font-size="7" fill="rgba(99,102,241,.7)" font-family="sans-serif">蛰伏积累</text>
+        <text x="120" y="76" text-anchor="middle" font-size="7" fill="rgba(168,85,247,.7)" font-family="sans-serif">初露锋芒</text>
+        <text x="200" y="76" text-anchor="middle" font-size="7" fill="rgba(245,158,11,.9)" font-family="sans-serif">主升浪 🔥</text>
+        <text x="280" y="76" text-anchor="middle" font-size="7" fill="rgba(236,72,153,.7)" font-family="sans-serif">厚积薄发</text>
+      </svg>
     </div>
+
+    <!-- 身份标签 -->
     <div class="tag-row">
       <span class="stag stag-purple">辛金日主</span>
-      <span class="stag stag-amber">🔥 黄金期</span>
+      <span class="stag stag-amber">🔥 主升浪中</span>
       <span class="stag stag-green">峰值 89分</span>
     </div>
-    <div class="card-quote">"35岁步入黄金期，事业财运双线飙升"</div>
+
+    <!-- 故事化金句（核心文案） -->
+    <div class="card-insight">
+      <div class="insight-label">✦ 命理洞察</div>
+      <div class="insight-text">27岁前你一直在<span class="insight-accent">积蓄能量</span>，<br/>27岁到35岁是你人生的<span class="insight-accent">主升浪</span>——<br/>贵人会在最意外的地方出现。</div>
+    </div>
+
+    <div class="card-quote">「你不是晚熟，你是在等最好的时机一鸣惊人」</div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>测算</div>
+    <a class="card-qr" id="qr-kline" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>测算</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -311,23 +400,24 @@ h1{
   <div class="card-header">
     <span class="card-icon">🧬</span>
     <div class="card-title">我的灵境人格</div>
+    <div class="card-subtitle">五行 × MBTI 命格融合解析</div>
   </div>
   <div class="card-body">
     <div class="score-ring-wrap">
-      <div class="score-ring" style="width:130px;height:130px;">
+      <div class="score-ring" style="width:120px;height:120px;">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad2)" stroke-dasharray="200 264"/>
+          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#g-persona)" stroke-dasharray="200 264"/>
           <defs>
-            <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="g-persona" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#EC4899"/>
               <stop offset="100%" stop-color="#A855F7"/>
             </linearGradient>
           </defs>
         </svg>
         <div class="score-num">
-          <div class="score-val" style="font-size:26px;background:linear-gradient(135deg,#F472B6,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">INFJ</div>
-          <div class="score-label" style="font-size:11px;color:#9CA3AF;">守卫者</div>
+          <div class="score-val" style="font-size:24px;background:linear-gradient(135deg,#F472B6,#C084FC);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">INFJ</div>
+          <div class="score-label" style="font-size:10px;">守护者型</div>
         </div>
       </div>
     </div>
@@ -354,15 +444,20 @@ h1{
       </div>
     </div>
     <div class="tag-row">
-      <span class="stag stag-pink">深度共情</span>
-      <span class="stag stag-purple">内在驱动</span>
-      <span class="stag stag-blue">战略思维</span>
+      <span class="stag stag-pink">隐藏完美主义者</span>
+      <span class="stag stag-purple">天生读心术</span>
     </div>
-    <div class="card-quote">"天生的守护者，以温柔力量照亮他人"</div>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 人格密码</div>
+      <div class="insight-text" style="font-size:12px;">表面温柔，内心藏着<span class="insight-accent">整个宇宙</span>——<br/>你的善良不是软弱，是被低估的力量。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>测算</div>
+    <a class="card-qr" id="qr-persona" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>测算</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -377,16 +472,17 @@ h1{
   <div class="card-header">
     <span class="card-icon">🌙</span>
     <div class="card-title">我的梦境解析</div>
+    <div class="card-subtitle">AI × 周公 · 双视角解读</div>
   </div>
   <div class="card-body">
-    <div class="dream-moon">🌕</div>
+    <div class="dream-moon">🌊</div>
     <div class="score-ring-wrap">
-      <div class="score-ring">
+      <div class="score-ring" style="width:100px;height:100px;">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad3)" stroke-dasharray="185 264"/>
+          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#g-dream)" stroke-dasharray="185 264"/>
           <defs>
-            <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="g-dream" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#818CF8"/>
               <stop offset="100%" stop-color="#C084FC"/>
             </linearGradient>
@@ -402,24 +498,29 @@ h1{
       <div class="dream-item">
         <div class="dream-item-icon">📜</div>
         <div class="dream-item-title">周公解梦</div>
-        <div class="dream-item-text">水主财，预示<br/>近期财运亨通</div>
+        <div class="dream-item-text">水主财，近期<br/>意外之财将至</div>
       </div>
       <div class="dream-item">
         <div class="dream-item-icon">🧠</div>
-        <div class="dream-item-title">心理学视角</div>
-        <div class="dream-item-text">潜意识对安全<br/>感的渴望与满足</div>
+        <div class="dream-item-title">潜意识解读</div>
+        <div class="dream-item-text">你的内心正在<br/>释放对改变的渴望</div>
       </div>
     </div>
     <div class="tag-row">
-      <span class="stag stag-purple">🌊 水梦</span>
-      <span class="stag stag-blue">财运征兆</span>
-      <span class="stag stag-green">大吉</span>
+      <span class="stag stag-blue">🌊 流水大吉</span>
+      <span class="stag stag-green">财运征兆</span>
     </div>
-    <div class="card-quote">"梦中有水皆主财，吉兆已至，把握当下"</div>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 梦境预言</div>
+      <div class="insight-text" style="font-size:12px;">梦见水，是<span class="insight-accent">潜意识在给你提示</span>——<br/>你的运势转折点，就在这几天。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>解梦</div>
+    <a class="card-qr" id="qr-dream" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>解梦</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -434,6 +535,7 @@ h1{
   <div class="card-header">
     <span class="card-icon">💞</span>
     <div class="card-title">我们的缘分</div>
+    <div class="card-subtitle">生辰八字 · 缘分配对测算</div>
   </div>
   <div class="card-body">
     <div class="compat-row">
@@ -442,12 +544,12 @@ h1{
       <div class="compat-avatar" style="background:rgba(236,72,153,.15);border:2px solid rgba(236,72,153,.35);">🐍</div>
     </div>
     <div class="score-ring-wrap">
-      <div class="score-ring">
+      <div class="score-ring" style="width:100px;height:100px;">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad4)" stroke-dasharray="195 264"/>
+          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#g-compat)" stroke-dasharray="195 264"/>
           <defs>
-            <linearGradient id="grad4" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="g-compat" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#F472B6"/>
               <stop offset="100%" stop-color="#A855F7"/>
             </linearGradient>
@@ -473,16 +575,17 @@ h1{
         <div class="compat-stat-label">五行互补</div>
       </div>
     </div>
-    <div class="tag-row">
-      <span class="stag stag-pink">偏财·偏印</span>
-      <span class="stag stag-purple">五行互补</span>
-      <span class="stag stag-amber">中等偏上</span>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 缘分解读</div>
+      <div class="insight-text" style="font-size:12px;">金水相生格局——你们<span class="insight-accent">越走越近</span>，<br/>对方会成为你事业路上最好的<span class="insight-accent">引路人</span>。</div>
     </div>
-    <div class="card-quote">"金水相生，彼此成就——一起做创造性的事"</div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>配对</div>
+    <a class="card-qr" id="qr-compat" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>配对</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -497,6 +600,7 @@ h1{
   <div class="card-header">
     <span class="card-icon">🔮</span>
     <div class="card-title">今日占卜</div>
+    <div class="card-subtitle">AI 塔罗 · 每日指引</div>
   </div>
   <div class="card-body">
     <div class="tarot-display">
@@ -508,33 +612,38 @@ h1{
       </div>
     </div>
     <div class="score-ring-wrap">
-      <div class="score-ring" style="width:120px;height:120px;">
+      <div class="score-ring" style="width:100px;height:100px;">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad5)" stroke-dasharray="230 264"/>
+          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#g-tarot)" stroke-dasharray="230 264"/>
           <defs>
-            <linearGradient id="grad5" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="g-tarot" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#F59E0B"/>
               <stop offset="100%" stop-color="#FCD34D"/>
             </linearGradient>
           </defs>
         </svg>
         <div class="score-num">
-          <div class="score-val" style="color:#FCD34D;font-size:28px;">吉</div>
+          <div class="score-val" style="color:#FCD34D;font-size:26px;">吉</div>
           <div class="score-label">今日运势</div>
         </div>
       </div>
     </div>
     <div class="tag-row">
-      <span class="stag stag-amber">⭐ 星星</span>
-      <span class="stag stag-purple">正位</span>
+      <span class="stag stag-amber">⭐ 星星牌</span>
       <span class="stag stag-green">希望与指引</span>
     </div>
-    <div class="card-quote">"星星正位：黎明将至，保持信念，好运正在靠近"</div>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 今日启示</div>
+      <div class="insight-text" style="font-size:12px;">「星星正位」出现，代表<span class="insight-accent">黎明已经到来</span>——<br/>你等待的那件事，<span class="insight-accent">今天会有消息</span>。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>占卜</div>
+    <a class="card-qr" id="qr-divination" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>占卜</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -549,14 +658,14 @@ h1{
   <div class="card-header">
     <span class="card-icon">🧘</span>
     <div class="card-title">我的修行之路</div>
+    <div class="card-subtitle">灵魂成长轨迹 · 连续打卡</div>
   </div>
   <div class="card-body">
     <div class="cultivation-big">127</div>
     <div class="cultivation-unit">连续修行天数</div>
-    <div class="tag-row" style="margin-bottom:14px;">
+    <div class="tag-row" style="margin-bottom:12px;">
       <span class="stag stag-green">Lv.8 觉者</span>
       <span class="stag stag-purple">🧘 冥想 32次</span>
-      <span class="stag stag-amber">📖 日记 89篇</span>
     </div>
     <div class="cultivation-stats">
       <div class="cult-stat">
@@ -572,11 +681,17 @@ h1{
         <div class="cult-stat-label">内心平静</div>
       </div>
     </div>
-    <div class="card-quote">"日日精进，方能见性明心"</div>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 修行感悟</div>
+      <div class="insight-text" style="font-size:12px;">127天的坚持，<span class="insight-accent">悄悄改变了你的磁场</span>——<br/>身边人都感觉到你变了，<span class="insight-accent">越来越对了</span>。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>修行</div>
+    <a class="card-qr" id="qr-cultivation" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>修行</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
@@ -591,9 +706,9 @@ h1{
   <div class="card-header">
     <span class="card-icon">🏪</span>
     <div class="card-title">灵境市集</div>
+    <div class="card-subtitle">解锁你命格里的隐藏能量</div>
   </div>
   <div class="card-body">
-    <div class="market-subtitle">解锁东方玄学的深层力量</div>
     <div class="market-products">
       <div class="market-item">
         <div class="mi-icon">📜</div>
@@ -609,33 +724,38 @@ h1{
       </div>
     </div>
     <div class="score-ring-wrap">
-      <div class="score-ring" style="width:120px;height:120px;">
+      <div class="score-ring" style="width:110px;height:110px;">
         <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="42" class="ring-bg"/>
-          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#grad6)" stroke-dasharray="250 264"/>
+          <circle cx="50" cy="50" r="42" class="ring-fg" stroke="url(#g-market)" stroke-dasharray="250 264"/>
           <defs>
-            <linearGradient id="grad6" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id="g-market" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stop-color="#F59E0B"/>
               <stop offset="100%" stop-color="#FCD34D"/>
             </linearGradient>
           </defs>
         </svg>
         <div class="score-num">
-          <div class="score-val" style="color:#FCD34D;font-size:24px;">VIP</div>
+          <div class="score-val" style="color:#FCD34D;font-size:22px;">VIP</div>
           <div class="score-label">会员特权</div>
         </div>
       </div>
     </div>
     <div class="tag-row">
-      <span class="stag stag-amber">🏆 尊享会员</span>
-      <span class="stag stag-purple">无限次测算</span>
-      <span class="stag stag-green">AI增强</span>
+      <span class="stag stag-amber">🏆 尊享无限测算</span>
+      <span class="stag stag-purple">AI 深度增强</span>
     </div>
-    <div class="card-quote">"掌握命运，从认识自己开始"</div>
+    <div class="card-insight" style="padding:10px 12px;">
+      <div class="insight-label">✦ 灵境提示</div>
+      <div class="insight-text" style="font-size:12px;">认识自己是所有改变的起点——<br/>你的<span class="insight-accent">命格密码</span>，正在等你解开。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>开启</div>
+    <a class="card-qr" id="qr-market" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>开启</div>
+      <div class="card-qr-label">限免</div>
+    </a>
   </div>
 </div>
 
@@ -650,90 +770,137 @@ h1{
   <div class="card-header">
     <span class="card-icon">⭐</span>
     <div class="card-title">紫微命盘</div>
+    <div class="card-subtitle">千年古法 × AI 精算</div>
   </div>
   <div class="card-body">
     <div class="ziwei-grid">
-      <!-- 顶行 巳 午 未 申 -->
       <div class="ziwei-cell"><div class="zc-name">巳</div><div class="zc-star">天机</div></div>
       <div class="ziwei-cell"><div class="zc-name">午</div><div class="zc-star">太阳</div></div>
       <div class="ziwei-cell highlight"><div class="zc-name">未</div><div class="zc-star" style="color:#FCD34D;">紫微</div></div>
       <div class="ziwei-cell"><div class="zc-name">申</div><div class="zc-star">天同</div></div>
-      <!-- 第二行 辰 命宫(span) 酉 -->
       <div class="ziwei-cell"><div class="zc-name">辰</div><div class="zc-star">七杀</div></div>
       <div class="ziwei-cell ziwei-center" style="grid-column:span 2;grid-row:span 2;">
         <div style="text-align:center;">
-          <div style="font-size:8px;color:#6B7280;margin-bottom:4px;">命宫</div>
+          <div style="font-size:8px;color:#6B7280;margin-bottom:4px;">命宫主星</div>
           <div style="font-size:13px;font-weight:700;color:#C084FC;white-space:nowrap;">紫微·天相</div>
         </div>
       </div>
       <div class="ziwei-cell"><div class="zc-name">酉</div><div class="zc-star">武曲</div></div>
-      <!-- 第三行 卯 (命宫占位) 戌 -->
       <div class="ziwei-cell"><div class="zc-name">卯</div><div class="zc-star">天梁</div></div>
       <div class="ziwei-cell"><div class="zc-name">戌</div><div class="zc-star">廉贞</div></div>
-      <!-- 底行 寅 丑 子 亥 -->
       <div class="ziwei-cell"><div class="zc-name">寅</div><div class="zc-star">破军</div></div>
       <div class="ziwei-cell"><div class="zc-name">丑</div><div class="zc-star">贪狼</div></div>
       <div class="ziwei-cell"><div class="zc-name">子</div><div class="zc-star">巨门</div></div>
       <div class="ziwei-cell"><div class="zc-name">亥</div><div class="zc-star" style="color:#F472B6;">太阴</div></div>
     </div>
     <div class="tag-row">
-      <span class="stag stag-amber">⭐ 紫微星</span>
-      <span class="stag stag-purple">命宫天相</span>
-      <span class="stag stag-blue">大器晚成</span>
+      <span class="stag stag-amber">⭐ 紫微星入命</span>
+      <span class="stag stag-blue">大器晚成格</span>
     </div>
-    <div class="card-quote">"紫微天相同宫，天生领袖格局"</div>
+    <div class="card-insight" style="padding:8px 12px;">
+      <div class="insight-label">✦ 命格解析</div>
+      <div class="insight-text" style="font-size:12px;">紫微天相同宫，<span class="insight-accent">天生领袖格局</span>——<br/>30岁后每一步都是蜕变，你的时代刚刚开始。</div>
+    </div>
   </div>
   <div class="card-footer">
     <div class="card-user">@NexusOra · AI玄学平台</div>
-    <div class="card-qr">扫码<br/>排盘</div>
+    <a class="card-qr" id="qr-ziwei" href="#" target="_blank">
+      <div class="card-qr-box">扫码<br/>排盘</div>
+      <div class="card-qr-label">免费</div>
+    </a>
   </div>
 </div>
 
 </div><!-- card-grid end -->
 
 <script>
-// ── 命运K线：彩色柱状图 ──
+/* ══════════════════════════════
+   URL 引流注入：读取 APP_URL 并
+   赋值给所有「扫码」按钮的 href
+══════════════════════════════ */
 (function(){
-  const bars = document.getElementById('mini-kline-bars');
-  if(!bars) return;
-  const scores = [42,48,55,52,60,58,65,62,70,68,75,72,80,78,85,82,89,86,82,78];
-  const max = Math.max(...scores);
-  scores.forEach((s,i) => {
-    const h = Math.round(s / max * 60);
-    const isUp = i === 0 || scores[i] >= scores[i-1];
-    const pct = (i / (scores.length - 1)) * 100;
-    // 渐变颜色从红到绿，按上涨/下跌区分（中国规范：涨红跌绿）
-    const bar = document.createElement('div');
-    bar.className = 'kline-bar';
-    bar.style.height = h + 'px';
-    bar.style.background = isUp
-      ? `linear-gradient(to top,#EF4444,#F87171)`
-      : `linear-gradient(to top,#22C55E,#4ADE80)`;
-    bar.style.opacity = 0.6 + (s / max) * 0.4;
-    bars.appendChild(bar);
+  // APP_URL 由后端渲染注入，或通过 meta 标签传入
+  // 四级降级：
+  // 1. 后端 SSR 注入 window.__APP_URL（如 Express 模板引擎注入）
+  // 2. <meta name="app-url" content="..."> 标签（静态部署时注入）
+  // 3. 自动抓取当前页面域名（window.location.origin）
+  // 4. 硬编码 fallback（仅本地开发兜底，务必在 .env 中设置真实域名）
+  // 对应 .env 变量：SHARE_URL 或 APP_URL
+  const APP_URL =
+    (typeof window.__APP_URL !== 'undefined' && window.__APP_URL) ||
+    (document.querySelector('meta[name="app-url"]') &&
+     document.querySelector('meta[name="app-url"]').content) ||
+    (typeof window.location !== 'undefined' && window.location.origin) ||
+    'https://nexus-ora.example.com'; // ← .env SHARE_URL / APP_URL
+
+  const qrIds = [
+    'qr-kline','qr-persona','qr-dream','qr-compat',
+    'qr-divination','qr-cultivation','qr-market','qr-ziwei'
+  ];
+  qrIds.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.href = APP_URL;
   });
 })();
-</script>
 
-<script>
-// ── 为每张卡片注入随机星点 ──
+/* ══════════════════════════════
+   Card 1: 人生海拔线（SVG 路径生成）
+══════════════════════════════ */
+(function(){
+  // 数据：年龄段运势值（蛰伏→初露→主升浪→厚积）
+  const pts = [
+    {x:0,y:55},{x:20,y:52},{x:40,y:48},{x:60,y:58},
+    {x:80,y:52},{x:100,y:42},{x:120,y:55},{x:140,y:62},
+    {x:160,y:58},{x:180,y:45},{x:200,y:35},{x:220,y:22},
+    {x:240,y:18},{x:255,y:12},{x:270,y:20},{x:290,y:28},
+    {x:310,y:35},{x:320,y:40}
+  ];
+
+  // 平滑贝塞尔曲线路径
+  function smoothPath(points){
+    let d = `M ${points[0].x} ${points[0].y}`;
+    for(let i = 1; i < points.length; i++){
+      const prev = points[i-1];
+      const curr = points[i];
+      const cpx = (prev.x + curr.x) / 2;
+      d += ` C ${cpx} ${prev.y}, ${cpx} ${curr.y}, ${curr.x} ${curr.y}`;
+    }
+    return d;
+  }
+
+  const linePath = smoothPath(pts);
+
+  // 面积路径（闭合到底部）
+  const areaPath = linePath + ` L 320 80 L 0 80 Z`;
+
+  const lineEl = document.getElementById('life-line');
+  const areaEl = document.getElementById('life-area');
+  const dotEl  = document.getElementById('life-dot');
+
+  if(lineEl) lineEl.setAttribute('d', linePath);
+  if(areaEl) areaEl.setAttribute('d', areaPath);
+  // 当前位置：主升浪顶点
+  if(dotEl){ dotEl.setAttribute('cx', '255'); dotEl.setAttribute('cy', '12'); }
+})();
+
+/* ══════════════════════════════
+   随机星点背景（所有卡片）
+══════════════════════════════ */
 (function(){
   document.querySelectorAll('.share-card').forEach(card => {
     const starsEl = document.createElement('div');
     starsEl.style.cssText = 'position:absolute;inset:0;pointer-events:none;z-index:1;overflow:hidden;';
-    for(let i = 0; i < 18; i++){
+    for(let i = 0; i < 20; i++){
       const dot = document.createElement('div');
-      const size = Math.random() < 0.3 ? 2 : 1;
-      const x = Math.random() * 100;
-      const y = Math.random() * 100;
-      const opacity = 0.15 + Math.random() * 0.35;
+      const size = Math.random() < 0.25 ? 2 : 1;
       dot.style.cssText = `
         position:absolute;
-        left:${x}%;top:${y}%;
+        left:${Math.random()*100}%;
+        top:${Math.random()*100}%;
         width:${size}px;height:${size}px;
         border-radius:50%;
         background:#fff;
-        opacity:${opacity};
+        opacity:${0.12 + Math.random()*0.3};
       `;
       starsEl.appendChild(dot);
     }
