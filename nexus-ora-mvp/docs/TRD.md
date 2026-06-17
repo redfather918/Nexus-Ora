@@ -1,6 +1,6 @@
 # Nexus Ora — 技术需求文档 (TRD)
 
-> 版本：v4.0 | 更新日期：2026-06-14 | 8 大模块 + 多语言 i18n + 分享主图 + 小程序架构
+> 版本：v4.0.1 | 更新日期：2026-06-17 | 8 大模块 + 多语言 i18n + 分享主图 v2.0 + 小程序架构
 
 ---
 
@@ -410,6 +410,7 @@ node server_unified.js
 | `HOST` | 否 | `127.0.0.1` | 绑定地址（部署时务必设 `0.0.0.0`） |
 | `DEEPSEEK_API_KEY` | 否 | 空 | DeepSeek API Key |
 | `STRIPE_SECRET_KEY` | 否 | 空 | Stripe 私钥 |
+| `SHARE_URL` | 否 | 空 | 分享卡扫码链接（留空则自动抓取当前域名） |
 
 ### 6.4 前端 API 地址设计 (v3.1.1 修复)
 
@@ -528,6 +529,33 @@ const API_BASE = '';
   2. 后端增加微信支付回调接口
   3. 后端配置 `HOST=0.0.0.0` 对外服务 + HTTPS
 - **影响**：小程序与 Web 端共享同一后端，数据互通
+
+### ADR-016: 前端 JS 全局作用域管理 (v4.0.1)
+- **决策**：所有 `onclick` 处理函数必须定义在全局作用域（不能在 `DOMContentLoaded` 回调内）
+- **理由**：HTML 中的 `onclick="functionName()"` 只能在全局 `window` 对象上查找函数。若将函数定义在 `DOMContentLoaded` 回调内，函数变为局部变量，导致运行时 `functionName is not defined` 错误。
+- **正确模式**：
+  ```javascript
+  // ✅ 正确：函数在全局作用域
+  function openShareCard() { ... }
+  
+  // ✅ 正确：需要 DOM 元素的初始化代码用 IIFE + null 检查
+  (function() {
+    const el = document.getElementById('profile-modal');
+    if (el) el.addEventListener('click', ...);
+  })();
+  
+  // ❌ 错误：函数在 DOMContentLoaded 内，onclick 找不到
+  document.addEventListener('DOMContentLoaded', () => {
+    function openShareCard() { ... }  // 局部变量！
+  });
+  ```
+- **影响**：未来新增功能时需注意函数作用域；建议使用 ESLint 规则检查 `onclick` 引用的函数是否在全局作用域
+
+### ADR-017: 分享卡双模式生成 (v4.0.1)
+- **决策**：分享卡支持两种生成方式：(1) `share_cards.html` 独立静态页面；(2) `index.html` 内嵌 `generateShareCardHTML()` 动态生成
+- **理由**：独立页面适合静态展示和截图，内嵌生成适合用户交互（点击"生成分享图"按钮后弹出 Modal 展示）
+- **实现**：`generateShareCardHTML()` 函数根据 `currentModule` 动态生成对应模块的 360×640 v2.0 分享卡 HTML 字符串，插入 `#share-card-canvas` 元素后由 `html2canvas` 截图或用户长按保存
+- **v2.0 升级**：360×640 尺寸、情感洞察块、人生海拔 SVG 路径、四級 URL 降级
 
 ---
 
