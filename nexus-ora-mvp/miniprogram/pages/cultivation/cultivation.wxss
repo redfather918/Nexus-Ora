@@ -1,0 +1,15 @@
+.container {
+  padding: 40rpx;
+  text-align: center;
+  color: #9CA3AF;
+}
+.page-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #FFFFFF;
+  margin-bottom: 40rpx;
+}
+.placeholder {
+  font-size: 32rpx;
+  margin-top: 200rpx;
+}
