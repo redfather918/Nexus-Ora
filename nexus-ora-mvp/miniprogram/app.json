@@ -26,26 +26,26 @@
       {
         "pagePath": "pages/home/home",
         "text": "首页",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
       },
       {
         "pagePath": "pages/fortune/fortune",
         "text": "排盘",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "iconPath": "assets/icons/fortune.png",
+        "selectedIconPath": "assets/icons/fortune-active.png"
       },
       {
         "pagePath": "pages/cultivation/cultivation",
         "text": "修行",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "iconPath": "assets/icons/cultivation.png",
+        "selectedIconPath": "assets/icons/cultivation-active.png"
       },
       {
         "pagePath": "pages/market/market",
         "text": "市集",
-        "iconPath": "",
-        "selectedIconPath": ""
+        "iconPath": "assets/icons/market.png",
+        "selectedIconPath": "assets/icons/market-active.png"
       }
     ]
   },
