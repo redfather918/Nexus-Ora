@@ -1,8 +1,11 @@
 // pages/home/home.js
 const app = getApp()
+const auth = require('../../utils/auth.js')
 
 Page({
   data: {
+    isLoggedIn: false,
+    userInfo: {},
     modules: [
       {
         id: 'fortune',
@@ -72,7 +75,44 @@ Page({
   },
 
   onLoad() {
-    // 可以在此检查登录态
+    this.refreshLoginState()
+  },
+
+  onShow() {
+    this.refreshLoginState()
+  },
+
+  refreshLoginState() {
+    const user = wx.getStorageSync('user') || null
+    this.setData({
+      isLoggedIn: !!auth.isLoggedIn(),
+      userInfo: user || {}
+    })
+  },
+
+  goLogin() {
+    wx.navigateTo({ url: '/pages/login/login' })
+  },
+
+  onUserTap() {
+    wx.showActionSheet({
+      itemList: ['查看我的命盘', '退出登录'],
+      success: (res) => { if (res.tapIndex === 1) this.onLogout() }
+    })
+  },
+
+  onLogout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '确定要退出当前账号吗？',
+      success: (res) => {
+        if (res.confirm) {
+          auth.logout()
+          this.refreshLoginState()
+          wx.showToast({ title: '已退出', icon: 'success' })
+        }
+      }
+    })
   },
 
   goModule(e) {

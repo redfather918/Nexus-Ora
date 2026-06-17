@@ -6,6 +6,6 @@
   <view class="mc-info">
     <text class="mc-title">{{title}}</text>
     <text class="mc-desc" wx:if="{{desc}}">{{desc}}</text>
-  </View>
+  </view>
   <text class="mc-arrow">›</text>
 </view>

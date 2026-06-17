@@ -404,6 +404,100 @@ function buildSummary(fortune, paipan, dimensions) {
 
 // ───────────────────────── Routes ─────────────────────────
 
+// ════════════════════════════════════════════════════════════
+//  认证模块（v1.0 - 简化版，用随机 token + 内存 Map）
+//  TODO: 后续可替换为 JWT
+// ════════════════════════════════════════════════════════════
+const tokenStore = new Map();   // token -> { userId, phone, createdAt }
+const smsStore   = new Map();   // phone -> { code, expiresAt, sendCount, lastSendAt }
+
+function genToken() {
+    return 'tk_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+}
+
+function getSession(req) {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    return token ? tokenStore.get(token) : null;
+}
+
+// 初始化 auth_users 表（必须在 db 初始化之后执行）
+async function initAuthTable() {
+    if (!db) await initDatabase();
+    db.run(`CREATE TABLE IF NOT EXISTS auth_users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        phone TEXT UNIQUE,
+        openid TEXT UNIQUE,
+        nickname TEXT,
+        avatar TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+    )`);
+    console.log('[AUTH] auth_users table ready');
+}
+
+// 1) 发送验证码（开发模式：直接返回 code）
+app.post('/api/auth/send-sms', (req, res) => {
+    const { phone } = req.body || {};
+    if (!phone || !/^1[3-9]\d{9}$/.test(phone)) {
+        return res.status(400).json({ code: 1, msg: '手机号格式错误' });
+    }
+    // 防刷：60s 内同号只能发一次
+    const now = Date.now();
+    const prev = smsStore.get(phone);
+    if (prev && now - prev.lastSendAt < 60_000) {
+        return res.status(429).json({ code: 1, msg: '请稍后再试' });
+    }
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    smsStore.set(phone, { code, expiresAt: now + 5 * 60_000, lastSendAt: now });
+    console.log(`[SMS] → ${phone} : ${code}`);
+    res.json({ code: 0, msg: '发送成功', debugCode: code });   // 开发模式返回
+});
+
+// 2) 手机号 + 验证码登录
+app.post('/api/auth/phone-login', (req, res) => {
+    const { phone, code } = req.body || {};
+    if (!phone || !code) return res.status(400).json({ code: 1, msg: '参数缺失' });
+    const rec = smsStore.get(phone);
+    if (!rec || rec.expiresAt < Date.now()) {
+        return res.status(400).json({ code: 1, msg: '验证码已过期，请重新获取' });
+    }
+    if (rec.code !== code) return res.status(400).json({ code: 1, msg: '验证码错误' });
+    smsStore.delete(phone);  // 一次性使用
+
+    // 查/建用户
+    let rows = db.exec(`SELECT id, phone, nickname, avatar FROM auth_users WHERE phone='${phone}'`);
+    let user;
+    if (rows[0]) {
+        user = { id: rows[0].values[0][0], phone: rows[0].values[0][1], nickname: rows[0].values[0][2], avatar: rows[0].values[0][3] };
+    } else {
+        db.run(`INSERT INTO auth_users (phone, nickname) VALUES ('${phone}', '用户${phone.slice(-4)}')`);
+        const lastId = db.exec(`SELECT last_insert_rowid()`)[0].values[0][0];
+        user = { id: lastId, phone, nickname: `用户${phone.slice(-4)}`, avatar: '' };
+    }
+    const token = genToken();
+    tokenStore.set(token, { userId: user.id, phone: user.phone, createdAt: Date.now() });
+    res.json({ code: 0, token, user });
+});
+
+// 3) 获取当前用户信息
+app.get('/api/auth/me', (req, res) => {
+    const s = getSession(req);
+    if (!s) return res.status(401).json({ code: 1, msg: '未登录' });
+    const rows = db.exec(`SELECT id, phone, nickname, avatar FROM auth_users WHERE id=${s.userId}`);
+    if (!rows[0]) return res.status(404).json({ code: 1, msg: '用户不存在' });
+    const [id, phone, nickname, avatar] = rows[0].values[0];
+    res.json({ code: 0, user: { id, phone, nickname, avatar } });
+});
+
+// 4) 退出登录
+app.post('/api/auth/logout', (req, res) => {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    if (token) tokenStore.delete(token);
+    res.json({ code: 0, msg: '已退出' });
+});
+
+// 健康检查
 app.get('/api/health', (_req, res) => {
     res.json({ status:'ok', version:'3.7.0', llm: !!CFG.deepseek.apiKey, db: !!db });
 });
@@ -1585,6 +1679,7 @@ app.get('/api/market/wishlist', (req, res) => {
 
 async function start() {
     await initDatabase();
+    await initAuthTable();
     app.listen(PORT, HOST, () => {
         console.log('');
         console.log('╔══════════════════════════════════════╗');

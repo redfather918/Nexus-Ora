@@ -1,5 +1,26 @@
 <!-- pages/home/home.wxml -->
 <view class="container home-container">
+  <!-- 顶部用户条 -->
+  <view class="user-bar">
+    <block wx:if="{{isLoggedIn}}">
+      <view class="user-info" bindtap="onUserTap">
+        <view class="user-avatar">{{userInfo.nickname || '我'}}</view>
+        <view class="user-meta">
+          <text class="user-name">{{userInfo.nickname || '命主'}}</text>
+          <text class="user-tip">查看我的命盘</text>
+        </view>
+      </view>
+      <view class="logout-btn" bindtap="onLogout">退出</view>
+    </block>
+    <block wx:else>
+      <view class="login-prompt" bindtap="goLogin">
+        <text class="login-icon">🔮</text>
+        <text class="login-text">登录解锁完整功能</text>
+        <text class="login-arrow">›</text>
+      </view>
+    </block>
+  </view>
+
   <!-- 品牌区 -->
   <view class="brand-area">
     <view class="brand-logo">✦</view>
