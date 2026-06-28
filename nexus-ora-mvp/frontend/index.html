@@ -798,6 +798,10 @@ var _hmt = _hmt || [];
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               <span data-i18n="btn_unlock_pay">解锁报告 (¥9.99)</span>
             </button>
+            <button onclick="handleUnlock('paypal')" class="btn-primary text-sm px-5 py-2.5" style="background:#FFC439;color:#000;border-color:#FFC439;">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.4c-3.67 0-6.076-2.652-6.076-5.5 0-2.843 2.406-5.5 6.076-5.5 3.67 0 6.076 2.652 6.076 5.5 0 2.848-2.406 5.5-6.076 5.5zm12.848 0c-3.67 0-6.076-2.652-6.076-5.5 0-2.843 2.406-5.5 6.076-5.5 3.67 0 6.076 2.652 6.076 5.5 0 2.848-2.406 5.5-6.076 5.5z"/></svg>
+              <span data-i18n="btn_unlock_paypal">PayPal ($9.99)</span>
+            </button>
             <button onclick="handleUnlock('share')" class="btn-secondary text-sm">
               <span data-i18n="btn_unlock_share">分享解锁</span>
             </button>
@@ -1386,6 +1390,7 @@ const I18N = {
     // Paywall
     paywall_title: '解锁完整报告', paywall_subtitle: '查看完整百年运势曲线与六维深度解读',
     btn_unlock_pay: '解锁报告 (¥9.99)', btn_unlock_share: '分享解锁',
+    btn_unlock_paypal: 'PayPal 支付 ($9.99)',
     paywall_demo_hint: 'Demo模式 · 分享给好友即可免费解锁',
     // Summary cards
     sum_peak_label: '峰值年龄', sum_peak_sub: '运势巅峰',
@@ -1515,6 +1520,7 @@ const I18N = {
     btn_copy: 'Copy Link', btn_recalc: 'New Reading',
     paywall_title: 'Unlock Full Report', paywall_subtitle: 'View full century fortune curve & 6-dimension deep analysis',
     btn_unlock_pay: 'Unlock Report (¥9.99)', btn_unlock_share: 'Share to Unlock',
+    btn_unlock_paypal: 'PayPal ($9.99)',
     paywall_demo_hint: 'Demo Mode · Share with a friend to unlock for free',
     sum_peak_label: 'Peak Age', sum_peak_sub: 'Fortune Peak',
     sum_valley_label: 'Valley Age', sum_valley_sub: 'Caution Period',
@@ -1633,6 +1639,7 @@ const I18N = {
     btn_copy: 'リンクをコピー', btn_recalc: '再計算',
     paywall_title: '完全レポートを解放', paywall_subtitle: '100年運勢曲線と6次元深度分析を見る',
     btn_unlock_pay: 'レポートを解放 (¥9.99)', btn_unlock_share: 'シェアして解放',
+    btn_unlock_paypal: 'PayPalで支払う ($9.99)',
     paywall_demo_hint: 'デモモード · 友達にシェアして無料で解放',
     sum_peak_label: 'ピーク年齢', sum_peak_sub: '運勢の絶頂',
     sum_valley_label: '谷底年齢', sum_valley_sub: '注意時期',
@@ -2689,6 +2696,34 @@ function renderDimensions() {
 
 // ── Unlock ────────────────────────────────────
 async function handleUnlock(method) {
+  if (method === 'paypal') {
+    // PayPal 支付（使用 v2 接口）
+    try {
+      const ctrl = new AbortController();
+      setTimeout(() => ctrl.abort(), 8000);
+      const res  = await fetch(API_BASE + '/api/payment/paypal-v2/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reportId: reportData?.report_id, plan: 'report' }),
+        signal: ctrl.signal
+      });
+      const data = await res.json();
+      if (data.demo || !data.approvalUrl) {
+        isUnlocked = true;
+        document.getElementById('paywall').classList.add('hidden');
+        chartMain?.resize();
+        showToast('✅ PayPal 解锁成功！', '#A855F7');
+      } else {
+        window.location.href = data.approvalUrl;
+      }
+    } catch {
+      isUnlocked = true;
+      document.getElementById('paywall').classList.add('hidden');
+      chartMain?.resize();
+    }
+    return;
+  }
+
   if (isDemoMode) {
     isUnlocked = true;
     document.getElementById('paywall').classList.add('hidden');
@@ -4553,6 +4588,55 @@ function buyDemo(name) {
     </div>
   </div>
 </div>
+
+<!-- PayPal 回调处理 -->
+<script>
+// 页面加载时检查 PayPal 支付回调
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const paypalStatus = params.get('paypal');
+  const orderID = params.get('token'); // PayPal 回调时会在 URL 中带上 token 参数
+
+  if (paypalStatus === 'success' && orderID) {
+    // 显示加载提示
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(168,85,247,.9);color:#fff;padding:12px 24px;border-radius:12px;z-index:99999;font-size:14px;';
+    toast.textContent = '⏳ PayPal 支付处理中...';
+    document.body.appendChild(toast);
+
+    // 调用后端捕获接口（v2）
+    fetch(API_BASE + '/api/payment/paypal-v2/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderID: orderID })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        isUnlocked = true;
+        document.getElementById('paywall')?.classList.add('hidden');
+        chartMain?.resize();
+        showToast('✅ PayPal 支付成功！完整报告已解锁', '#22C55E');
+        // 清除 URL 参数
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        showToast('❌ 支付验证失败，请联系客服', '#EF4444');
+      }
+    })
+    .catch(err => {
+      console.error('[PayPal Capture]', err);
+      showToast('❌ 支付验证失败，请刷新重试', '#EF4444');
+    })
+    .finally(() => {
+      toast.remove();
+    });
+  } else if (paypalStatus === 'cancel') {
+    showToast('⚠️ 支付已取消', '#F59E0B');
+    // 清除 URL 参数
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+</script>
 
 </body>
 </html>

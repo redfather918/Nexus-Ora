@@ -13,6 +13,9 @@ const fs      = require('fs');
 const initSqlJs = require('sql.js');
 const { paipan, getShishen } = require('./paipan_engine.js');
 const { ziwei } = require('./ziwei_engine.js');
+const axios   = require('axios');
+const paypal = require('./paypal.js');
+const paypalRoutes = require('./paypal_routes.js');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -28,7 +31,14 @@ const CFG = {
         timeout:  90_000
     },
     prices: { report: 999, monthly: 2999 },
-    db:     path.join(__dirname, 'nexus_ora.db')
+    db:     path.join(__dirname, 'nexus_ora.db'),
+    paypal: {
+        clientId:     process.env.PAYPAL_CLIENT_ID || '',
+        clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+        mode:        process.env.PAYPAL_MODE || 'sandbox', // sandbox | live
+        currency:    'USD',
+        demoMode:    !process.env.PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID === 'YOUR_PAYPAL_CLIENT_ID'
+    }
 };
 
 // ───────────────────────── Middleware ─────────────────────
@@ -606,6 +616,127 @@ app.post('/api/payment/create-checkout', async (req, res) => {
 });
 
 app.post('/api/payment/verify', (_req, res) => res.json({ success:true, unlocked:true }));
+
+// ───────────────── PayPal 支付 ─────────────────
+
+// PayPal 订单创建
+app.post('/api/payment/paypal/create-order', async (req, res) => {
+    const { plan = 'report' } = req.body;
+    const { paypal: PCFG } = CFG;
+
+    // Demo 模式
+    if (PCFG.demoMode) {
+        const oid = 'PAYPAL_DEMO_' + Date.now().toString(36).toUpperCase();
+        if (db) {
+            try {
+                db.run('INSERT INTO orders(id,report_id,plan,amount,status) VALUES(?,?,?,?,?)',
+                       [oid, req.body.reportId||'demo', plan, 0, 'demo_completed']);
+                saveDB();
+            } catch {}
+        }
+        return res.json({ success:true, demo:true, orderID: oid });
+    }
+
+    try {
+        const priceMap = {
+            monthly: { amount: (CFG.prices.monthly / 100).toFixed(2), name: 'Nexus Ora Premium Monthly' },
+            report:  { amount: (CFG.prices.report  / 100).toFixed(2), name: 'Nexus Ora Full Report' }
+        };
+        const pc = priceMap[plan] || priceMap.report;
+
+        // 初始化 PayPal client
+        const environment = PCFG.mode === 'live'
+            ? new paypalSdk.core.LiveEnvironment(PCFG.clientId, PCFG.clientSecret)
+            : new paypalSdk.core.SandboxEnvironment(PCFG.clientId, PCFG.clientSecret);
+        const client = new paypalSdk.core.PayPalHttpClient(environment);
+
+        // 构建订单请求
+        const orderRequest = new paypalSdk.orders.OrdersCreateRequest();
+        orderRequest.prefer("return=representation");
+        orderRequest.requestBody({
+            intent: 'CAPTURE',
+            purchase_units: [{
+                amount: {
+                    currency_code: PCFG.currency,
+                    value: pc.amount
+                },
+                description: pc.name
+            }],
+            application_context: {
+                return_url: `${process.env.APP_URL || `http://${HOST}:${PORT}`}/?paypal=success`,
+                cancel_url: `${process.env.APP_URL || `http://${HOST}:${PORT}`}/?paypal=cancel`
+            }
+        });
+
+        const response = await client.execute(orderRequest);
+        const orderID = response.result.id;
+
+        // 存库
+        if (db) {
+            try {
+                db.run('INSERT INTO orders(id,report_id,plan,amount,status) VALUES(?,?,?,?,?)',
+                       [orderID, req.body.reportId||'', plan, pc.amount*100, 'pending']);
+                saveDB();
+            } catch(e) { console.error('[PayPal DB]', e.message); }
+        }
+
+        res.json({ success:true, orderID, approvalUrl: response.result.links.find(l => l.rel === 'approve')?.href });
+    } catch(e) {
+        console.error('[PayPal Create]', e.message);
+        res.status(500).json({ success:false, error: e.message });
+    }
+});
+
+// PayPal 订单捕获（用户付款后）
+app.post('/api/payment/paypal/capture', async (req, res) => {
+    const { orderID } = req.body;
+    if (!orderID) return res.status(400).json({ success:false, error: 'Missing orderID' });
+
+    const { paypal: PCFG } = CFG;
+
+    // Demo 模式
+    if (PCFG.demoMode || orderID.startsWith('PAYPAL_DEMO_')) {
+        if (db) {
+            try { db.run('UPDATE orders SET status=? WHERE id=?', ['completed', orderID]); saveDB(); } catch {}
+        }
+        return res.json({ success:true, demo:true });
+    }
+
+    try {
+        // 初始化 PayPal client
+        const environment = PCFG.mode === 'live'
+            ? new paypalSdk.core.LiveEnvironment(PCFG.clientId, PCFG.clientSecret)
+            : new paypalSdk.core.SandboxEnvironment(PCFG.clientId, PCFG.clientSecret);
+        const client = new paypalSdk.core.PayPalHttpClient(environment);
+
+        // 捕获订单
+        const captureRequest = new paypalSdk.orders.OrdersCaptureRequest(orderID);
+        captureRequest.requestBody({});
+
+        const response = await client.execute(captureRequest);
+
+        // 更新订单状态
+        if (db) {
+            try {
+                db.run('UPDATE orders SET status=? WHERE id=?', ['completed', orderID]);
+                saveDB();
+            } catch(e) { console.error('[PayPal Capture DB]', e.message); }
+        }
+
+        res.json({ success:true, captureID: response.result.id });
+    } catch(e) {
+        console.error('[PayPal Capture]', e.message);
+        res.status(500).json({ success:false, error: e.message });
+    }
+});
+
+// PayPal Webhook（可选，用于异步通知）
+app.post('/api/payment/paypal/webhook', async (req, res) => {
+    // TODO: 验证 webhook 签名
+    // TODO: 处理支付事件
+    console.log('[PayPal Webhook]', req.body);
+    res.json({ received: true });
+});
 
 // ══════════════════ 缘分配对 API ══════════════════
 
@@ -1680,6 +1811,8 @@ app.get('/api/market/wishlist', (req, res) => {
 async function start() {
     await initDatabase();
     await initAuthTable();
+    // 加载 PayPal v2 路由
+    paypalRoutes(app, db, saveDB, HOST, PORT);
     app.listen(PORT, HOST, () => {
         console.log('');
         console.log('╔══════════════════════════════════════╗');
