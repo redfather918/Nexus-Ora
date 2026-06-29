@@ -15,6 +15,18 @@ const PCFG = {
     demoMode:    !process.env.PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID === 'YOUR_PAYPAL_CLIENT_ID'
 };
 
+// 运行时更新配置（Admin API 调用）
+function updateConfig(newCfg) {
+    if (newCfg.clientId !== undefined)     PCFG.clientId = newCfg.clientId;
+    if (newCfg.clientSecret !== undefined)  PCFG.clientSecret = newCfg.clientSecret;
+    if (newCfg.mode !== undefined)          PCFG.mode = newCfg.mode;
+    if (newCfg.currency !== undefined)      PCFG.currency = newCfg.currency;
+    if (newCfg.demoMode !== undefined)      PCFG.demoMode = newCfg.demoMode;
+    // 清除缓存的 token
+    accessToken = null;
+    tokenExpiry = 0;
+}
+
 // 访问令牌缓存
 let accessToken = null;
 let tokenExpiry = 0;
@@ -143,5 +155,6 @@ module.exports = {
     createOrder,
     captureOrder,
     getOrder,
-    PCFG
+    PCFG,
+    updateConfig
 };

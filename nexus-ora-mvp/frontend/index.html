@@ -4638,5 +4638,292 @@ function buyDemo(name) {
 })();
 </script>
 
+<!-- ─── Admin Config Page (hidden by default, #admin hash) ─── -->
+<div id="admin-overlay" class="hidden-section" style="position:fixed;inset:0;z-index:99990;background:rgba(10,8,26,.97);overflow-y:auto;">
+  <div style="max-width:640px;margin:0 auto;padding:40px 20px 80px;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;">
+      <h2 style="font-size:22px;font-weight:700;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;" data-i18n="admin_title">⚙️ 系统配置</h2>
+      <button onclick="closeAdmin()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#ccc;padding:8px 18px;border-radius:10px;cursor:pointer;font-size:13px;" data-i18n="admin_close">关闭</button>
+    </div>
+
+    <!-- Login Form -->
+    <div id="admin-login" style="max-width:360px;margin:80px auto 0;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:32px;">
+      <h3 style="font-size:16px;font-weight:600;color:#fff;margin-bottom:6;" data-i18n="admin_login_title">管理员登录</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:20;" data-i18n="admin_login_hint">输入管理员密码以修改系统配置</p>
+      <input type="password" id="admin-password-input" placeholder="请输入密码" data-i18n-placeholder="admin_password_placeholder"
+             style="width:100%;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:14px;outline:none;margin-bottom:14px;box-sizing:border-box;"
+             onkeydown="if(event.key==='Enter')adminDoLogin()">
+      <button onclick="adminDoLogin()" id="admin-login-btn"
+              style="width:100%;padding:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+        <span data-i18n="admin_login_btn">登录</span>
+      </button>
+      <p id="admin-login-err" style="color:#ef4444;font-size:12px;margin-top:10px;display:none;"></p>
+    </div>
+
+    <!-- Config Form (hidden until login) -->
+    <div id="admin-config-form" style="display:none;">
+
+      <!-- PayPal -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;">💙 PayPal 配置</h3>
+        <div style="display:grid;gap:12px;">
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Client ID</label>
+            <input type="text" id="cfg-paypal-client-id" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Client Secret</label>
+            <input type="password" id="cfg-paypal-secret" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Mode</label>
+              <select id="cfg-paypal-mode" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(30,28,50,1);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+                <option value="sandbox">Sandbox (测试)</option>
+                <option value="live">Live (生产)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Currency</label>
+              <input type="text" id="cfg-paypal-currency" value="USD" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            </div>
+          </div>
+          <div id="cfg-paypal-status" style="font-size:12px;padding:8px 12px;border-radius:8px;display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Stripe -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;">💜 Stripe 配置</h3>
+        <div style="display:grid;gap:12px;">
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Secret Key</label>
+            <input type="password" id="cfg-stripe-secret" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Publishable Key</label>
+            <input type="text" id="cfg-stripe-pub" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+      </div>
+
+      <!-- DeepSeek -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;">🤖 DeepSeek AI 配置</h3>
+        <div style="display:grid;gap:12px;">
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">API Key</label>
+            <input type="password" id="cfg-ds-key" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Model</label>
+              <input type="text" id="cfg-ds-model" value="deepseek-chat" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">Timeout (ms)</label>
+              <input type="text" id="cfg-ds-timeout" value="90000" disabled style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#666;font-size:13px;outline:none;box-sizing:border-box;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- General -->
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;">🔧 常规设置</h3>
+        <div style="display:grid;gap:12px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">报告价格 (分)</label>
+              <input type="number" id="cfg-price-report" value="999" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">月费价格 (分)</label>
+              <input type="number" id="cfg-price-monthly" value="2999" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">App URL (回调地址)</label>
+            <input type="text" id="cfg-app-url" placeholder="https://your-domain.com" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">修改管理员密码 (留空不修改)</label>
+            <input type="password" id="cfg-admin-pass" placeholder="新密码" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Save -->
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button onclick="adminSaveConfig()" id="admin-save-btn"
+                style="padding:11px 32px;border-radius:12px;border:none;background:linear-gradient(135deg,#a855f7,#ec4899);color:#fff;font-size:14px;font-weight:600;cursor:pointer;">
+          <span data-i18n="admin_save">保存配置</span>
+        </button>
+        <div id="admin-save-status" style="font-size:13px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Admin Logic ───
+let adminPass = sessionStorage.getItem('nexus_admin_pass') || '';
+
+function openAdmin() {
+    document.getElementById('admin-overlay').classList.remove('hidden-section');
+    if (adminPass) {
+        // 已有密码，直接加载配置
+        document.getElementById('admin-login').style.display = 'none';
+        document.getElementById('admin-config-form').style.display = '';
+        adminLoadConfig();
+    } else {
+        document.getElementById('admin-login').style.display = '';
+        document.getElementById('admin-config-form').style.display = 'none';
+    }
+}
+function closeAdmin() {
+    document.getElementById('admin-overlay').classList.add('hidden-section');
+}
+function adminDoLogin() {
+    const pw = document.getElementById('admin-password-input').value;
+    if (!pw) return;
+    document.getElementById('admin-login-btn').disabled = true;
+    fetch(API_BASE + '/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw })
+    }).then(r => r.json()).then(d => {
+        if (d.success) {
+            adminPass = pw;
+            sessionStorage.setItem('nexus_admin_pass', pw);
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('admin-config-form').style.display = '';
+            document.getElementById('admin-login-err').style.display = 'none';
+            adminLoadConfig();
+        } else {
+            const errEl = document.getElementById('admin-login-err');
+            errEl.textContent = d.error || '密码错误';
+            errEl.style.display = '';
+        }
+    }).catch(e => {
+        const errEl = document.getElementById('admin-login-err');
+        errEl.textContent = '网络错误';
+        errEl.style.display = '';
+    }).finally(() => {
+        document.getElementById('admin-login-btn').disabled = false;
+    });
+}
+function adminLoadConfig() {
+    fetch(API_BASE + '/api/admin/config', {
+        headers: { 'X-Admin-Password': adminPass }
+    }).then(r => r.json()).then(d => {
+        if (!d.success) { closeAdmin(); return; }
+        const c = d.config;
+        document.getElementById('cfg-paypal-client-id').value = c.paypal_client_id || '';
+        document.getElementById('cfg-paypal-secret').value   = c.paypal_client_secret || '';
+        document.getElementById('cfg-paypal-mode').value      = c.paypal_mode || 'sandbox';
+        document.getElementById('cfg-paypal-currency').value  = c.paypal_currency || 'USD';
+        document.getElementById('cfg-stripe-secret').value    = c.stripe_secret_key || '';
+        document.getElementById('cfg-stripe-pub').value       = c.stripe_pub_key || '';
+        document.getElementById('cfg-ds-key').value           = c.deepseek_api_key || '';
+        document.getElementById('cfg-ds-model').value        = c.deepseek_model || 'deepseek-chat';
+        document.getElementById('cfg-price-report').value    = c.prices_report || 999;
+        document.getElementById('cfg-price-monthly').value   = c.prices_monthly || 2999;
+        document.getElementById('cfg-app-url').value         = c.app_url || '';
+        // PayPal 状态
+        const stEl = document.getElementById('cfg-paypal-status');
+        if (c.paypal_demo_mode) {
+            stEl.style.display = '';
+            stEl.style.background = 'rgba(234,179,8,.12)';
+            stEl.style.color = '#eab308';
+            stEl.textContent = '⚠️ Demo 模式（未配置有效 PayPal 凭证）';
+        } else {
+            stEl.style.display = '';
+            stEl.style.background = 'rgba(34,197,94,.12)';
+            stEl.style.color = '#22c55e';
+            stEl.textContent = '✅ PayPal 生产模式已配置（' + c.paypal_mode + '）';
+        }
+    }).catch(e => console.error('[Admin] load config failed', e));
+}
+function adminSaveConfig() {
+    const btn = document.getElementById('admin-save-btn');
+    const stEl = document.getElementById('admin-save-status');
+    btn.disabled = true;
+    stEl.textContent = '保存中...';
+    stEl.style.color = '#a855f7';
+
+    const body = {
+        paypal_client_id:     document.getElementById('cfg-paypal-client-id').value.trim(),
+        paypal_client_secret: document.getElementById('cfg-paypal-secret').value.trim(),
+        paypal_mode:          document.getElementById('cfg-paypal-mode').value,
+        paypal_currency:      document.getElementById('cfg-paypal-currency').value.trim(),
+        stripe_secret_key:    document.getElementById('cfg-stripe-secret').value.trim(),
+        stripe_pub_key:       document.getElementById('cfg-stripe-pub').value.trim(),
+        deepseek_api_key:     document.getElementById('cfg-ds-key').value.trim(),
+        deepseek_model:       document.getElementById('cfg-ds-model').value.trim(),
+        prices_report:        document.getElementById('cfg-price-report').value,
+        prices_monthly:       document.getElementById('cfg-price-monthly').value,
+        app_url:              document.getElementById('cfg-app-url').value.trim(),
+    };
+    const newPass = document.getElementById('cfg-admin-pass').value;
+    if (newPass) body.admin_password = newPass;
+
+    fetch(API_BASE + '/api/admin/config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Password': adminPass
+        },
+        body: JSON.stringify(body)
+    }).then(r => r.json()).then(d => {
+        if (d.success) {
+            stEl.textContent = '✅ 配置已保存！';
+            stEl.style.color = '#22c55e';
+            if (newPass) {
+                adminPass = newPass;
+                sessionStorage.setItem('nexus_admin_pass', newPass);
+                document.getElementById('cfg-admin-pass').value = '';
+            }
+            // 刷新 PayPal 状态
+            const psEl = document.getElementById('cfg-paypal-status');
+            if (d.paypal_demo_mode) {
+                psEl.style.background = 'rgba(234,179,8,.12)'; psEl.style.color = '#eab308';
+                psEl.textContent = '⚠️ Demo 模式（未配置有效 PayPal 凭证）';
+            } else {
+                psEl.style.background = 'rgba(34,197,94,.12)'; psEl.style.color = '#22c55e';
+                psEl.textContent = '✅ PayPal 已配置（' + body.paypal_mode + '）';
+            }
+            psEl.style.display = '';
+            setTimeout(() => { stEl.textContent = ''; }, 3000);
+        } else {
+            stEl.textContent = '❌ ' + (d.error || '保存失败');
+            stEl.style.color = '#ef4444';
+        }
+    }).catch(e => {
+        stEl.textContent = '❌ 网络错误';
+        stEl.style.color = '#ef4444';
+    }).finally(() => {
+        btn.disabled = false;
+    });
+}
+
+// 路由：URL hash #admin 打开管理页
+(function() {
+    function checkAdminHash() {
+        if (window.location.hash === '#admin') {
+            openAdmin();
+        }
+    }
+    window.addEventListener('hashchange', checkAdminHash);
+    // 页面加载时也检查（放在 DOMContentLoaded 里）
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAdminHash);
+    } else {
+        checkAdminHash();
+    }
+})();
+</script>
+
 </body>
 </html>

@@ -38,7 +38,8 @@ const CFG = {
         mode:        process.env.PAYPAL_MODE || 'sandbox', // sandbox | live
         currency:    'USD',
         demoMode:    !process.env.PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID === 'YOUR_PAYPAL_CLIENT_ID'
-    }
+    },
+    adminPassword: process.env.ADMIN_PASSWORD || 'nexusadmin'
 };
 
 // ───────────────────────── Middleware ─────────────────────
@@ -156,12 +157,80 @@ async function initDatabase() {
         item_type TEXT,
         created_at TEXT DEFAULT (datetime('now')))`);
 
+    // v4.4 Admin Config Table
+    db.run(`CREATE TABLE IF NOT EXISTS app_config (
+        key   TEXT PRIMARY KEY,
+        value TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+    )`);
+
     saveDB();
     console.log('[DB] initialized');
 }
 
 function saveDB() {
     if (db) fs.writeFileSync(CFG.db, Buffer.from(db.export()));
+}
+
+// ───────────────────────── Config Helpers ──────────────────
+
+/**
+ * 从 DB 读取配置，返回 value 或 defaultValue
+ */
+function dbConfigGet(key, defaultValue = '') {
+    if (!db) return defaultValue;
+    try {
+        const r = db.exec('SELECT value FROM app_config WHERE key=?', [key]);
+        if (r.length && r[0].values.length) return r[0].values[0][0];
+    } catch {}
+    return defaultValue;
+}
+
+/**
+ * 写入配置到 DB（upsert）
+ */
+function dbConfigSet(key, value) {
+    if (!db) return;
+    try {
+        const r = db.exec('SELECT key FROM app_config WHERE key=?', [key]);
+        if (r.length && r[0].values.length) {
+            db.run('UPDATE app_config SET value=?, updated_at=datetime("now") WHERE key=?', [value, key]);
+        } else {
+            db.run('INSERT INTO app_config(key,value,updated_at) VALUES(?,?,datetime("now"))', [key, value]);
+        }
+        saveDB();
+    } catch(e) { console.error('[Config] set error:', e.message); }
+}
+
+/**
+ * 启动时从 DB 加载配置到 CFG（DB 优先，env 作为初始默认值）
+ */
+function loadConfigFromDB() {
+    if (!db) return;
+    // PayPal
+    const paypalClientId = dbConfigGet('paypal_client_id', process.env.PAYPAL_CLIENT_ID || '');
+    const paypalClientSecret = dbConfigGet('paypal_client_secret', process.env.PAYPAL_CLIENT_SECRET || '');
+    const paypalMode = dbConfigGet('paypal_mode', process.env.PAYPAL_MODE || 'sandbox');
+    if (paypalClientId) {
+        CFG.paypal.clientId = paypalClientId;
+        CFG.paypal.demoMode = (paypalClientId === 'YOUR_PAYPAL_CLIENT_ID' || paypalClientId === '');
+    }
+    if (paypalClientSecret) CFG.paypal.clientSecret = paypalClientSecret;
+    CFG.paypal.mode = paypalMode;
+
+    // Stripe
+    const stripeKey = dbConfigGet('stripe_secret_key', process.env.STRIPE_SECRET_KEY || '');
+    if (stripeKey) CFG.stripeKey = stripeKey; // if we add stripe to CFG
+
+    // DeepSeek
+    const dsKey = dbConfigGet('deepseek_api_key', process.env.DEEPSEEK_API_KEY || '');
+    if (dsKey) CFG.deepseek.apiKey = dsKey;
+
+    // Admin password
+    const adminPass = dbConfigGet('admin_password', '');
+    if (adminPass) CFG.adminPassword = adminPass;
+
+    console.log('[Config] loaded from DB');
 }
 
 // ───────────────────────── LLM ────────────────────────────
@@ -1806,11 +1875,137 @@ app.get('/api/market/wishlist', (req, res) => {
     } catch(e) { res.status(500).json({ success:false, error:e.message }); }
 });
 
+// ───────────────────────── Admin Config API ───────────────
+
+/**
+ * 简单 admin 密码验证中间件（从 Header 读取 X-Admin-Password）
+ * 也支持从 DB 动态读取（允许 Admin 修改自己的密码）
+ */
+function requireAdmin(req, res) {
+    const sent = req.headers['x-admin-password'] || req.body?.adminPassword || '';
+    const currentPassword = dbConfigGet('admin_password', CFG.adminPassword);
+    if (sent !== currentPassword) {
+        return res.status(401).json({ success: false, error: 'Unauthorized' });
+    }
+    return true;
+}
+
+// POST /api/admin/login - 验证管理员密码
+app.post('/api/admin/login', (req, res) => {
+    const { password } = req.body;
+    const currentPassword = dbConfigGet('admin_password', CFG.adminPassword);
+    if (password === currentPassword) {
+        res.json({ success: true });
+    } else {
+        res.status(401).json({ success: false, error: '密码错误' });
+    }
+});
+
+// GET /api/admin/config - 读取所有配置（密码保护）
+app.get('/api/admin/config', (req, res) => {
+    if (requireAdmin(req, res) !== true) return;
+    try {
+        const config = {
+            paypal_client_id:     dbConfigGet('paypal_client_id', CFG.paypal.clientId),
+            paypal_client_secret: dbConfigGet('paypal_client_secret', CFG.paypal.clientSecret),
+            paypal_mode:          dbConfigGet('paypal_mode', CFG.paypal.mode),
+            paypal_currency:      dbConfigGet('paypal_currency', CFG.paypal.currency || 'USD'),
+            stripe_secret_key:    dbConfigGet('stripe_secret_key', process.env.STRIPE_SECRET_KEY || ''),
+            stripe_pub_key:       dbConfigGet('stripe_pub_key', process.env.STRIPE_PUBLISHABLE_KEY || ''),
+            deepseek_api_key:     dbConfigGet('deepseek_api_key', CFG.deepseek.apiKey),
+            deepseek_model:       dbConfigGet('deepseek_model', CFG.deepseek.model),
+            deepseek_url:         dbConfigGet('deepseek_url', CFG.deepseek.url),
+            admin_password:       '', // 不返回当前密码
+            app_url:              dbConfigGet('app_url', process.env.APP_URL || ''),
+            prices_report:        dbConfigGet('prices_report', String(CFG.prices.report)),
+            prices_monthly:       dbConfigGet('prices_monthly', String(CFG.prices.monthly)),
+            paypal_demo_mode:     CFG.paypal.demoMode
+        };
+        res.json({ success: true, config });
+    } catch(e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
+// POST /api/admin/config - 更新配置（密码保护）
+app.post('/api/admin/config', (req, res) => {
+    if (requireAdmin(req, res) !== true) return;
+    try {
+        const { paypal_client_id, paypal_client_secret, paypal_mode, paypal_currency,
+                stripe_secret_key, stripe_pub_key,
+                deepseek_api_key, deepseek_model, deepseek_url,
+                admin_password, app_url,
+                prices_report, prices_monthly } = req.body;
+
+        // PayPal
+        if (paypal_client_id !== undefined) {
+            dbConfigSet('paypal_client_id', paypal_client_id);
+            CFG.paypal.clientId = paypal_client_id;
+            CFG.paypal.demoMode = (!paypal_client_id || paypal_client_id === 'YOUR_PAYPAL_CLIENT_ID');
+        }
+        if (paypal_client_secret !== undefined) {
+            dbConfigSet('paypal_client_secret', paypal_client_secret);
+            CFG.paypal.clientSecret = paypal_client_secret;
+        }
+        if (paypal_mode !== undefined) {
+            dbConfigSet('paypal_mode', paypal_mode);
+            CFG.paypal.mode = paypal_mode;
+        }
+        if (paypal_currency !== undefined) {
+            dbConfigSet('paypal_currency', paypal_currency);
+            CFG.paypal.currency = paypal_currency;
+        }
+
+        // Stripe
+        if (stripe_secret_key !== undefined) dbConfigSet('stripe_secret_key', stripe_secret_key);
+        if (stripe_pub_key !== undefined)    dbConfigSet('stripe_pub_key', stripe_pub_key);
+
+        // DeepSeek
+        if (deepseek_api_key !== undefined) {
+            dbConfigSet('deepseek_api_key', deepseek_api_key);
+            CFG.deepseek.apiKey = deepseek_api_key;
+        }
+        if (deepseek_model !== undefined) {
+            dbConfigSet('deepseek_model', deepseek_model);
+            CFG.deepseek.model = deepseek_model;
+        }
+        if (deepseek_url !== undefined) dbConfigSet('deepseek_url', deepseek_url);
+
+        // Admin password
+        if (admin_password !== undefined && admin_password) {
+            dbConfigSet('admin_password', admin_password);
+            CFG.adminPassword = admin_password;
+        }
+
+        // App URL
+        if (app_url !== undefined) dbConfigSet('app_url', app_url);
+
+        // Prices
+        if (prices_report !== undefined) {
+            dbConfigSet('prices_report', prices_report);
+            CFG.prices.report = parseInt(prices_report) || 999;
+        }
+        if (prices_monthly !== undefined) {
+            dbConfigSet('prices_monthly', prices_monthly);
+            CFG.prices.monthly = parseInt(prices_monthly) || 2999;
+        }
+
+        // 同步 paypal.js 的运行时配置（如果已加载）
+        try { paypal.updateConfig?.(CFG.paypal); } catch {}
+
+        res.json({ success: true, message: '配置已保存', paypal_demo_mode: CFG.paypal.demoMode });
+    } catch(e) {
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ───────────────────────── Start ──────────────────────────
 
 async function start() {
     await initDatabase();
     await initAuthTable();
+    // 从 DB 加载配置到 CFG（覆盖 env 默认值）
+    loadConfigFromDB();
     // 加载 PayPal v2 路由
     paypalRoutes(app, db, saveDB, HOST, PORT);
     app.listen(PORT, HOST, () => {
