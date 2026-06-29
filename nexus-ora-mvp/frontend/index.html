@@ -332,6 +332,14 @@ var _hmt = _hmt || [];
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
       <span>建立档案</span>
     </button>
+    <!-- Membership Chip -->
+    <button id="membership-chip" onclick="openMembershipModal()" title="会员中心" style="display:none;">
+      <span style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:1px;">VIP</span>
+      <span id="membership-chip-label" style="font-size:11px;color:#F59E0B;font-weight:600;"></span>
+    </button>
+    <button id="membership-chip-empty" onclick="openMembershipModal()" title="升级会员">
+      <span style="font-size:11px;color:#A855F7;font-weight:600;">升级会员</span>
+    </button>
     <span id="server-dot" class="w-2 h-2 rounded-full bg-gray-600"></span>
     <span class="text-xs text-gray-500" id="server-label">connecting</span>
   </div>
@@ -794,9 +802,8 @@ var _hmt = _hmt || [];
           <p class="text-lg font-semibold mb-1" data-i18n="paywall_title">解锁完整报告</p>
           <p class="text-sm text-gray-400 mb-5" data-i18n="paywall_subtitle">查看完整百年运势曲线与六维深度解读</p>
           <div class="flex gap-3 justify-center flex-wrap">
-            <button onclick="handleUnlock('pay')" class="btn-primary text-sm px-5 py-2.5">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              <span data-i18n="btn_unlock_pay">解锁报告 (¥9.99)</span>
+            <button onclick="openMembershipModal()" class="btn-primary text-sm px-5 py-2.5" style="background:linear-gradient(135deg,#F59E0B,#EF4444);border-color:#F59E0B;">
+              <span data-i18n="btn_upgrade_vip">👑 升级会员</span>
             </button>
             <button onclick="handleUnlock('paypal')" class="btn-primary text-sm px-5 py-2.5" style="background:#FFC439;color:#000;border-color:#FFC439;">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M7.076 21.4c-3.67 0-6.076-2.652-6.076-5.5 0-2.843 2.406-5.5 6.076-5.5 3.67 0 6.076 2.652 6.076 5.5 0 2.848-2.406 5.5-6.076 5.5zm12.848 0c-3.67 0-6.076-2.652-6.076-5.5 0-2.843 2.406-5.5 6.076-5.5 3.67 0 6.076 2.652 6.076 5.5 0 2.848-2.406 5.5-6.076 5.5z"/></svg>
@@ -1353,6 +1360,13 @@ var _hmt = _hmt || [];
 
 <footer class="text-center py-8 text-xs text-gray-700">
   <span data-i18n="footer">Nexus Ora v4.2 © 2026 · AI Soul Companion · AI算命 + 八字排盘 + 紫微斗数 · 东方玄学 × 现代AI</span>
+  <div class="mt-4 flex justify-center">
+    <a href="https://www.producthunt.com/posts/geo-audit-2?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-geo-audit-2" target="_blank" rel="noopener">
+      <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1144196&theme=dark"
+           alt="GEO Audit - Free AI Visibility Audit for ChatGPT & Google AI Search | Product Hunt"
+           style="width: 250px; height: 54px;" width="250" height="54" />
+    </a>
+  </div>
 </footer>
 
 <!-- ══════════════════ Scripts ══════════════════ -->
@@ -1392,6 +1406,22 @@ const I18N = {
     btn_unlock_pay: '解锁报告 (¥9.99)', btn_unlock_share: '分享解锁',
     btn_unlock_paypal: 'PayPal 支付 ($9.99)',
     paywall_demo_hint: 'Demo模式 · 分享给好友即可免费解锁',
+    btn_upgrade_vip: '👑 升级会员',
+    // Membership
+    mem_title: '升级 Nexus Ora 会员', mem_subtitle: '解锁全部 AI 玄学能力 · 深度报告无限读',
+    mem_monthly: '月度会员', mem_popular: '热门',
+    mem_monthly_desc: '全部模块 · AI 深度解读 · 无限报告',
+    mem_annual: '年度会员', mem_best_value: '省50%',
+    mem_annual_desc: '月度全部权益 · 优先支持 · 专属客服',
+    mem_report: '单次报告解锁',
+    mem_report_desc: '解锁当前报告 · 永久有效',
+    mem_demo_hint: 'Demo 模式 · 点击下方按钮模拟支付',
+    mem_demo_btn: '模拟支付并激活',
+    mem_features_title: '会员权益',
+    mem_feat1: '全部 8 大模块', mem_feat2: 'AI 深度解读',
+    mem_feat3: '无限完整报告', mem_feat4: '无付费墙拦截',
+    mem_feat5: '八字 + 紫微斗数', mem_feat6: '梦境解析',
+    mem_secure: '🔒 支付由 PayPal 安全加密处理',
     // Summary cards
     sum_peak_label: '峰值年龄', sum_peak_sub: '运势巅峰',
     sum_valley_label: '低谷年龄', sum_valley_sub: '谨慎时期',
@@ -1981,6 +2011,233 @@ function updateProfileUI() {
     chip.style.display = 'none';
     chipEmpty.style.display = 'inline-flex';
   }
+}
+
+// ════════════════════════════════════════════════
+//  会员系统 (v5.0)
+// ════════════════════════════════════════════════
+let membershipState = { tier: 'free', is_premium: false, has_report_access: false, expires: null };
+let selectedMemPlan = null;
+
+// 获取认证头（从 localStorage 读取 token）
+function getAuthHeaders() {
+  const token = localStorage.getItem('nexus_token');
+  return token ? { 'Authorization': 'Bearer ' + token } : {};
+}
+
+async function checkMembershipStatus() {
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 5000);
+    const res = await fetch(API_BASE + '/api/membership/status', {
+      headers: getAuthHeaders(),
+      signal: ctrl.signal
+    });
+    const data = await res.json();
+    if (data.code === 0 && data.membership) {
+      membershipState = {
+        tier: data.membership.membership_tier || 'free',
+        is_premium: data.membership.is_premium || false,
+        has_report_access: data.membership.has_report_access || false,
+        expires: data.membership.membership_expires || null
+      };
+      // 如果是会员，自动解锁报告
+      if (membershipState.has_report_access) {
+        isUnlocked = true;
+        const pw = document.getElementById('paywall');
+        if (pw) pw.classList.add('hidden');
+      }
+    }
+    updateMembershipUI();
+  } catch(e) {
+    updateMembershipUI();
+  }
+}
+
+function updateMembershipUI() {
+  const chip      = document.getElementById('membership-chip');
+  const chipEmpty = document.getElementById('membership-chip-empty');
+  if (!chip || !chipEmpty) return;
+
+  if (membershipState.is_premium) {
+    chip.style.display = 'inline-flex';
+    chipEmpty.style.display = 'none';
+    const labelEl = document.getElementById('membership-chip-label');
+    if (labelEl) {
+      labelEl.textContent = membershipState.tier === 'premium_annual' ? '年度' : '月度';
+    }
+  } else if (membershipState.has_report_access) {
+    chip.style.display = 'inline-flex';
+    chipEmpty.style.display = 'none';
+    const labelEl = document.getElementById('membership-chip-label');
+    if (labelEl) labelEl.textContent = '已解锁';
+  } else {
+    chip.style.display = 'none';
+    chipEmpty.style.display = 'inline-flex';
+  }
+}
+
+function openMembershipModal() {
+  const modal = document.getElementById('membership-modal');
+  if (modal) modal.style.display = 'flex';
+
+  // 显示当前会员状态
+  const statusEl = document.getElementById('mem-current-status');
+  const labelEl  = document.getElementById('mem-current-label');
+  const expEl    = document.getElementById('mem-current-expires');
+  if (membershipState.is_premium) {
+    if (statusEl) statusEl.style.display = 'block';
+    if (labelEl) labelEl.textContent = membershipState.tier === 'premium_annual' ? '年度会员 · 生效中' : '月度会员 · 生效中';
+    if (expEl && membershipState.expires) expEl.textContent = '到期: ' + new Date(membershipState.expires).toLocaleDateString();
+  } else if (membershipState.has_report_access) {
+    if (statusEl) statusEl.style.display = 'block';
+    if (labelEl) labelEl.textContent = '单次报告 · 已解锁';
+    if (expEl) expEl.textContent = '永久有效';
+  } else {
+    if (statusEl) statusEl.style.display = 'none';
+  }
+
+  // 检查是否 Demo 模式
+  checkDemoMode();
+}
+
+function closeMembershipModal() {
+  const modal = document.getElementById('membership-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+// 点击遮罩关闭
+(function() {
+  const _mm = document.getElementById('membership-modal');
+  if (_mm) _mm.addEventListener('click', e => {
+    if (e.target === _mm) closeMembershipModal();
+  });
+})();
+
+function selectMemPlan(plan) {
+  selectedMemPlan = plan;
+  // 高亮选中
+  document.querySelectorAll('.mem-plan-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('mem-plan-' + (plan === 'premium_monthly' ? 'monthly' : plan === 'premium_annual' ? 'annual' : 'report'));
+  if (card) card.classList.add('selected');
+
+  // 发起支付
+  if (plan === 'report') {
+    // 单次报告：走原有 paywall 流程
+    closeMembershipModal();
+    if (reportData && reportData.report_id) {
+      handleUnlock('paypal');
+    } else {
+      showToast('请先生成排盘报告后再解锁', '#F59E0B');
+    }
+  } else {
+    // 月度/年度：走会员订阅流程
+    startPayPalMembership(plan);
+  }
+}
+
+async function checkDemoMode() {
+  try {
+    const res = await fetch(API_BASE + '/api/admin/config');
+    const data = await res.json();
+    if (data.code === 0 && data.config && data.config.paypal_demo_mode) {
+      document.getElementById('mem-demo-hint').style.display = 'block';
+    }
+  } catch {}
+}
+
+async function startPayPalMembership(plan) {
+  showToast('正在创建订单...', '#A855F7');
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 10000);
+
+    // 获取 userId（从登录态或本地存储）
+    const userId = localStorage.getItem('nexus_user_id') || null;
+
+    const res = await fetch(API_BASE + '/api/payment/paypal-v2/create-membership', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ plan, userId }),
+      signal: ctrl.signal
+    });
+    const data = await res.json();
+
+    if (data.demo || !data.approvalUrl) {
+      // Demo 模式：直接捕获并激活
+      await captureAndActivateMembership(data.orderID, plan, userId);
+    } else {
+      // 跳转 PayPal 支付页面
+      const returnUrl = window.location.origin + window.location.pathname + '?paypal=success&orderID=' + data.orderID + '&plan=' + plan + '&membership=1';
+      window.location.href = data.approvalUrl + '&return_url=' + encodeURIComponent(returnUrl);
+    }
+  } catch(e) {
+    console.error('[Membership] PayPal error:', e);
+    showToast('支付创建失败，请稍后重试', '#EF4444');
+  }
+}
+
+async function captureAndActivateMembership(orderID, plan, userId) {
+  try {
+    const res = await fetch(API_BASE + '/api/payment/paypal-v2/capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+      body: JSON.stringify({ orderID, userId, plan })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      // 激活会员
+      const actRes = await fetch(API_BASE + '/api/membership/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ plan, orderID })
+      });
+      const actData = await actRes.json();
+
+      if (actData.code === 0) {
+        membershipState = {
+          tier: actData.membership.membership_tier,
+          is_premium: actData.membership.is_premium,
+          has_report_access: actData.membership.has_report_access,
+          expires: actData.membership.membership_expires
+        };
+        updateMembershipUI();
+        closeMembershipModal();
+
+        if (membershipState.has_report_access) {
+          isUnlocked = true;
+          const pw = document.getElementById('paywall');
+          if (pw) pw.classList.add('hidden');
+          chartMain?.resize();
+        }
+
+        showToast(plan === 'premium_annual' ? '👑 年度会员激活成功！' : '👑 月度会员激活成功！', '#F59E0B');
+      } else {
+        showToast('支付成功但激活失败: ' + (actData.msg || '未知错误'), '#EF4444');
+      }
+    } else {
+      showToast('支付捕获失败: ' + (data.error || ''), '#EF4444');
+    }
+  } catch(e) {
+    console.error('[Membership] capture error:', e);
+    showToast('支付验证失败，请联系客服', '#EF4444');
+  }
+}
+
+async function demoActivateMembership() {
+  if (!selectedMemPlan || selectedMemPlan === 'report') {
+    // 如果没选计划，默认月度
+    selectedMemPlan = 'premium_monthly';
+  }
+  const userId = localStorage.getItem('nexus_user_id') || null;
+  await captureAndActivateMembership('PAYPAL_DEMO_' + Date.now().toString(36).toUpperCase(), selectedMemPlan, userId);
+}
+
+// 处理 PayPal 会员支付返回
+async function handleMembershipReturn(orderID, plan) {
+  const userId = localStorage.getItem('nexus_user_id') || null;
+  await captureAndActivateMembership(orderID, plan, userId);
 }
 
 function applyProfileToForms() {
@@ -2696,6 +2953,14 @@ function renderDimensions() {
 
 // ── Unlock ────────────────────────────────────
 async function handleUnlock(method) {
+  // v5.0: 会员用户自动解锁，无需付费
+  if (membershipState.has_report_access) {
+    isUnlocked = true;
+    document.getElementById('paywall').classList.add('hidden');
+    chartMain?.resize();
+    showToast('✅ 会员权益已生效，报告已解锁', '#F59E0B');
+    return;
+  }
   if (method === 'paypal') {
     // PayPal 支付（使用 v2 接口）
     try {
@@ -4570,6 +4835,111 @@ function buyDemo(name) {
     <p class="text-center text-xs text-gray-600 mt-3">数据仅存储于本地浏览器 · 不上传服务器</p>
   </div>
 </div>
+
+<!-- ═══════════════ 会员中心 Modal (v5.0) ═══════════════ -->
+<div id="membership-modal" style="display:none;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px;">
+  <div id="membership-modal-box" style="background:linear-gradient(180deg,#1A1630 0%,#0F0A1F 100%);border:1px solid rgba(245,158,11,.2);border-radius:24px;padding:0;width:100%;max-width:440px;position:relative;overflow:hidden;animation:slide-up .3s ease-out;">
+    <button onclick="closeMembershipModal()" style="position:absolute;top:16px;right:16px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#9CA3AF;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+
+    <!-- Header -->
+    <div style="text-align:center;padding:36px 24px 20px;background:radial-gradient(ellipse at top,rgba(245,158,11,.12),transparent 70%);">
+      <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:28px;">👑</div>
+      <h3 class="text-xl font-bold text-white mb-1" data-i18n="mem_title">升级 Nexus Ora 会员</h3>
+      <p class="text-xs text-gray-500" data-i18n="mem_subtitle">解锁全部 AI 玄学能力 · 深度报告无限读</p>
+    </div>
+
+    <!-- 当前会员状态 -->
+    <div id="mem-current-status" style="display:none;margin:0 24px 16px;padding:14px 16px;border-radius:14px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-green-400 text-sm">✓</span>
+          <span class="text-xs text-green-400 font-semibold" id="mem-current-label">--</span>
+        </div>
+        <span class="text-xs text-gray-500" id="mem-current-expires"></span>
+      </div>
+    </div>
+
+    <!-- 定价方案 -->
+    <div style="padding:0 24px 24px;">
+
+      <!-- 月度会员 -->
+      <div id="mem-plan-monthly" class="mem-plan-card" onclick="selectMemPlan('premium_monthly')" style="border:2px solid rgba(168,85,247,.3);border-radius:16px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-sm font-bold text-white" data-i18n="mem_monthly">月度会员</span>
+              <span style="font-size:9px;padding:2px 8px;border-radius:20px;background:rgba(168,85,247,.2);color:#C084FC;font-weight:600;" data-i18n="mem_popular">热门</span>
+            </div>
+            <p class="text-xs text-gray-500" data-i18n="mem_monthly_desc">全部模块 · AI 深度解读 · 无限报告</p>
+          </div>
+          <div class="text-right">
+            <div style="font-size:22px;font-weight:800;color:#fff;">$9.99<span style="font-size:12px;color:#6B7280;font-weight:400;">/mo</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 年度会员 -->
+      <div id="mem-plan-annual" class="mem-plan-card" onclick="selectMemPlan('premium_annual')" style="border:2px solid rgba(245,158,11,.3);border-radius:16px;padding:18px;margin-bottom:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;right:0;background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;font-size:9px;font-weight:700;padding:3px 10px;border-bottom-left-radius:10px;" data-i18n="mem_best_value">省50%</div>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-sm font-bold text-white" data-i18n="mem_annual">年度会员</span>
+            </div>
+            <p class="text-xs text-gray-500" data-i18n="mem_annual_desc">月度全部权益 · 优先支持 · 专属客服</p>
+          </div>
+          <div class="text-right">
+            <div style="font-size:22px;font-weight:800;color:#F59E0B;">$59.99<span style="font-size:12px;color:#6B7280;font-weight:400;">/yr</span></div>
+            <div style="font-size:10px;color:#6B7280;text-decoration:line-through;">$119.88</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 单次报告 -->
+      <div id="mem-plan-report" class="mem-plan-card" onclick="selectMemPlan('report')" style="border:2px solid rgba(255,255,255,.08);border-radius:16px;padding:18px;margin-bottom:16px;cursor:pointer;transition:all .2s;">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-sm font-bold text-white" data-i18n="mem_report">单次报告解锁</span>
+            </div>
+            <p class="text-xs text-gray-500" data-i18n="mem_report_desc">解锁当前报告 · 永久有效</p>
+          </div>
+          <div class="text-right">
+            <div style="font-size:22px;font-weight:800;color:#fff;">$9.99</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PayPal 按钮容器 -->
+      <div id="paypal-button-container" style="min-height:50px;margin-bottom:12px;"></div>
+
+      <!-- Demo 模式提示 -->
+      <div id="mem-demo-hint" style="display:none;text-align:center;padding:10px;border-radius:12px;background:rgba(168,85,247,.08);border:1px dashed rgba(168,85,247,.2);margin-bottom:12px;">
+        <p class="text-xs text-purple-300" data-i18n="mem_demo_hint">Demo 模式 · 点击下方按钮模拟支付</p>
+        <button onclick="demoActivateMembership()" class="btn-primary mt-2" style="padding:10px 24px;font-size:13px;" data-i18n="mem_demo_btn">模拟支付并激活</button>
+      </div>
+
+      <!-- 功能对比 -->
+      <div style="padding:14px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);">
+        <p class="text-xs text-gray-400 mb-2 font-semibold" data-i18n="mem_features_title">会员权益</p>
+        <div class="grid grid-cols-2 gap-1.5 text-xs text-gray-500">
+          <div>✓ <span data-i18n="mem_feat1">全部 8 大模块</span></div>
+          <div>✓ <span data-i18n="mem_feat2">AI 深度解读</span></div>
+          <div>✓ <span data-i18n="mem_feat3">无限完整报告</span></div>
+          <div>✓ <span data-i18n="mem_feat4">无付费墙拦截</span></div>
+          <div>✓ <span data-i18n="mem_feat5">八字 + 紫微斗数</span></div>
+          <div>✓ <span data-i18n="mem_feat6">梦境解析</span></div>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-gray-600 mt-3" data-i18n="mem_secure">🔒 支付由 PayPal 安全加密处理</p>
+    </div>
+  </div>
+</div>
+<style>
+.mem-plan-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.mem-plan-card.selected{border-color:#F59E0B !important;background:rgba(245,158,11,.05);}
+</style>
 
 <!-- ═══════════════ 分享卡片 Modal ═══════════════ -->
 <div id="share-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow-y:auto;padding:20px;">

@@ -73,8 +73,11 @@ async function getAccessToken() {
 // 创建订单
 async function createOrder(plan = 'report', reportId = '', host = '127.0.0.1', port = '3000') {
     const priceMap = {
-        monthly: { amount: (29.99).toFixed(2), name: 'Nexus Ora Premium Monthly' },
-        report:  { amount: (9.99).toFixed(2), name: 'Nexus Ora Full Report' }
+        monthly:         { amount: (9.99).toFixed(2),  name: 'Nexus Ora Premium Monthly' },
+        annual:          { amount: (59.99).toFixed(2), name: 'Nexus Ora Premium Annual' },
+        report:          { amount: (9.99).toFixed(2),  name: 'Nexus Ora Full Report' },
+        premium_monthly: { amount: (9.99).toFixed(2),  name: 'Nexus Ora Premium Monthly' },
+        premium_annual:  { amount: (59.99).toFixed(2), name: 'Nexus Ora Premium Annual' },
     };
     const pc = priceMap[plan] || priceMap.report;
     

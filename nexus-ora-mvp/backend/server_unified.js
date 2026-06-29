@@ -68,6 +68,12 @@ async function initDatabase() {
         { table: 'fortune_reports', col: 'llm_enhanced', sql: 'ALTER TABLE fortune_reports ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
         { table: 'dreams',       col: 'llm_enhanced', sql: 'ALTER TABLE dreams ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
         { table: 'divination_log',col:'llm_enhanced', sql: 'ALTER TABLE divination_log ADD COLUMN llm_enhanced INTEGER DEFAULT 0' },
+        // v5.0 Membership system
+        { table: 'auth_users', col: 'membership_tier',    sql: 'ALTER TABLE auth_users ADD COLUMN membership_tier TEXT DEFAULT "free"' },
+        { table: 'auth_users', col: 'membership_expires',  sql: 'ALTER TABLE auth_users ADD COLUMN membership_expires TEXT' },
+        { table: 'auth_users', col: 'membership_started',  sql: 'ALTER TABLE auth_users ADD COLUMN membership_started TEXT' },
+        { table: 'orders',     col: 'user_id',             sql: 'ALTER TABLE orders ADD COLUMN user_id TEXT' },
+        { table: 'orders',     col: 'paypal_order_id',     sql: 'ALTER TABLE orders ADD COLUMN paypal_order_id TEXT' },
     ];
     for (const m of migrations) {
         try {
@@ -162,6 +168,19 @@ async function initDatabase() {
         key   TEXT PRIMARY KEY,
         value TEXT,
         updated_at TEXT DEFAULT (datetime('now'))
+    )`);
+
+    // v5.0 Membership Subscriptions
+    db.run(`CREATE TABLE IF NOT EXISTS subscriptions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        plan TEXT,
+        amount INTEGER,
+        status TEXT DEFAULT 'pending',
+        paypal_order_id TEXT,
+        started_at TEXT,
+        expires_at TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
     )`);
 
     saveDB();
@@ -509,6 +528,9 @@ async function initAuthTable() {
         openid TEXT UNIQUE,
         nickname TEXT,
         avatar TEXT,
+        membership_tier TEXT DEFAULT 'free',
+        membership_expires TEXT,
+        membership_started TEXT,
         created_at TEXT DEFAULT (datetime('now'))
     )`);
     console.log('[AUTH] auth_users table ready');
@@ -544,14 +566,15 @@ app.post('/api/auth/phone-login', (req, res) => {
     smsStore.delete(phone);  // 一次性使用
 
     // 查/建用户
-    let rows = db.exec(`SELECT id, phone, nickname, avatar FROM auth_users WHERE phone='${phone}'`);
+    let rows = db.exec('SELECT id, phone, nickname, avatar, membership_tier, membership_expires FROM auth_users WHERE phone=?', [phone]);
     let user;
-    if (rows[0]) {
-        user = { id: rows[0].values[0][0], phone: rows[0].values[0][1], nickname: rows[0].values[0][2], avatar: rows[0].values[0][3] };
+    if (rows[0] && rows[0].values.length) {
+        const r = rows[0].values[0];
+        user = { id: r[0], phone: r[1], nickname: r[2], avatar: r[3], membership_tier: r[4] || 'free', membership_expires: r[5] };
     } else {
-        db.run(`INSERT INTO auth_users (phone, nickname) VALUES ('${phone}', '用户${phone.slice(-4)}')`);
-        const lastId = db.exec(`SELECT last_insert_rowid()`)[0].values[0][0];
-        user = { id: lastId, phone, nickname: `用户${phone.slice(-4)}`, avatar: '' };
+        db.run('INSERT INTO auth_users (phone, nickname) VALUES (?, ?)', [phone, `用户${phone.slice(-4)}`]);
+        const lastId = db.exec('SELECT last_insert_rowid()')[0].values[0][0];
+        user = { id: lastId, phone, nickname: `用户${phone.slice(-4)}`, avatar: '', membership_tier: 'free', membership_expires: null };
     }
     const token = genToken();
     tokenStore.set(token, { userId: user.id, phone: user.phone, createdAt: Date.now() });
@@ -562,10 +585,12 @@ app.post('/api/auth/phone-login', (req, res) => {
 app.get('/api/auth/me', (req, res) => {
     const s = getSession(req);
     if (!s) return res.status(401).json({ code: 1, msg: '未登录' });
-    const rows = db.exec(`SELECT id, phone, nickname, avatar FROM auth_users WHERE id=${s.userId}`);
-    if (!rows[0]) return res.status(404).json({ code: 1, msg: '用户不存在' });
-    const [id, phone, nickname, avatar] = rows[0].values[0];
-    res.json({ code: 0, user: { id, phone, nickname, avatar } });
+    const rows = db.exec('SELECT id, phone, nickname, avatar, membership_tier, membership_expires, membership_started FROM auth_users WHERE id=?', [s.userId]);
+    if (!rows[0] || !rows[0].values.length) return res.status(404).json({ code: 1, msg: '用户不存在' });
+    const [id, phone, nickname, avatar, mTier, mExpires, mStarted] = rows[0].values[0];
+    // 检查会员是否过期
+    const membership = checkMembership(id);
+    res.json({ code: 0, user: { id, phone, nickname, avatar, ...membership } });
 });
 
 // 4) 退出登录
@@ -576,9 +601,157 @@ app.post('/api/auth/logout', (req, res) => {
     res.json({ code: 0, msg: '已退出' });
 });
 
+// ════════════════════════════════════════════════════════════
+//  会员系统 (v5.0)
+// ════════════════════════════════════════════════════════════
+
+// 会员等级: free | premium_monthly | premium_annual | report_only
+const MEMBERSHIP_TIERS = {
+    free:            { label: '免费用户',  features: ['basic_paipan', 'daily_fortune'] },
+    premium_monthly: { label: '月度会员',  features: ['all_modules', 'ai_enhanced', 'full_reports', 'no_paywall'] },
+    premium_annual:  { label: '年度会员',  features: ['all_modules', 'ai_enhanced', 'full_reports', 'no_paywall', 'priority'] },
+    report_only:     { label: '单次解锁',  features: ['full_reports'] }
+};
+
+// 会员价格（分）
+const MEMBERSHIP_PRICES = {
+    report:          { amount: 999,  name: 'Nexus Ora Single Report',  paypalAmount: '9.99' },
+    premium_monthly: { amount: 999,  name: 'Nexus Ora Premium Monthly', paypalAmount: '9.99' },
+    premium_annual:  { amount: 5999, name: 'Nexus Ora Premium Annual',  paypalAmount: '59.99' }
+};
+
+// 检查用户会员状态
+function checkMembership(userId) {
+    let tier = 'free';
+    let expires = null;
+    let started = null;
+    if (db && userId) {
+        try {
+            const rows = db.exec('SELECT membership_tier, membership_expires, membership_started FROM auth_users WHERE id=?', [userId]);
+            if (rows[0] && rows[0].values.length) {
+                const r = rows[0].values[0];
+                const dbTier = r[0] || 'free';
+                const dbExpires = r[1];
+                started = r[2];
+                // 检查是否过期
+                if (dbTier !== 'free' && dbTier !== 'report_only') {
+                    if (dbExpires && new Date(dbExpires) < new Date()) {
+                        // 已过期，降级为 free
+                        tier_internal_downgrade(userId);
+                        expires = null;
+                    } else {
+                        tier = dbTier;
+                        expires = dbExpires;
+                    }
+                } else if (dbTier === 'report_only') {
+                    // report_only 永不过期（单次购买）
+                    tier = dbTier;
+                    expires = null;
+                }
+            }
+        } catch(e) { console.error('[Membership] check error:', e.message); }
+    }
+    const isActive = tier === 'premium_monthly' || tier === 'premium_annual';
+    const hasReportAccess = isActive || tier === 'report_only';
+    return { membership_tier: tier, membership_expires: expires, membership_started: started, is_premium: isActive, has_report_access: hasReportAccess };
+}
+
+// 内部使用：会员过期降级
+function tier_internal_downgrade(userId) {
+    try {
+        db.run('UPDATE auth_users SET membership_tier=?, membership_expires=NULL WHERE id=?', ['free', userId]);
+        saveDB();
+    } catch(e) { console.error('[Membership] downgrade error:', e.message); }
+}
+
+// 激活会员
+function activateMembership(userId, plan) {
+    if (!db || !userId) return false;
+    const now = new Date();
+    let expires;
+    if (plan === 'premium_monthly') {
+        expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30天
+    } else if (plan === 'premium_annual') {
+        expires = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000); // 365天
+    } else if (plan === 'report') {
+        expires = null; // 单次报告永久有效
+        plan = 'report_only';
+    } else {
+        return false;
+    }
+    const expiresStr = expires ? expires.toISOString().replace('T', ' ').slice(0, 19) : null;
+    const startedStr = now.toISOString().replace('T', ' ').slice(0, 19);
+    try {
+        db.run('UPDATE auth_users SET membership_tier=?, membership_expires=?, membership_started=? WHERE id=?',
+               [plan, expiresStr, startedStr, userId]);
+        // 记录订阅
+        const subId = 'SUB_' + Date.now().toString(36).toUpperCase();
+        db.run('INSERT INTO subscriptions(id,user_id,plan,amount,status,started_at,expires_at) VALUES(?,?,?,?,?,?,?)',
+               [subId, userId, plan, MEMBERSHIP_PRICES[plan === 'report_only' ? 'report' : plan]?.amount || 0, 'active', startedStr, expiresStr]);
+        saveDB();
+        console.log(`[Membership] activated: user=${userId}, plan=${plan}, expires=${expiresStr || 'never'}`);
+        return true;
+    } catch(e) {
+        console.error('[Membership] activate error:', e.message);
+        return false;
+    }
+}
+
+// 会员状态查询 API
+app.get('/api/membership/status', (req, res) => {
+    const s = getSession(req);
+    if (!s) return res.json({ code: 0, membership: { membership_tier: 'free', is_premium: false, has_report_access: false } });
+    const membership = checkMembership(s.userId);
+    res.json({ code: 0, membership });
+});
+
+// 会员激活 API（PayPal 支付成功后调用）
+app.post('/api/membership/activate', (req, res) => {
+    const s = getSession(req);
+    if (!s) return res.status(401).json({ code: 1, msg: '请先登录' });
+    const { plan, orderID } = req.body;
+    if (!plan) return res.status(400).json({ code: 1, msg: '缺少 plan 参数' });
+
+    // 验证订单状态
+    if (db && orderID) {
+        try {
+            const orderRows = db.exec('SELECT status FROM orders WHERE id=?', [orderID]);
+            if (orderRows[0] && orderRows[0].values.length) {
+                const status = orderRows[0].values[0][0];
+                if (status !== 'completed' && status !== 'demo_completed') {
+                    return res.status(400).json({ code: 1, msg: '订单未完成支付' });
+                }
+            }
+        } catch {}
+    }
+
+    const ok = activateMembership(s.userId, plan);
+    if (ok) {
+        const membership = checkMembership(s.userId);
+        res.json({ code: 0, msg: '会员激活成功', membership });
+    } else {
+        res.status(500).json({ code: 1, msg: '会员激活失败' });
+    }
+});
+
+// 会员方案查询 API（公开接口）
+app.get('/api/membership/plans', (_req, res) => {
+    const priceReport = parseInt(dbConfigGet('prices_report', CFG.prices.report)) || 999;
+    const priceMonthly = parseInt(dbConfigGet('prices_monthly', CFG.prices.monthly)) || 999;
+    const priceAnnual = parseInt(dbConfigGet('prices_annual', '5999')) || 5999;
+    res.json({
+        code: 0,
+        plans: {
+            report:          { price: priceReport,  price_usd: (priceReport/100).toFixed(2),  label: '单次报告解锁', features: MEMBERSHIP_TIERS.report_only.features },
+            premium_monthly: { price: priceMonthly, price_usd: (priceMonthly/100).toFixed(2), label: '月度会员', features: MEMBERSHIP_TIERS.premium_monthly.features },
+            premium_annual:  { price: priceAnnual,  price_usd: (priceAnnual/100).toFixed(2),  label: '年度会员', features: MEMBERSHIP_TIERS.premium_annual.features },
+        }
+    });
+});
+
 // 健康检查
 app.get('/api/health', (_req, res) => {
-    res.json({ status:'ok', version:'3.7.0', llm: !!CFG.deepseek.apiKey, db: !!db });
+    res.json({ status:'ok', version:'5.0.0', llm: !!CFG.deepseek.apiKey, db: !!db });
 });
 
 // 主接口：排盘 → LLM → 报告
@@ -686,124 +859,11 @@ app.post('/api/payment/create-checkout', async (req, res) => {
 
 app.post('/api/payment/verify', (_req, res) => res.json({ success:true, unlocked:true }));
 
-// ───────────────── PayPal 支付 ─────────────────
-
-// PayPal 订单创建
-app.post('/api/payment/paypal/create-order', async (req, res) => {
-    const { plan = 'report' } = req.body;
-    const { paypal: PCFG } = CFG;
-
-    // Demo 模式
-    if (PCFG.demoMode) {
-        const oid = 'PAYPAL_DEMO_' + Date.now().toString(36).toUpperCase();
-        if (db) {
-            try {
-                db.run('INSERT INTO orders(id,report_id,plan,amount,status) VALUES(?,?,?,?,?)',
-                       [oid, req.body.reportId||'demo', plan, 0, 'demo_completed']);
-                saveDB();
-            } catch {}
-        }
-        return res.json({ success:true, demo:true, orderID: oid });
-    }
-
-    try {
-        const priceMap = {
-            monthly: { amount: (CFG.prices.monthly / 100).toFixed(2), name: 'Nexus Ora Premium Monthly' },
-            report:  { amount: (CFG.prices.report  / 100).toFixed(2), name: 'Nexus Ora Full Report' }
-        };
-        const pc = priceMap[plan] || priceMap.report;
-
-        // 初始化 PayPal client
-        const environment = PCFG.mode === 'live'
-            ? new paypalSdk.core.LiveEnvironment(PCFG.clientId, PCFG.clientSecret)
-            : new paypalSdk.core.SandboxEnvironment(PCFG.clientId, PCFG.clientSecret);
-        const client = new paypalSdk.core.PayPalHttpClient(environment);
-
-        // 构建订单请求
-        const orderRequest = new paypalSdk.orders.OrdersCreateRequest();
-        orderRequest.prefer("return=representation");
-        orderRequest.requestBody({
-            intent: 'CAPTURE',
-            purchase_units: [{
-                amount: {
-                    currency_code: PCFG.currency,
-                    value: pc.amount
-                },
-                description: pc.name
-            }],
-            application_context: {
-                return_url: `${process.env.APP_URL || `http://${HOST}:${PORT}`}/?paypal=success`,
-                cancel_url: `${process.env.APP_URL || `http://${HOST}:${PORT}`}/?paypal=cancel`
-            }
-        });
-
-        const response = await client.execute(orderRequest);
-        const orderID = response.result.id;
-
-        // 存库
-        if (db) {
-            try {
-                db.run('INSERT INTO orders(id,report_id,plan,amount,status) VALUES(?,?,?,?,?)',
-                       [orderID, req.body.reportId||'', plan, pc.amount*100, 'pending']);
-                saveDB();
-            } catch(e) { console.error('[PayPal DB]', e.message); }
-        }
-
-        res.json({ success:true, orderID, approvalUrl: response.result.links.find(l => l.rel === 'approve')?.href });
-    } catch(e) {
-        console.error('[PayPal Create]', e.message);
-        res.status(500).json({ success:false, error: e.message });
-    }
-});
-
-// PayPal 订单捕获（用户付款后）
-app.post('/api/payment/paypal/capture', async (req, res) => {
-    const { orderID } = req.body;
-    if (!orderID) return res.status(400).json({ success:false, error: 'Missing orderID' });
-
-    const { paypal: PCFG } = CFG;
-
-    // Demo 模式
-    if (PCFG.demoMode || orderID.startsWith('PAYPAL_DEMO_')) {
-        if (db) {
-            try { db.run('UPDATE orders SET status=? WHERE id=?', ['completed', orderID]); saveDB(); } catch {}
-        }
-        return res.json({ success:true, demo:true });
-    }
-
-    try {
-        // 初始化 PayPal client
-        const environment = PCFG.mode === 'live'
-            ? new paypalSdk.core.LiveEnvironment(PCFG.clientId, PCFG.clientSecret)
-            : new paypalSdk.core.SandboxEnvironment(PCFG.clientId, PCFG.clientSecret);
-        const client = new paypalSdk.core.PayPalHttpClient(environment);
-
-        // 捕获订单
-        const captureRequest = new paypalSdk.orders.OrdersCaptureRequest(orderID);
-        captureRequest.requestBody({});
-
-        const response = await client.execute(captureRequest);
-
-        // 更新订单状态
-        if (db) {
-            try {
-                db.run('UPDATE orders SET status=? WHERE id=?', ['completed', orderID]);
-                saveDB();
-            } catch(e) { console.error('[PayPal Capture DB]', e.message); }
-        }
-
-        res.json({ success:true, captureID: response.result.id });
-    } catch(e) {
-        console.error('[PayPal Capture]', e.message);
-        res.status(500).json({ success:false, error: e.message });
-    }
-});
+// ───────────────── PayPal 支付 (v1 路由已移除，使用 paypal_routes.js 中的 v2 路由) ─────────────────
 
 // PayPal Webhook（可选，用于异步通知）
 app.post('/api/payment/paypal/webhook', async (req, res) => {
-    // TODO: 验证 webhook 签名
-    // TODO: 处理支付事件
-    console.log('[PayPal Webhook]', req.body);
+    console.log('[PayPal Webhook]', req.body?.event_type || 'unknown event');
     res.json({ received: true });
 });
 
@@ -1919,6 +1979,7 @@ app.get('/api/admin/config', (req, res) => {
             app_url:              dbConfigGet('app_url', process.env.APP_URL || ''),
             prices_report:        dbConfigGet('prices_report', String(CFG.prices.report)),
             prices_monthly:       dbConfigGet('prices_monthly', String(CFG.prices.monthly)),
+            prices_annual:        dbConfigGet('prices_annual', '5999'),
             paypal_demo_mode:     CFG.paypal.demoMode
         };
         res.json({ success: true, config });
@@ -1935,7 +1996,7 @@ app.post('/api/admin/config', (req, res) => {
                 stripe_secret_key, stripe_pub_key,
                 deepseek_api_key, deepseek_model, deepseek_url,
                 admin_password, app_url,
-                prices_report, prices_monthly } = req.body;
+                prices_report, prices_monthly, prices_annual } = req.body;
 
         // PayPal
         if (paypal_client_id !== undefined) {
@@ -1988,6 +2049,9 @@ app.post('/api/admin/config', (req, res) => {
         if (prices_monthly !== undefined) {
             dbConfigSet('prices_monthly', prices_monthly);
             CFG.prices.monthly = parseInt(prices_monthly) || 2999;
+        }
+        if (prices_annual !== undefined) {
+            dbConfigSet('prices_annual', prices_annual);
         }
 
         // 同步 paypal.js 的运行时配置（如果已加载）
