@@ -1,0 +1,154 @@
+/* pages/home/home.wxss */
+.home-container {
+  padding-top: 40rpx;
+  padding-bottom: 120rpx;
+}
+
+/* 顶部用户条 */
+.user-bar {
+  margin: 0 32rpx 24rpx;
+}
+.login-prompt {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 28rpx;
+  background: linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(99,102,241,0.15) 100%);
+  border: 1rpx solid rgba(168,85,247,0.3);
+  border-radius: 20rpx;
+}
+.login-icon { font-size: 36rpx; margin-right: 16rpx; }
+.login-text { flex: 1; color: #fff; font-size: 28rpx; font-weight: 500; }
+.login-arrow { color: #A855F7; font-size: 36rpx; }
+.user-info {
+  display: flex; align-items: center;
+  padding: 20rpx 24rpx;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20rpx;
+  border: 1rpx solid rgba(255,255,255,0.08);
+}
+.user-avatar {
+  width: 72rpx; height: 72rpx;
+  background: linear-gradient(135deg, #A855F7, #6366F1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 24rpx; font-weight: 600;
+  margin-right: 20rpx;
+}
+.user-meta { flex: 1; display: flex; flex-direction: column; }
+.user-name { color: #fff; font-size: 30rpx; font-weight: 500; }
+.user-tip { color: #9CA3AF; font-size: 22rpx; margin-top: 4rpx; }
+.logout-btn {
+  padding: 12rpx 20rpx;
+  color: #9CA3AF;
+  font-size: 24rpx;
+  border: 1rpx solid rgba(255,255,255,0.15);
+  border-radius: 8rpx;
+}
+
+/* 品牌区 */
+.brand-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 12rpx;
+}
+
+.brand-logo {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 18rpx;
+  background: linear-gradient(135deg, #7C3AED, #EC4899);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30rpx;
+  box-shadow: 0 0 24rpx rgba(168, 85, 247, 0.4);
+}
+
+.brand-name {
+  font-size: 36rpx;
+  font-weight: 800;
+  background: linear-gradient(135deg, #C084FC, #F472B6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 4rpx;
+}
+
+.brand-slogan {
+  display: block;
+  text-align: center;
+  color: #6B7280;
+  font-size: 24rpx;
+  margin-bottom: 48rpx;
+}
+
+/* 八模块网格 */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+  padding: 0 8rpx;
+}
+
+.module-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36rpx 20rpx;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1rpx solid rgba(255, 255, 255, 0.07);
+  border-radius: 24rpx;
+  transition: all 0.2s;
+}
+
+.module-item:active {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.module-icon-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16rpx;
+}
+
+.module-icon {
+  font-size: 48rpx;
+}
+
+.module-name {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #E5E7EB;
+  margin-bottom: 4rpx;
+}
+
+.module-desc {
+  font-size: 20rpx;
+  color: #6B7280;
+}
+
+/* 底部 */
+.home-footer {
+  margin-top: 64rpx;
+  text-align: center;
+}
+
+.footer-text {
+  display: block;
+  font-size: 22rpx;
+  color: #4B5563;
+  margin-bottom: 8rpx;
+}
+
+.footer-sub {
+  display: block;
+  font-size: 18rpx;
+  color: #374151;
+}

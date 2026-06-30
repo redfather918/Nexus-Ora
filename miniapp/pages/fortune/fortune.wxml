@@ -1,0 +1,156 @@
+<view class="page">
+  <!-- Header -->
+  <view class="page-header">
+    <text class="page-icon">📜</text>
+    <view>
+      <text class="page-title">灵境预言</text>
+      <text class="page-subtitle">八字排盘 · 百年运势</text>
+    </view>
+  </view>
+
+  <!-- Input Form -->
+  <view class="card form-card" wx:if="{{!showResult}}">
+    <view class="form-row">
+      <text class="form-label">出生日期</text>
+      <picker mode="date" value="{{birth}}" start="1920-01-01" end="2010-12-31" bindchange="onBirthChange">
+        <view class="picker-btn {{birth ? 'has-value' : ''}}">
+          <text>{{birth || '选择日期'}}</text>
+          <text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">出生时辰</text>
+      <picker mode="time" value="{{birthTime}}" bindchange="onTimeChange">
+        <view class="picker-btn has-value">
+          <text>{{birthTime}}</text>
+          <text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">性别</text>
+      <view class="gender-row">
+        <view class="gender-btn {{gender==1 ? 'active' : ''}}" bindtap="setGender" data-g="1">♂ 男</view>
+        <view class="gender-btn {{gender==2 ? 'active' : ''}}" bindtap="setGender" data-g="2">♀ 女</view>
+      </view>
+    </view>
+
+    <button class="btn-primary {{loading ? 'loading' : ''}}" bindtap="doFortune" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">🔮 开始排盘</text>
+      <text wx:else>排盘中...</text>
+    </button>
+  </view>
+
+  <!-- Loading State -->
+  <view class="loading-card" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">天机运转，为您排盘中...</text>
+  </view>
+
+  <!-- Result -->
+  <view class="result-wrap" wx:if="{{showResult && result}}">
+    <!-- Summary Card -->
+    <view class="card summary-card">
+      <view class="summary-tags">
+        <text class="tag tag-purple">{{result.bazi.day_gan || '--'}}日主</text>
+        <text class="tag tag-amber">{{result.bazi.body_strength || '--'}}</text>
+        <text class="tag tag-blue">{{result.bazi.animal || '生肖--'}}</text>
+        <text class="tag tag-green">{{result.bazi.zodiac || '星座--'}}</text>
+      </view>
+      <text class="summary-lunar">{{result.bazi.lunar || ''}}</text>
+    </view>
+
+    <!-- Tab Nav -->
+    <view class="tab-nav">
+      <view class="tab {{activeTab=='bazi' ? 'active' : ''}}" bindtap="switchTab" data-tab="bazi">八字四柱</view>
+      <view class="tab {{activeTab=='wuxing' ? 'active' : ''}}" bindtap="switchTab" data-tab="wuxing">五行</view>
+      <view class="tab {{activeTab=='fortune' ? 'active' : ''}}" bindtap="switchTab" data-tab="fortune">流年</view>
+      <view class="tab {{activeTab=='daYun' ? 'active' : ''}}" bindtap="switchTab" data-tab="daYun">大运</view>
+    </view>
+
+    <!-- 八字四柱 Tab -->
+    <view wx:if="{{activeTab=='bazi'}}">
+      <view class="bazi-grid">
+        <view class="pillar-card" wx:for="{{result.pillars}}" wx:key="name">
+          <text class="pillar-name">{{item.name}}</text>
+          <text class="pillar-ganzhi">{{item.ganzhi}}</text>
+          <view class="pillar-detail">
+            <text class="pillar-gan">{{item.gan}}</text>
+            <text class="pillar-wx">{{item.gan_wuxing}}</text>
+          </view>
+          <text class="pillar-shishen">{{item.shishen || ''}}</text>
+        </view>
+      </view>
+      <!-- AI 解读 -->
+      <view class="card insight-card" wx:if="{{result.ai_insight}}">
+        <text class="insight-title">✨ AI 命盘解读</text>
+        <text class="insight-text">{{result.ai_insight}}</text>
+      </view>
+      <view class="card insight-card" wx:else>
+        <text class="insight-title">✨ 命盘概述</text>
+        <text class="insight-text">日主{{result.bazi.day_gan}}（{{result.bazi.day_wuxing}}），命局{{result.bazi.body_strength || '中和'}}，五行{{result.bazi.day_wuxing}}气较旺。</text>
+      </view>
+    </view>
+
+    <!-- 五行 Tab -->
+    <view wx:if="{{activeTab=='wuxing'}}">
+      <view class="card">
+        <text class="section-title">五行分布</text>
+        <view class="wuxing-list">
+          <view class="wuxing-row" wx:for="{{result.wuxingArr}}" wx:key="name">
+            <text class="wuxing-name">{{item.name}}</text>
+            <view class="wuxing-bar-bg">
+              <view class="wuxing-bar-fill" style="width:{{item.pct}}%;background:{{item.color}}"></view>
+            </view>
+            <text class="wuxing-pct" style="color:{{item.color}}">{{item.value}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 流年 Tab -->
+    <view wx:if="{{activeTab=='fortune'}}">
+      <view class="card">
+        <text class="section-title">流年运势（前30年）</text>
+        <view class="fortune-list">
+          <view class="fortune-row" wx:for="{{result.fortuneSlice}}" wx:key="age">
+            <text class="f-age">{{item.age}}岁</text>
+            <view class="f-bar-bg">
+              <view class="f-bar-fill" style="width:{{item.barWidth}};background:{{item.scoreColor}}"></view>
+            </view>
+            <text class="f-score" style="color:{{item.scoreColor}}">{{item.score}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 大运 Tab -->
+    <view wx:if="{{activeTab=='daYun'}}">
+      <view class="card">
+        <text class="section-title">大运排列</text>
+        <view class="dayun-list">
+          <view class="dayun-row" wx:for="{{result.daYunArr}}" wx:key="start_age">
+            <view class="dayun-age">
+              <text class="dy-age-num">{{item.start_age}}</text>
+              <text class="dy-age-unit">岁</text>
+            </view>
+            <view class="dayun-ganzhi">
+              <text class="dy-gz">{{item.ganzhi}}</text>
+              <text class="dy-wx">{{item.wuxing || ''}}</text>
+            </view>
+            <text class="dayun-score" style="color:{{item.score>=70 ? '#EF4444' : item.score>=50 ? '#F59E0B' : '#10B981'}}">{{item.score || '--'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 操作按钮 -->
+    <view class="action-row">
+      <button class="btn-secondary" bindtap="reset">重新排盘</button>
+      <button class="btn-ghost" bindtap="shareCard">分享结果</button>
+    </view>
+  </view>
+</view>

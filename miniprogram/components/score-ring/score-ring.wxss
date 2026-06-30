@@ -1,0 +1,36 @@
+/* components/score-ring/score-ring.wxss */
+.score-ring-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.ring-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.score-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-val {
+  font-weight: 900;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 18rpx;
+  color: #9CA3AF;
+  margin-top: 4rpx;
+}

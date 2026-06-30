@@ -1,0 +1,140 @@
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">👤</text>
+    <view>
+      <text class="page-title">我的灵境</text>
+      <text class="page-subtitle">个人档案 · 修炼记录</text>
+    </view>
+  </view>
+
+  <!-- 编辑表单 -->
+  <view wx:if="{{editing}}">
+    <view class="card form-card">
+      <text class="form-section-title">✏️ 编辑档案</text>
+
+      <text class="form-label">昵称</text>
+      <input class="inp" placeholder="您的名字（选填）" value="{{form.name}}" bindinput="onNameInput" />
+
+      <text class="form-label mt-20">出生日期 *</text>
+      <picker mode="date" value="{{form.birth}}" start="1920-01-01" end="2010-12-31" bindchange="onBirthChange">
+        <view class="picker-btn {{form.birth ? 'has-value' : ''}}">
+          <text>{{form.birth || '选择出生日期'}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+
+      <text class="form-label mt-20">出生时辰</text>
+      <picker mode="time" value="{{form.birthTime}}" bindchange="onTimeChange">
+        <view class="picker-btn has-value">
+          <text>{{form.birthTime}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+
+      <text class="form-label mt-20">性别</text>
+      <view class="gender-row">
+        <view class="gender-btn {{form.gender==1 ? 'active' : ''}}" bindtap="setGender" data-g="1">♂ 男</view>
+        <view class="gender-btn {{form.gender==2 ? 'active' : ''}}" bindtap="setGender" data-g="2">♀ 女</view>
+      </view>
+
+      <text class="form-label mt-20">所在城市（选填）</text>
+      <input class="inp" placeholder="如：上海" value="{{form.city}}" bindinput="onCityInput" />
+
+      <view class="edit-btns mt-32">
+        <button class="btn-cancel" bindtap="cancelEdit">取消</button>
+        <button class="btn-save" bindtap="saveProfile">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 主视图 -->
+  <view wx:else>
+    <!-- 用户卡片 -->
+    <view class="card user-card">
+      <view wx:if="{{profile}}">
+        <view class="user-info-row">
+          <view class="user-avatar">
+            <text>{{profile.name ? profile.name[0] : '✦'}}</text>
+          </view>
+          <view class="user-detail">
+            <text class="user-name">{{profile.name || '灵境访客'}}</text>
+            <text class="user-birth">{{profile.birth}} {{profile.birthTime}}</text>
+            <text class="user-city" wx:if="{{profile.city}}">📍 {{profile.city}}</text>
+          </view>
+          <view class="edit-btn" bindtap="startEdit">编辑</view>
+        </view>
+        <view class="user-tags">
+          <text class="utag">{{profile.gender == 1 ? '♂ 男' : '♀ 女'}}</text>
+        </view>
+      </view>
+      <view wx:else class="no-profile">
+        <text class="np-hint">还没有设置个人档案</text>
+        <button class="btn-primary mt-16" bindtap="startEdit">🌟 立即设置</button>
+      </view>
+    </view>
+
+    <!-- 数据统计 -->
+    <view class="card stats-card">
+      <text class="section-title">我的修炼数据</text>
+      <view class="stats-row">
+        <view class="stat-item">
+          <text class="stat-num">{{stats.dreams}}</text>
+          <text class="stat-lbl">梦境记录</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-num">{{stats.practices}}</text>
+          <text class="stat-lbl">修炼次数</text>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <text class="stat-num">{{wx.getStorageSync('cultivationStreak') || 0}}</text>
+          <text class="stat-lbl">连续天数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 快速入口 -->
+    <view class="card">
+      <text class="section-title">快捷导航</text>
+      <view class="menu-list">
+        <view class="menu-item" bindtap="goPage" data-url="/pages/fortune/fortune">
+          <text class="mi-icon">📜</text>
+          <text class="mi-name">灵境预言</text>
+          <text class="mi-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="goPage" data-url="/pages/dream/dream">
+          <text class="mi-icon">🌙</text>
+          <text class="mi-name">梦境回廊</text>
+          <text class="mi-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="goPage" data-url="/pages/cultivation/cultivation">
+          <text class="mi-icon">🧘</text>
+          <text class="mi-name">灵境修行</text>
+          <text class="mi-arrow">›</text>
+        </view>
+        <view class="menu-item" bindtap="goPage" data-url="/pages/compatibility/compatibility">
+          <text class="mi-icon">💕</text>
+          <text class="mi-name">缘分配对</text>
+          <text class="mi-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 关于 & 设置 -->
+    <view class="card">
+      <view class="menu-list">
+        <view class="menu-item" bindtap="contact">
+          <text class="mi-icon">💬</text>
+          <text class="mi-name">联系我们</text>
+          <text class="mi-arrow">›</text>
+        </view>
+        <view class="menu-item danger" bindtap="clearData">
+          <text class="mi-icon">🗑️</text>
+          <text class="mi-name danger-text">清除所有数据</text>
+          <text class="mi-arrow">›</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="version-tag">Nexus Ora v4.0 · AI 原生玄学平台</view>
+  </view>
+</view>

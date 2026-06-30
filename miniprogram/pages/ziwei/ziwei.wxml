@@ -1,0 +1,78 @@
+<!-- pages/ziwei/ziwei.wxml -->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <view class="page-title">紫微命盘</view>
+    <view class="page-subtitle">古老紫微斗数，洞悉人生轨迹</view>
+  </view>
+
+  <!-- 未填写状态：引导卡片 -->
+  <view class="empty-state" wx:if="{{!hasInput}}">
+    <view class="empty-icon">🔮</view>
+    <view class="empty-title">开启你的紫微命盘</view>
+    <view class="empty-desc">输入出生信息，即刻生成你的专属命盘</view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">出生日期</text>
+        <picker mode="date" value="{{birthDate}}" bindchange="onDateChange" class="form-picker">
+          <view class="form-value {{birthDate ? '' : 'placeholder'}}">
+            {{birthDate || '请选择日期'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">出生时辰</text>
+        <picker mode="time" value="{{birthTime}}" bindchange="onTimeChange" class="form-picker">
+          <view class="form-value {{birthTime ? '' : 'placeholder'}}">
+            {{birthTime || '请选择时辰'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">性别</text>
+        <radio-group bindchange="onGenderChange" class="form-radio">
+          <label class="radio-item">
+            <radio value="male" color="#A855F7" checked="{{gender==='male'}}" />
+            <text>男</text>
+          </label>
+          <label class="radio-item">
+            <radio value="female" color="#A855F7" checked="{{gender==='female'}}" />
+            <text>女</text>
+          </label>
+        </radio-group>
+      </view>
+
+      <button class="submit-btn" bindtap="onSubmit" disabled="{{!canSubmit}}">
+        立即生成命盘
+      </button>
+      <view class="form-tip">命盘数据仅本地计算，不会上传</view>
+    </view>
+  </view>
+
+  <!-- 已填写状态：展示命盘 -->
+  <view class="result-state" wx:else>
+    <view class="user-info">
+      <text class="user-name">{{userInfo.name || '命主'}}</text>
+      <text class="user-birth">{{birthDate}} {{birthTime}}</text>
+    </view>
+
+    <view class="chart-card">
+      <view class="chart-title">十二宫位</view>
+      <view class="palace-grid">
+        <view class="palace" wx:for="{{palaces}}" wx:key="name">
+          <view class="palace-name">{{item.name}}</view>
+          <view class="palace-star" wx:if="{{item.majorStar}}">{{item.majorStar}}</view>
+          <view class="palace-empty" wx:else>--</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <button class="action-btn" bindtap="onReset">重新排盘</button>
+      <button class="action-btn primary" bindtap="onShare">分享命盘</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,94 @@
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">⭐</text>
+    <view>
+      <text class="page-title">紫微斗数</text>
+      <text class="page-subtitle">十二宫命盘解析</text>
+    </view>
+  </view>
+
+  <!-- 输入 -->
+  <view class="card form-card" wx:if="{{!showResult}}">
+    <view class="form-row">
+      <text class="form-label">出生日期</text>
+      <picker mode="date" value="{{birth}}" start="1920-01-01" end="2010-12-31" bindchange="onBirthChange">
+        <view class="picker-btn {{birth ? 'has-value' : ''}}">
+          <text>{{birth || '选择日期'}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <text class="form-label">出生时辰</text>
+      <picker mode="time" value="{{birthTime}}" bindchange="onTimeChange">
+        <view class="picker-btn has-value"><text>{{birthTime}}</text><text class="picker-arrow">▾</text></view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <text class="form-label">性别</text>
+      <view class="gender-row">
+        <view class="gender-btn {{gender==1 ? 'active' : ''}}" bindtap="setGender" data-g="1">♂ 男</view>
+        <view class="gender-btn {{gender==2 ? 'active' : ''}}" bindtap="setGender" data-g="2">♀ 女</view>
+      </view>
+    </view>
+    <button class="btn-primary {{loading ? 'loading' : ''}}" bindtap="doZiwei" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">⭐ 开始排盘</text>
+      <text wx:else>排盘中...</text>
+    </button>
+  </view>
+
+  <!-- 结果 -->
+  <view wx:elif="{{showResult && result}}" class="result-wrap">
+    <!-- 命主信息 -->
+    <view class="card ziwei-hero">
+      <text class="zh-title">{{result.ming_zhu || '命主'}}</text>
+      <view class="zh-tags">
+        <text class="ztag" wx:if="{{result.main_star}}">主星：{{result.main_star}}</text>
+        <text class="ztag" wx:if="{{result.element}}">五行：{{result.element}}</text>
+        <text class="ztag" wx:if="{{result.ju_type}}">局数：{{result.ju_type}}</text>
+      </view>
+    </view>
+
+    <!-- Tab -->
+    <view class="tab-nav">
+      <view class="tab {{activeTab=='overview' ? 'active' : ''}}" bindtap="switchTab" data-tab="overview">十二宫</view>
+      <view class="tab {{activeTab=='insight' ? 'active' : ''}}" bindtap="switchTab" data-tab="insight">命盘解读</view>
+    </view>
+
+    <!-- 十二宫 -->
+    <view wx:if="{{activeTab=='overview'}}">
+      <view class="card palace-grid">
+        <view class="palace-cell {{item.is_ming ? 'is-ming' : ''}}" wx:for="{{result.palaces}}" wx:key="name">
+          <text class="p-name">{{item.name}}</text>
+          <text class="p-stars" wx:if="{{item.main_star}}">{{item.main_star}}</text>
+          <text class="p-sub-stars" wx:if="{{item.stars_str}}">{{item.stars_str}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 命盘解读 -->
+    <view wx:elif="{{activeTab=='insight'}}">
+      <view class="card" wx:if="{{result.ming_palace_desc}}">
+        <text class="section-title">🏠 命宫解析</text>
+        <text class="insight-text">{{result.ming_palace_desc}}</text>
+      </view>
+      <view class="card" wx:if="{{result.career_desc}}">
+        <text class="section-title">💼 官禄宫解析</text>
+        <text class="insight-text">{{result.career_desc}}</text>
+      </view>
+      <view class="card" wx:if="{{result.wealth_desc}}">
+        <text class="section-title">💰 财帛宫解析</text>
+        <text class="insight-text">{{result.wealth_desc}}</text>
+      </view>
+      <view class="card" wx:if="{{result.love_desc}}">
+        <text class="section-title">💕 夫妻宫解析</text>
+        <text class="insight-text">{{result.love_desc}}</text>
+      </view>
+      <view class="card" wx:if="{{result.ai_summary}}">
+        <text class="section-title">✨ AI 命盘总结</text>
+        <text class="insight-text">{{result.ai_summary}}</text>
+      </view>
+    </view>
+
+    <button class="btn-secondary mt-16" bindtap="reset">重新排盘</button>
+  </view>
+</view>

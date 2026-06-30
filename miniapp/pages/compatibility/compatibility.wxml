@@ -1,0 +1,123 @@
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">💕</text>
+    <view>
+      <text class="page-title">缘分配对</text>
+      <text class="page-subtitle">双人合盘 · 缘分指数</text>
+    </view>
+  </view>
+
+  <!-- 输入表单 -->
+  <view wx:if="{{!showResult}}">
+    <view class="card person-card">
+      <view class="person-label-row">
+        <text class="person-badge a">甲方</text>
+        <view class="gender-row">
+          <view class="gender-btn {{genderA==1 ? 'active' : ''}}" bindtap="setGA" data-g="1">♂ 男</view>
+          <view class="gender-btn {{genderA==2 ? 'active' : ''}}" bindtap="setGA" data-g="2">♀ 女</view>
+        </view>
+      </view>
+      <picker mode="date" value="{{birthA}}" start="1920-01-01" end="2010-12-31" bindchange="onBirthA">
+        <view class="picker-btn {{birthA ? 'has-value' : ''}}">
+          <text>{{birthA || '出生日期'}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+      <picker mode="time" value="{{timeA}}" bindchange="onTimeA" style="margin-top:16rpx">
+        <view class="picker-btn has-value">
+          <text>出生时间 {{timeA}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <view class="heart-divider">💗</view>
+
+    <view class="card person-card">
+      <view class="person-label-row">
+        <text class="person-badge b">乙方</text>
+        <view class="gender-row">
+          <view class="gender-btn {{genderB==1 ? 'active' : ''}}" bindtap="setGB" data-g="1">♂ 男</view>
+          <view class="gender-btn {{genderB==2 ? 'active' : ''}}" bindtap="setGB" data-g="2">♀ 女</view>
+        </view>
+      </view>
+      <picker mode="date" value="{{birthB}}" start="1920-01-01" end="2010-12-31" bindchange="onBirthB">
+        <view class="picker-btn {{birthB ? 'has-value' : ''}}">
+          <text>{{birthB || '出生日期'}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+      <picker mode="time" value="{{timeB}}" bindchange="onTimeB" style="margin-top:16rpx">
+        <view class="picker-btn has-value">
+          <text>出生时间 {{timeB}}</text><text class="picker-arrow">▾</text>
+        </view>
+      </picker>
+    </view>
+
+    <button class="btn-primary {{loading ? 'loading' : ''}}" bindtap="doCompat" disabled="{{loading}}">
+      <text wx:if="{{!loading}}">💕 开始合盘</text>
+      <text wx:else>合盘中...</text>
+    </button>
+  </view>
+
+  <!-- 结果 -->
+  <view wx:elif="{{result}}" class="result-wrap">
+    <!-- 总分 -->
+    <view class="card compat-hero">
+      <view class="compat-avatars">
+        <view class="avatar-a">{{genderA==1 ? '♂' : '♀'}}</view>
+        <view class="compat-score-wrap">
+          <text class="compat-score">{{result.total_score || '--'}}</text>
+          <text class="compat-score-lbl">缘分指数</text>
+        </view>
+        <view class="avatar-b">{{genderB==1 ? '♂' : '♀'}}</view>
+      </view>
+      <text class="compat-level">{{result.level || result.compatibility_level || ''}}</text>
+    </view>
+
+    <!-- Tab -->
+    <view class="tab-nav">
+      <view class="tab {{activeTab=='score' ? 'active' : ''}}" bindtap="switchTab" data-tab="score">维度分析</view>
+      <view class="tab {{activeTab=='detail' ? 'active' : ''}}" bindtap="switchTab" data-tab="detail">深度解读</view>
+    </view>
+
+    <!-- 维度分析 -->
+    <view wx:if="{{activeTab=='score'}}">
+      <view class="card">
+        <view class="dim-row" wx:for="{{result.dimArr}}" wx:key="name">
+          <text class="dim-emoji">{{item.emoji}}</text>
+          <view class="dim-left">
+            <text class="dim-name">{{item.name}}</text>
+            <view class="dim-bar-bg">
+              <view class="dim-bar-fill" style="width:{{item.barW}};background:{{item.color}}"></view>
+            </view>
+          </view>
+          <text class="dim-score" style="color:{{item.color}}">{{item.score}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 深度解读 -->
+    <view wx:elif="{{activeTab=='detail'}}">
+      <view class="card" wx:if="{{result.summary}}">
+        <text class="section-title">💝 缘分总评</text>
+        <text class="insight-text">{{result.summary}}</text>
+      </view>
+      <view class="card" wx:if="{{result.strength}}">
+        <text class="section-title">✅ 契合之处</text>
+        <text class="insight-text">{{result.strength}}</text>
+      </view>
+      <view class="card" wx:if="{{result.challenge}}">
+        <text class="section-title">⚠️ 磨合挑战</text>
+        <text class="insight-text">{{result.challenge}}</text>
+      </view>
+      <view class="card" wx:if="{{result.advice}}">
+        <text class="section-title">💡 相处建议</text>
+        <text class="insight-text">{{result.advice}}</text>
+      </view>
+      <view class="card" wx:if="{{result.ai_reading}}">
+        <text class="section-title">✨ AI 深度分析</text>
+        <text class="insight-text">{{result.ai_reading}}</text>
+      </view>
+    </view>
+
+    <button class="btn-secondary mt-16" bindtap="reset">重新合盘</button>
+  </view>
+</view>
