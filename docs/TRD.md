@@ -43,11 +43,12 @@
 └─────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────┐
-│           微信小程序 (v4.0 — 规划中)                   │
+│           微信小程序 (v4.4 — 已完成)                   │
 │  ┌─────────────────────────────────────────────────┐ │
-│  │       miniprogram/ (Taro React 框架)             │ │
-│  │   pages/: home/fortune/dream/persona/             │ │
-│  │          compat/oracle/cultivation/market        │ │
+│  │       miniapp/ (原生微信小程序)                   │ │
+│  │   pages/: index/fortune/radar/compatibility/      │ │
+│  │          ziwei/dream/persona/divination/          │ │
+│  │          cultivation/market/mine                 │ │
 │  │   components/: navbar/card/ring/chart             │ │
 │  │   utils/: api.js i18n.js auth.js                 │ │
 │  └──────────────────┬──────────────────────────────┘ │
@@ -355,28 +356,23 @@ nexus-ora-mvp/
 │   ├── verify.js               # 全链路验证测试
 │   ├── package.json            # Node.js 依赖
 │   └── .env.example            # 环境变量模板
-├── miniprogram/                # 微信小程序 (v4.0)
+├── miniapp/                    # 微信小程序 (v4.4)
 │   ├── project.config.json     # 小程序项目配置
 │   ├── app.js / app.json / app.wxss
 │   ├── pages/
-│   │   ├── home/               # 首页（8模块入口）
-│   │   ├── fortune/            # 灵境图谱
-│   │   ├── compat/             # 缘分配对
+│   │   ├── index/              # 首页（8模块入口）
+│   │   ├── fortune/            # 灵境预言（八字排盘）
+│   │   ├── radar/              # 灵境图谱（六维分析）
+│   │   ├── compatibility/      # 缘分配对
+│   │   ├── ziwei/              # 紫微命盘
 │   │   ├── dream/              # 梦境回廊
 │   │   ├── persona/            # 灵境人格
-│   │   ├── oracle/             # 灵境占卜
+│   │   ├── divination/         # 灵境占卜
 │   │   ├── cultivation/        # 灵境修行
 │   │   ├── market/             # 灵境市集
-│   │   └── ziwei/              # 紫微命盘
-│   ├── components/
-│   │   ├── navbar/             # 导航栏
-│   │   ├── score-ring/        # 分数环
-│   │   ├── module-card/       # 模块卡片
-│   │   └── tag/               # 标签组件
+│   │   └── mine/              # 个人中心
 │   └── utils/
-│       ├── api.js              # API 请求封装
-│       ├── auth.js             # 微信登录
-│       └── i18n.js             # 多语言
+│       └── api.js              # API 请求封装
 ├── docs/
 │   ├── PRD.md                  # 产品需求文档
 │   └── TRD.md                  # 技术需求文档
