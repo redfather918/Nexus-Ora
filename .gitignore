@@ -49,7 +49,9 @@ backend/t.json
 backend/test_*.js
 backend/test_*.json
 
-# WorkBuddy workspace
+# WeChat DevTools local config
+miniapp/project.private.config.json
+project.private.config.json
 ../.workbuddy/
 .workbuddy/
 
