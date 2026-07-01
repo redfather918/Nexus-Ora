@@ -24,17 +24,51 @@ Page({
         gender: gender === 1 ? 'male' : 'female'
       }, 'POST');
 
-      // 处理十二宫数据
+      // 处理十二宫数据（stars 是对象数组）
       let palaces = [];
       if (r.palaces) {
-        palaces = r.palaces.map(p => ({
-          ...p,
-          stars_str: (p.stars || []).join(' '),
-          hasMainStar: !!(p.main_star || p.stars?.length > 0)
-        }));
+        palaces = r.palaces.map(p => {
+          const mainStarObj = (p.stars || []).find(s => s.type === '主星');
+          const subStars = (p.stars || []).filter(s => s.type !== '主星').map(s => s.name).join(' ');
+          return {
+            ...p,
+            main_star: mainStarObj ? mainStarObj.name : '',
+            stars_str: subStars,
+            hasMainStar: !!mainStarObj
+          };
+        });
       }
 
-      this.setData({ result: { ...r, palaces }, loading: false, showResult: true, activeTab: 'overview' });
+      // 提取命盘摘要字段，兼容 WXML 所用变量名
+      const mingGong = r.mingGong || {};
+      const interpret = mingGong.interpret || {};
+      const summary = r.summary || {};
+
+      // 构建宫位解读
+      const findPalaceDesc = (name) => {
+        const p = (r.palaces || []).find(x => x.name === name);
+        if (!p) return '';
+        const stars = (p.stars || []).map(s => s.name).join('、');
+        return stars ? `${name}宫主星：${stars}` : '';
+      };
+
+      const flatResult = {
+        ...r,
+        palaces,
+        // 命主信息 → WXML 变量
+        ming_zhu: `${mingGong.zhi || ''}宫 · ${mingGong.mainStar || ''}坐命`,
+        main_star: mingGong.mainStar || '',
+        element: interpret.element || '',
+        ju_type: interpret.title || '',
+        // 宫位解读
+        ming_palace_desc: interpret.desc || '',
+        career_desc: findPalaceDesc('事业') || (summary['化权'] || ''),
+        wealth_desc: findPalaceDesc('财帛') || (summary['化禄'] || ''),
+        love_desc: findPalaceDesc('夫妻') || '',
+        ai_summary: `${summary['格局'] || ''}。幸运色：${interpret.lucky || '--'}。${summary['化忌'] ? '注意：' + summary['化忌'] : ''}`,
+      };
+
+      this.setData({ result: flatResult, loading: false, showResult: true, activeTab: 'overview' });
     } catch (err) {
       wx.showToast({ title: '排盘失败，请重试', icon: 'none' });
       this.setData({ loading: false });

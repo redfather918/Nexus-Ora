@@ -1220,6 +1220,7 @@ const DREAM_SYSTEM_PROMPT = `你是一位融汇中西方梦境解析的大师，
   "symbols": ["关键意象1", "关键意象2", "关键意象3", "关键意象4", "关键意象5"],
   "east_analysis": {
     "title": "周公解梦标题（8字内）",
+    "summary": "周公解梦简述（30-50字，点明吉凶和核心寓意）",
     "interpretation": "东方解梦详细解读（150-200字）",
     "five_element": "关联五行（金/木/水/火/土）",
     "omen": "吉兆/凶兆/平兆",
@@ -1227,9 +1228,11 @@ const DREAM_SYSTEM_PROMPT = `你是一位融汇中西方梦境解析的大师，
   },
   "west_analysis": {
     "title": "心理学解析标题（8字内）",
+    "summary": "心理学简述（30-50字，点明核心原型和情绪含义）",
     "freudian": "弗洛伊德视角解读（100-150字）",
     "jungian": "荣格原型视角解读（100-150字）",
-    "archetype": "关联荣格原型（如英雄/智者/阴影/阿尼玛/阿尼姆斯等）"
+    "archetype": "关联荣格原型（如英雄/智者/阴影/阿尼玛/阿尼姆斯等）",
+    "suggestion": "心理学行动建议（30-50字）"
   },
   "summary": "综合建议（80-120字，结合东西方给出行动指引）",
   "luck_score": 75
@@ -1378,6 +1381,7 @@ function algorithmDreamAnalysis(description, mood) {
         symbols: detectedSymbols.length > 0 ? detectedSymbols : ['未识别'],
         east_analysis: {
             title: eastTitle,
+            summary: `${eastOmen}：${eastTitle}。${eastRef.length > 20 ? eastRef.slice(0, 30) + '...' : eastRef}`,
             interpretation: `此梦涉及${detectedSymbols.join('、') || '寻常'}等意象。${eastRef}从五行角度看，此梦与${eastWx}行相关。建议关注${eastWx === '水' ? '财运和人际关系' : eastWx === '火' ? '事业和激情' : eastWx === '木' ? '成长和健康' : eastWx === '金' ? '竞争和决断' : '安稳和积累'}方面的变化。`,
             five_element: eastWx,
             omen: eastOmen,
@@ -1385,9 +1389,11 @@ function algorithmDreamAnalysis(description, mood) {
         },
         west_analysis: {
             title: '潜意识映射',
+            summary: `${mainSymbol || '梦境意象'}关联"${archetype}"原型，${mood === '焦虑' || mood === '恐惧' ? '潜意识正在处理内心的压力与恐惧' : '潜意识在寻求平衡与成长'}。`,
             freudian: `梦境中的${mainSymbol || '意象'}反映了潜意识中的某种渴望或压抑。弗洛伊德认为梦境是"通往潜意识的皇家大道"，${mood === '恐惧' || mood === '焦虑' ? '当前的情绪可能来源于现实中的压力投射' : '此梦可能暗示内在需求的满足或补偿'}。`,
             jungian: `从荣格的视角看，${mainSymbol || '意象'}关联着"${archetype}"原型。这种原型在集体无意识中具有普遍意义，暗示你当前可能正经历一个与${mainSymbol === '坠落' ? '控制感和安全感' : mainSymbol === '追逐' ? '逃避和面对' : mainSymbol === '飞行' ? '自由和超越' : '内在成长'}相关的心理转化过程。`,
-            archetype: archetype
+            archetype: archetype,
+            suggestion: `${mood === '焦虑' || mood === '恐惧' ? '建议在白天找到适合自己的放松方式，正视内心的不安' : '保持当下良好状态，关注内心周期性的变化信号'}。`
         },
         summary: `此梦${eastOmen === '大吉' ? '为大吉之兆' : eastOmen === '凶兆' ? '需要留意' : '无特殊吉凶'}。东方解梦指向${eastWx}行能量的${eastOmen === '吉兆' || eastOmen === '大吉' ? '正向' : '需关注'}变化，西方心理学建议你${mood === '焦虑' || mood === '恐惧' ? '正视内心的不安，必要时寻求支持' : '保持当下的良好状态，注意情绪的周期性变化'}。`,
         luck_score: luckScore

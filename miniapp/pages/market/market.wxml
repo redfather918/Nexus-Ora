@@ -15,7 +15,7 @@
   <view class="tab-nav">
     <view class="tab {{tab=='items' ? 'active' : ''}}" bindtap="switchTab" data-t="items">精选好物</view>
     <view class="tab {{tab=='cart' ? 'active' : ''}}" bindtap="switchTab" data-t="cart">
-      购物袋 {{cartCount > 0 ? '(' + cartCount + ')' : ''}}
+      购物袋<text wx:if="{{cartCount > 0}}"> ({{cartCount}})</text>
     </view>
   </view>
 

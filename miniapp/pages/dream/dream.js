@@ -51,15 +51,15 @@ Page({
       const r = await app.request('/api/dream', { content, emotion }, 'POST');
       this.setData({ result: r, loading: false });
 
-      // 保存历史
+      // 保存历史（兼容 summary / interpretation / jungian 多种字段）
       const h = wx.getStorageSync('dreamHistory') || [];
       h.unshift({
         id: Date.now(),
         content: content.slice(0, 50),
         emotion,
         date: new Date().toLocaleDateString('zh-CN'),
-        zhougong: r.zhougong?.summary || '',
-        psych: r.psychology?.summary || ''
+        zhougong: (r.zhougong && (r.zhougong.summary || r.zhougong.interpretation || r.zhougong.title)) || '',
+        psych: (r.psychology && (r.psychology.summary || r.psychology.jungian || r.psychology.title)) || ''
       });
       wx.setStorageSync('dreamHistory', h.slice(0, 30));
     } catch (err) {
