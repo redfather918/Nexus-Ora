@@ -11,7 +11,7 @@ const cors    = require('cors');
 const path    = require('path');
 const fs      = require('fs');
 const initSqlJs = require('sql.js');
-const { paipan, getShishen } = require('./paipan_engine.js');
+const { paipan, getShishen, getWuxing } = require('./paipan_engine.js');
 const { ziwei } = require('./ziwei_engine.js');
 const axios   = require('axios');
 const paypal = require('./paypal.js');
@@ -500,6 +500,45 @@ function buildSummary(fortune, paipan, dimensions) {
              best_ages: bestYears, caution_ages: cautionYears, overview };
 }
 
+// 小程序统一参数解析：支持 birth_date/birth_time 或 year/month/day/hour/minute
+function parseBirthInput(body) {
+    let { year, month, day, hour=12, minute=0, gender='男', birth_date, birth_time } = body || {};
+    if (!year && birth_date) {
+        const [y, m, d] = String(birth_date).split('-').map(Number);
+        if (y && m && d) { year = y; month = m; day = d; }
+    }
+    if (birth_time) {
+        const [h, min] = String(birth_time).split(':').map(Number);
+        if (h !== undefined) hour = h;
+        if (min !== undefined) minute = min;
+    }
+    let g = gender;
+    if (g === 'male' || g === 1 || g === '1') g = '男';
+    if (g === 'female' || g === 2 || g === '2') g = '女';
+    return { year, month, day, hour, minute, gender: g };
+}
+
+// 简版大运计算：以月柱为基准顺排，每柱十年
+function computeDaYun(paipanResult, fortune) {
+    const GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    const startGz = paipanResult.bazi?.month || '';
+    if (!startGz || startGz.length < 2) return [];
+    const startGanIdx = GAN.indexOf(startGz[0]);
+    const startZhiIdx = ZHI.indexOf(startGz[1]);
+    if (startGanIdx < 0 || startZhiIdx < 0) return [];
+    const result = [];
+    for (let i = 0; i < 8; i++) {
+        const gan = GAN[(startGanIdx + i + 1) % 10];
+        const zhi = ZHI[(startZhiIdx + i + 1) % 12];
+        const startAge = 3 + i * 10;
+        const scores = (fortune || []).slice(startAge, startAge + 10).map(f => f.score);
+        const score = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 60;
+        result.push({ start_age: startAge, ganzhi: gan + zhi, wuxing: getWuxing(gan), score });
+    }
+    return result;
+}
+
 // ───────────────────────── Routes ─────────────────────────
 
 // ════════════════════════════════════════════════════════════
@@ -757,13 +796,13 @@ app.get('/api/health', (_req, res) => {
 // 主接口：排盘 → LLM → 报告
 app.post('/api/fortune', async (req, res) => {
     console.log('[API] /api/fortune body:', JSON.stringify(req.body));
-    const { year, month, day, hour=12, minute=0, gender='男' } = req.body;
-    console.log('[API] parsed:', {year:+year,month:+month,day:+day,hour:+hour,minute:+minute,gender});
-    if (!year||!month||!day) return res.status(400).json({success:false,error:'Missing year/month/day'});
+    const p = parseBirthInput(req.body);
+    console.log('[API] parsed:', p);
+    if (!p.year || !p.month || !p.day) return res.status(400).json({success:false,error:'Missing year/month/day'});
 
     // 1. JS 纯引擎排盘（不再依赖 Python child_process）
     let paipanResult;
-    try { paipanResult = paipan({year:+year,month:+month,day:+day,hour:+hour,minute:+minute,gender}); }
+    try { paipanResult = paipan({year:+p.year,month:+p.month,day:+p.day,hour:+p.hour,minute:+p.minute,gender:p.gender}); }
     catch(e) { return res.status(500).json({success:false,error:'Paipan: '+e.message}); }
     if (!paipanResult.success) return res.status(500).json(paipanResult);
 
@@ -790,7 +829,15 @@ app.post('/api/fortune', async (req, res) => {
     if (bestYears.length)    summary.best_ages    = bestYears;
     if (cautionYears.length) summary.caution_ages = cautionYears;
 
-    const report = { bazi: paipanResult, fortune, dimensions, summary, ai_enhanced: llmOk };
+    // 兼容小程序所需字段
+    const report = {
+        bazi: paipanResult,
+        fortune, dimensions, summary, ai_enhanced: llmOk,
+        wuxing_balance: paipanResult.wuxing_balance,
+        pillars: paipanResult.pillars,
+        da_yun: computeDaYun(paipanResult, fortune),
+        ai_insight: summary.overview
+    };
 
     // 3. 存库
     const rid = 'R'+ Date.now().toString(36).toUpperCase();
@@ -798,7 +845,7 @@ app.post('/api/fortune', async (req, res) => {
     if (db) {
         try {
             db.run('INSERT OR REPLACE INTO users(id,gender,birth_date) VALUES(?,?,?)',
-                   [uid, gender, `${year}-${month}-${day}`]);
+                   [uid, p.gender, `${p.year}-${p.month}-${p.day}`]);
             db.run('INSERT INTO fortune_reports(id,user_id,report_data,llm_enhanced) VALUES(?,?,?,?)',
                    [rid, uid, JSON.stringify(report), llmOk?1:0]);
             saveDB();
@@ -806,6 +853,62 @@ app.post('/api/fortune', async (req, res) => {
     }
 
     res.json({ success:true, report_id:rid, data:report });
+});
+
+// 灵境图谱：六维度深度分析（小程序专用）
+app.post('/api/radar', async (req, res) => {
+    console.log('[API] /api/radar body:', JSON.stringify(req.body));
+    const p = parseBirthInput(req.body);
+    if (!p.year || !p.month || !p.day) return res.status(400).json({success:false,error:'Missing year/month/day'});
+
+    let paipanResult;
+    try { paipanResult = paipan({year:+p.year,month:+p.month,day:+p.day,hour:+p.hour,minute:+p.minute,gender:p.gender}); }
+    catch(e) { return res.status(500).json({success:false,error:'Paipan: '+e.message}); }
+    if (!paipanResult.success) return res.status(500).json(paipanResult);
+
+    const fortune = algorithmFortune(paipanResult);
+    const dims = algorithmDimensions(paipanResult, fortune);
+    const summary = buildSummary(fortune, paipanResult, dims);
+
+    const wx = paipanResult.wuxing_balance || {};
+    const lucky = Object.entries(wx).sort((a,b)=>a[1]-b[1])[0]?.[0] || '木';
+    const bodyScore = summary.body_strength === '身强' ? 80 : summary.body_strength === '身弱' ? 40 : 60;
+
+    const dimNames = {
+        fate: '命格强弱',
+        wealth: '财运潜力',
+        career: '事业发展',
+        love: '感情姻缘',
+        health: '健康指数',
+        wisdom: '智慧灵性'
+    };
+
+    const mapped = {
+        fate: { score: bodyScore, summary: summary.overview, advice: summary.overview },
+        wealth: dims.wealth,
+        career: dims.career,
+        love: dims.relationships,
+        health: dims.health,
+        wisdom: dims.mentors
+    };
+
+    const dimensions = {};
+    const dimension_desc = {};
+    for (const k of Object.keys(dimNames)) {
+        dimensions[k] = mapped[k].score;
+        dimension_desc[k] = mapped[k].advice || mapped[k].summary || `${dimNames[k]}解析生成中`;
+    }
+
+    const data = {
+        total_score: summary.average_score,
+        day_master: summary.day_master,
+        body_strength: summary.body_strength,
+        lucky_element: '喜用' + lucky,
+        ai_summary: summary.overview,
+        dimensions,
+        dimension_desc
+    };
+    res.json({ success:true, data });
 });
 
 // 读取报告
@@ -1024,22 +1127,71 @@ app.post('/api/compatibility', (req, res) => {
     }
 });
 
+// 小程序缘分配对：字段与前端匹配
+app.post('/api/compat', (req, res) => {
+    console.log('[API] /api/compat body:', JSON.stringify(req.body));
+    const { birth_a, time_a, gender_a, birth_b, time_b, gender_b } = req.body || {};
+    if (!birth_a || !birth_b) return res.status(400).json({ success: false, error: '需要双方出生日期' });
+
+    function parsePerson(birth, time, gender) {
+        const [y, m, d] = String(birth).split('-').map(Number);
+        const [h, min] = time ? String(time).split(':').map(Number) : [12, 0];
+        let g = gender;
+        if (g === 'male' || g === 1 || g === '1') g = '男';
+        if (g === 'female' || g === 2 || g === '2') g = '女';
+        return { year: y, month: m, day: d, hour: h || 12, minute: min || 0, gender: g };
+    }
+
+    const a = parsePerson(birth_a, time_a, gender_a);
+    const b = parsePerson(birth_b, time_b, gender_b);
+    if (!a.year || !b.year) return res.status(400).json({ success: false, error: '出生日期格式错误' });
+
+    try {
+        const aResult = paipan({ ...a, year: +a.year, month: +a.month, day: +a.day });
+        const bResult = paipan({ ...b, year: +b.year, month: +b.month, day: +b.day });
+        if (!aResult.success || !bResult.success) return res.status(500).json({ success: false, error: '排盘失败' });
+        const c = calcCompatibility(aResult, bResult);
+        const dims = c.compatibility.dimensions;
+        const dimMap = {
+            '缘分': dims.romance.score,
+            '互补': dims.personality.score,
+            '共鸣': dims.career.score,
+            '磁场': dims.communicaton.score,
+            '灵性': dims.long_term.score
+        };
+        res.json({
+            success: true,
+            total_score: c.compatibility.overall_score,
+            level: c.compatibility.relation_type,
+            summary: c.compatibility.relation_desc,
+            advice: Array.isArray(c.compatibility.advice) ? c.compatibility.advice.join('\n') : c.compatibility.advice,
+            wx_relation: c.compatibility.wx_relation,
+            wx_score: c.compatibility.wx_score,
+            relation_icon: c.compatibility.relation_icon,
+            dimensions: dimMap
+        });
+    } catch (e) {
+        console.error('[Compat] error:', e.message);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 // ───────────────────────── 紫微斗数 API ────────────────────
 
 app.post('/api/ziwei', (req, res) => {
     console.log('[API] /api/ziwei body:', JSON.stringify(req.body));
-    const b = req.body;
-    if (!b.year || !b.month || !b.day) {
+    const p = parseBirthInput(req.body);
+    if (!p.year || !p.month || !p.day) {
         return res.status(400).json({ success: false, error: '缺少出生日期' });
     }
     try {
         const result = ziwei({
-            year:   +b.year,
-            month:  +b.month,
-            day:    +b.day,
-            hour:   b.hour !== undefined ? +b.hour : 12,
-            minute: b.minute !== undefined ? +b.minute : 0,
-            gender: b.gender || '未知'
+            year:   +p.year,
+            month:  +p.month,
+            day:    +p.day,
+            hour:   +p.hour,
+            minute: +p.minute,
+            gender: p.gender
         });
         res.json({ success: true, data: result });
     } catch (e) {
@@ -1068,6 +1220,7 @@ const DREAM_SYSTEM_PROMPT = `你是一位融汇中西方梦境解析的大师，
   "symbols": ["关键意象1", "关键意象2", "关键意象3", "关键意象4", "关键意象5"],
   "east_analysis": {
     "title": "周公解梦标题（8字内）",
+    "summary": "周公解梦简述（30-50字，点明吉凶和核心寓意）",
     "interpretation": "东方解梦详细解读（150-200字）",
     "five_element": "关联五行（金/木/水/火/土）",
     "omen": "吉兆/凶兆/平兆",
@@ -1075,9 +1228,11 @@ const DREAM_SYSTEM_PROMPT = `你是一位融汇中西方梦境解析的大师，
   },
   "west_analysis": {
     "title": "心理学解析标题（8字内）",
+    "summary": "心理学简述（30-50字，点明核心原型和情绪含义）",
     "freudian": "弗洛伊德视角解读（100-150字）",
     "jungian": "荣格原型视角解读（100-150字）",
-    "archetype": "关联荣格原型（如英雄/智者/阴影/阿尼玛/阿尼姆斯等）"
+    "archetype": "关联荣格原型（如英雄/智者/阴影/阿尼玛/阿尼姆斯等）",
+    "suggestion": "心理学行动建议（30-50字）"
   },
   "summary": "综合建议（80-120字，结合东西方给出行动指引）",
   "luck_score": 75
@@ -1226,6 +1381,7 @@ function algorithmDreamAnalysis(description, mood) {
         symbols: detectedSymbols.length > 0 ? detectedSymbols : ['未识别'],
         east_analysis: {
             title: eastTitle,
+            summary: `${eastOmen}：${eastTitle}。${eastRef.length > 20 ? eastRef.slice(0, 30) + '...' : eastRef}`,
             interpretation: `此梦涉及${detectedSymbols.join('、') || '寻常'}等意象。${eastRef}从五行角度看，此梦与${eastWx}行相关。建议关注${eastWx === '水' ? '财运和人际关系' : eastWx === '火' ? '事业和激情' : eastWx === '木' ? '成长和健康' : eastWx === '金' ? '竞争和决断' : '安稳和积累'}方面的变化。`,
             five_element: eastWx,
             omen: eastOmen,
@@ -1233,9 +1389,11 @@ function algorithmDreamAnalysis(description, mood) {
         },
         west_analysis: {
             title: '潜意识映射',
+            summary: `${mainSymbol || '梦境意象'}关联"${archetype}"原型，${mood === '焦虑' || mood === '恐惧' ? '潜意识正在处理内心的压力与恐惧' : '潜意识在寻求平衡与成长'}。`,
             freudian: `梦境中的${mainSymbol || '意象'}反映了潜意识中的某种渴望或压抑。弗洛伊德认为梦境是"通往潜意识的皇家大道"，${mood === '恐惧' || mood === '焦虑' ? '当前的情绪可能来源于现实中的压力投射' : '此梦可能暗示内在需求的满足或补偿'}。`,
             jungian: `从荣格的视角看，${mainSymbol || '意象'}关联着"${archetype}"原型。这种原型在集体无意识中具有普遍意义，暗示你当前可能正经历一个与${mainSymbol === '坠落' ? '控制感和安全感' : mainSymbol === '追逐' ? '逃避和面对' : mainSymbol === '飞行' ? '自由和超越' : '内在成长'}相关的心理转化过程。`,
-            archetype: archetype
+            archetype: archetype,
+            suggestion: `${mood === '焦虑' || mood === '恐惧' ? '建议在白天找到适合自己的放松方式，正视内心的不安' : '保持当下良好状态，关注内心周期性的变化信号'}。`
         },
         summary: `此梦${eastOmen === '大吉' ? '为大吉之兆' : eastOmen === '凶兆' ? '需要留意' : '无特殊吉凶'}。东方解梦指向${eastWx}行能量的${eastOmen === '吉兆' || eastOmen === '大吉' ? '正向' : '需关注'}变化，西方心理学建议你${mood === '焦虑' || mood === '恐惧' ? '正视内心的不安，必要时寻求支持' : '保持当下的良好状态，注意情绪的周期性变化'}。`,
         luck_score: luckScore
@@ -1245,7 +1403,8 @@ function algorithmDreamAnalysis(description, mood) {
 // 记录并分析梦境
 app.post('/api/dream', async (req, res) => {
     console.log('[API] /api/dream body keys:', Object.keys(req.body));
-    const { description, mood = '未指定', dream_date, title } = req.body;
+    const description = req.body.description || req.body.content || '';
+    const mood = req.body.mood || req.body.emotion || '未指定';
 
     if (!description || description.trim().length < 5) {
         return res.status(400).json({ success: false, error: '梦境描述至少需要5个字' });
@@ -1262,6 +1421,10 @@ app.post('/api/dream', async (req, res) => {
         console.log('[Dream] algorithm fallback used');
     }
 
+    // 兼容小程序字段
+    analysis.zhougong = analysis.east_analysis;
+    analysis.psychology = analysis.west_analysis;
+
     // 存库
     const did = 'D' + Date.now().toString(36).toUpperCase();
     if (db) {
@@ -1269,10 +1432,10 @@ app.post('/api/dream', async (req, res) => {
             db.run(`INSERT INTO dreams(id,title,description,mood,dream_date,symbols,east_analysis,west_analysis,summary,luck_score,llm_enhanced)
                     VALUES(?,?,?,?,?,?,?,?,?,?,?)`, [
                 did,
-                title || description.slice(0, 20),
+                req.body.title || description.slice(0, 20),
                 description,
                 mood,
-                dream_date || new Date().toISOString().slice(0, 10),
+                req.body.dream_date || new Date().toISOString().slice(0, 10),
                 JSON.stringify(analysis.symbols || []),
                 JSON.stringify(analysis.east_analysis),
                 JSON.stringify(analysis.west_analysis),
@@ -1442,7 +1605,9 @@ app.post('/api/persona/generate', (req, res) => {
 
 // 对话
 app.post('/api/persona/chat', async (req, res) => {
-    const { persona_id, message } = req.body || {};
+    const body = req.body || {};
+    const persona_id = body.persona_id || body.persona;
+    const message = body.message;
     if (!persona_id || !message) return res.status(400).json({ success:false, error:'缺少参数' });
     let persona = null;
     if (db) {
@@ -1462,7 +1627,8 @@ app.post('/api/persona/chat', async (req, res) => {
         '火':['火曰炎上，礼之光华。','热烈如火，亦需节制。你可愿与我共度此时？'],
         '土':['土爱稼穑，信者不疑。','厚德载物。你已经做得很好。']
     };
-    const fallback = (persona && fallbackReplies[persona.archetype.replace('者','')] || ['我在听。'])[Math.floor(Math.random()*2)];
+    const fallbackKey = persona?.archetype?.replace('者','') || '水';
+    const fallback = (fallbackReplies[fallbackKey] || fallbackReplies['水'])[Math.floor(Math.random()*2)];
 
     let reply = fallback;
     let ai_enhanced = false;
@@ -1732,6 +1898,87 @@ app.get('/api/divination/daily', (req, res) => {
     });
 });
 
+// 小程序占卜统一入口：tarot | jiaoqian | hexagram
+app.post('/api/divination', async (req, res) => {
+    const { method, question = '', spread = 'three' } = req.body || {};
+    if (!method) return res.status(400).json({ success:false, error:'缺少 method' });
+
+    if (method === 'tarot') {
+        const cards = drawTarot(spread);
+        let interpretation = cards.map(c => `【${c.position}】${c.name}${c.reversed?'（逆位）':''}：${c.meaning}`).join('\n');
+        if (question) interpretation = `问题：${question}\n\n` + interpretation;
+        let ai_reading = '';
+        let ai_enhanced = false;
+        if (CFG.deepseek.apiKey && question) {
+            const prompt = `你是一位资深塔罗解读师。用户问题："${question}"。\n牌阵：${spread}，抽到的牌：\n${cards.map(c=>`${c.position}: ${c.name}${c.reversed?'(逆)':''} — ${c.meaning}`).join('\n')}\n\n请用 200-300 字给出整体解读，指出核心讯息和行动建议。语气温暖而有智慧。`;
+            const r = await callLLMGeneric([{role:'user', content: prompt}], 800);
+            if (r) { ai_reading = r; ai_enhanced = true; }
+        }
+        const luckScore = Math.round(cards.reduce((s,c)=>s + (c.reversed?50:75),0) / cards.length);
+        return res.json({
+            success: true,
+            name: '塔罗·三张牌阵',
+            tagline: cards.map(c=>c.name).join(' · '),
+            interpretation,
+            advice: ai_enhanced ? '以上已含 AI 深度解读' : '',
+            ai_reading,
+            luck_score: luckScore,
+            cards,
+            ai_enhanced
+        });
+    }
+
+    if (method === 'jiaoqian') {
+        const throws_ = [Math.random()<0.5, Math.random()<0.5];
+        let result;
+        if (throws_[0] && !throws_[1]) result = '圣杯';
+        else if (!throws_[0] && !throws_[1]) result = '阴杯';
+        else if (throws_[0] && throws_[1]) result = '阳杯';
+        else result = '笑杯';
+        const meanings = {
+            '圣杯':'一阴一阳，阴阳调和。所求之事可行。',
+            '阴杯':'双阴，阴阳不协。所求未合天时，建议再请示或改日。',
+            '阳杯':'双阳，阴阳未谐。需多祈求，或事未至。',
+            '笑杯':'神明微笑，问题或许过于执念，可放宽心。'
+        };
+        let interpretation = meanings[result];
+        if (question) interpretation = `问题：${question}\n结果：${result}\n${meanings[result]}`;
+        let ai_reading = '';
+        if (CFG.deepseek.apiKey && question) {
+            const prompt = `用户以杯筊请示："${question}"。投掷结果：${result}（两筊：${throws_.map(t=>t?'阳':'阴').join('、')}）。\n请以庙宇解签师的语气，用 80-120 字解读此结果。`;
+            const r = await callLLMGeneric([{role:'user', content: prompt}], 400);
+            if (r) ai_reading = r;
+        }
+        const luckScore = result === '圣杯' ? 90 : result === '笑杯' ? 70 : 45;
+        return res.json({
+            success: true,
+            name: result,
+            tagline: '杯筊结果',
+            interpretation,
+            advice: ai_reading ? '庙祝解曰：' + ai_reading : '',
+            ai_reading,
+            luck_score: luckScore,
+            throws: throws_
+        });
+    }
+
+    if (method === 'hexagram') {
+        // 简版六爻：随机取一签作为卦象
+        const idx = Math.floor(Math.random() * QIAN_LIBRARY.length);
+        const qian = QIAN_LIBRARY[idx];
+        return res.json({
+            success: true,
+            name: '六爻·' + qian.level + '卦',
+            tagline: '随机起卦',
+            interpretation: qian.poem,
+            advice: qian.advice,
+            luck_score: qian.level.includes('上') ? 80 : qian.level.includes('下') ? 30 : 55
+        });
+    }
+
+    res.status(400).json({ success:false, error:'未知 method' });
+});
+
 // ════════════════════════════════════════════════════════════
 //  v3.6  灵境修行 (Cultivation)
 // ════════════════════════════════════════════════════════════
@@ -1900,6 +2147,16 @@ const MARKET_EVENTS = [
 app.get('/api/market/digital',  (_req, res) => res.json({ success:true, items: MARKET_DIGITAL }));
 app.get('/api/market/crystals', (_req, res) => res.json({ success:true, items: MARKET_CRYSTALS }));
 app.get('/api/market/events',   (_req, res) => res.json({ success:true, items: MARKET_EVENTS }));
+
+// 小程序市集统一入口
+app.get('/api/market', (_req, res) => {
+    const items = [
+        ...MARKET_DIGITAL.map(i => ({ ...i, emoji: i.icon, tag: '数字', stock: 999 })),
+        ...MARKET_CRYSTALS.map(i => ({ ...i, emoji: '💎', tag: i.wx || '水晶', stock: 99 })),
+        ...MARKET_EVENTS.map(i => ({ ...i, emoji: '📅', tag: '活动', stock: i.slots || 30 }))
+    ];
+    res.json({ success:true, items });
+});
 
 app.post('/api/market/wishlist', (req, res) => {
     const { user_id='guest', item_id, item_type } = req.body || {};

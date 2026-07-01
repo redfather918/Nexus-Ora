@@ -86,7 +86,7 @@
         </view>
         <view class="stat-divider"></view>
         <view class="stat-item">
-          <text class="stat-num">{{wx.getStorageSync('cultivationStreak') || 0}}</text>
+          <text class="stat-num">{{stats.streak || 0}}</text>
           <text class="stat-lbl">连续天数</text>
         </view>
       </view>

@@ -1,11 +1,123 @@
-.hero{position:relative;text-align:center;padding:80rpx 0 48rpx;overflow:hidden}
-.hero-glow{position:absolute;top:-80rpx;left:50%;margin-left:-200rpx;width:400rpx;height:400rpx;background:radial-gradient(circle,rgba(124,58,237,.3),transparent 70%)}
-.hero-icon{font-size:100rpx;display:block;margin-bottom:16rpx}
-.hero-title{font-size:52rpx;font-weight:700;color:#e2e8f0;display:block}
-.hero-sub{font-size:28rpx;color:#94a3b8;margin-top:8rpx;display:block}
-.hero-actions{margin-top:36rpx}
-.module-grid{display:grid;grid-template-columns:1fr 1fr;gap:16rpx;margin-top:24rpx}
-.module-card{background:rgba(30,30,60,.6);border-radius:24rpx;padding:28rpx;text-align:center;border:1rpx solid rgba(139,92,246,.1)}
-.module-icon{font-size:48rpx;display:block;margin-bottom:8rpx}
-.module-name{font-size:26rpx;font-weight:600;color:#e2e8f0;display:block}
-.module-desc{font-size:20rpx;color:#64748b;margin-top:4rpx;display:block}
+/* index.wxss - 首页样式 */
+@import "../../app.wxss";
+
+/* ===== Hero 区域 ===== */
+.hero {
+  position: relative;
+  text-align: center;
+  padding: 60rpx 32rpx 48rpx;
+  margin: -24rpx -24rpx 36rpx;
+  background: linear-gradient(180deg, rgba(124,58,237,0.15) 0%, transparent 100%);
+  overflow: hidden;
+}
+.hero-glow {
+  position: absolute;
+  top: -60rpx; left: 50%; transform: translateX(-50%);
+  width: 400rpx; height: 400rpx;
+  background: radial-gradient(circle, rgba(167,139,250,0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.hero-icon {
+  display: block;
+  font-size: 120rpx;
+  margin-bottom: 16rpx;
+  position: relative;
+  z-index: 1;
+}
+.hero-title {
+  display: block;
+  font-size: 56rpx;
+  font-weight: 900;
+  color: #E5E7EB;
+  letter-spacing: 4rpx;
+  position: relative;
+  z-index: 1;
+}
+.hero-sub {
+  display: block;
+  font-size: 26rpx;
+  color: #9CA3AF;
+  margin-top: 8rpx;
+  position: relative;
+  z-index: 1;
+}
+.hero-actions {
+  margin-top: 32rpx;
+  position: relative;
+  z-index: 1;
+}
+.hero-actions .btn-primary,
+.hero-actions .btn-secondary {
+  display: inline-block;
+  width: auto;
+  min-width: 280rpx;
+  padding: 24rpx 48rpx;
+}
+
+/* ===== 模块网格 ===== */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20rpx;
+}
+.module-card {
+  background: rgba(30, 30, 60, 0.7);
+  border-radius: 24rpx;
+  padding: 28rpx 20rpx;
+  border: 1rpx solid rgba(139, 92, 246, 0.18);
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+.module-card:active {
+  transform: scale(0.97);
+  border-color: rgba(167, 139, 250, 0.5);
+  background: rgba(167, 139, 250, 0.1);
+}
+/* 悬停光晕效果 */
+.module-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(167,139,250,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.module-icon {
+  display: block;
+  font-size: 56rpx;
+  margin-bottom: 12rpx;
+  position: relative;
+  z-index: 1;
+}
+.module-name {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #E5E7EB;
+  margin-bottom: 6rpx;
+  position: relative;
+  z-index: 1;
+}
+.module-desc {
+  display: block;
+  font-size: 20rpx;
+  color: #6B7280;
+  line-height: 1.4;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== 首页底部 ===== */
+.index-footer {
+  text-align: center;
+  padding: 48rpx 0 32rpx;
+  margin-top: 16rpx;
+}
+.index-footer-text {
+  display: block;
+  font-size: 20rpx;
+  color: #374151;
+  line-height: 1.6;
+}

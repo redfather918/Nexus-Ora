@@ -49,17 +49,27 @@ Page({
     this.setData({ loading: true, result: null });
     try {
       const r = await app.request('/api/dream', { content, emotion }, 'POST');
-      this.setData({ result: r, loading: false });
 
-      // 保存历史
+      // 后端返回 east_analysis / west_analysis，WXML 用 zhougong / psychology，做字段映射
+      const zhougong = r.east_analysis || r.zhougong || {};
+      const psychology = r.west_analysis || r.psychology || {};
+      const mappedResult = {
+        ...r,
+        zhougong,
+        psychology,
+        wuxing: r.wuxing || (zhougong.five_element ? `此梦五行属${zhougong.five_element}行，${zhougong.omen || '平兆'}。` : '')
+      };
+      this.setData({ result: mappedResult, loading: false });
+
+      // 保存历史（兼容 summary / interpretation / jungian 多种字段）
       const h = wx.getStorageSync('dreamHistory') || [];
       h.unshift({
         id: Date.now(),
         content: content.slice(0, 50),
         emotion,
         date: new Date().toLocaleDateString('zh-CN'),
-        zhougong: r.zhougong?.summary || '',
-        psych: r.psychology?.summary || ''
+        zhougong: (zhougong.summary || zhougong.interpretation || zhougong.title) || '',
+        psych: (psychology.summary || psychology.jungian || psychology.title) || ''
       });
       wx.setStorageSync('dreamHistory', h.slice(0, 30));
     } catch (err) {

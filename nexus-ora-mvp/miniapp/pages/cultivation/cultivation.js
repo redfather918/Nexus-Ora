@@ -27,7 +27,12 @@ Page({
     const streak = wx.getStorageSync('cultivationStreak') || 0;
     const todayDone = wx.getStorageSync('cultivationToday') || [];
     const history = wx.getStorageSync('cultivationHistory') || [];
-    this.setData({ streak, todayDone, history: history.slice(0, 30) });
+    // 将 done 状态嵌入 practices（WXML 不支持 .includes() 调用）
+    const practices = this.data.practices.map(p => ({
+      ...p,
+      done: todayDone.indexOf(p.id) !== -1
+    }));
+    this.setData({ streak, todayDone, history: history.slice(0, 30), practices });
     this.checkStreak();
   },
 
@@ -46,7 +51,8 @@ Page({
         this.setData({ streak: 0 });
       }
       wx.setStorageSync('cultivationToday', []);
-      this.setData({ todayDone: [] });
+      const practices = this.data.practices.map(p => ({ ...p, done: false }));
+      this.setData({ todayDone: [], practices });
     }
   },
 
@@ -123,10 +129,16 @@ Page({
     });
     wx.setStorageSync('cultivationHistory', h.slice(0, 60));
 
+    // 更新 practices 的 done 状态
+    const practices = this.data.practices.map(p => ({
+      ...p,
+      done: done.indexOf(p.id) !== -1
+    }));
     this.setData({
       todayDone: done, streak: newStreak,
       activePractice: null, timer: 0, timerRunning: false,
-      journalText: '', showJournal: false
+      journalText: '', showJournal: false,
+      practices
     });
   },
 

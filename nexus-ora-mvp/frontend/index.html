@@ -3055,7 +3055,7 @@ function generateShareCardHTML() {
   const APP_URL = (typeof window.__APP_URL !== 'undefined' && window.__APP_URL)
     || (document.querySelector('meta[name="app-url"]')?.content)
     || (typeof window.location !== 'undefined' ? window.location.origin : '')
-    || 'https://nexus-ora.example.com';
+    || 'https://life.p1web.site';
 
   function _brand() { return '<div style="display:flex;align-items:center;gap:10px;position:relative;z-index:2;margin-bottom:16px;"><div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px rgba(168,85,247,.4);">✦</div><div style="font-size:11px;color:#9CA3AF;letter-spacing:2px;font-weight:500;">NEXUS ORA</div></div>'; }
   function _footer(l, s) { s=s||'免费'; return '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;position:relative;z-index:2;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);"><div style="font-size:10px;color:#6B7280;">@NexusOra · AI玄学平台</div><a href="'+APP_URL+'" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;color:#9CA3AF;text-align:center;line-height:1.3;">扫码<br/>'+l+'</div><div style="font-size:8px;color:#4B5563;">'+s+'</div></a></div>'; }
@@ -3119,7 +3119,7 @@ function generateShareCardHTML() {
   }
 
   // Fallback (v2.0)
-  return _wrap('<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#6B7280;position:relative;z-index:2;">敬请期待</div>');
+  return _wrap('<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#6B7280;position:relative;z-index:2;font-size:14px;">更多精彩即将呈现</div>');
 }
 
 function downloadShareCard() {
@@ -4565,7 +4565,7 @@ async function toggleWishlist(itemId, type) {
 }
 
 function buyDemo(name) {
-    alert(`【Demo 模式】\n\n\"${name}\" 已加入您的愿望清单。\n\n实际购买功能在正式版上线，敬请期待！`);
+    alert(`【Demo 模式】\n\n\"${name}\" 已加入您的愿望清单。\n\n正式上线后即可完成购买，感谢关注！`);
 }
 
 </script>
@@ -5115,7 +5115,7 @@ function buyDemo(name) {
           </div>
           <div>
             <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">App URL (回调地址)</label>
-            <input type="text" id="cfg-app-url" placeholder="https://your-domain.com" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            <input type="text" id="cfg-app-url" placeholder="https://life.p1web.site" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
           </div>
           <div>
             <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">修改管理员密码 (留空不修改)</label>

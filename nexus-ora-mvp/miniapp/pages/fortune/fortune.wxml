@@ -150,7 +150,7 @@
     <!-- 操作按钮 -->
     <view class="action-row">
       <button class="btn-secondary" bindtap="reset">重新排盘</button>
-      <button class="btn-ghost" bindtap="shareCard">分享结果</button>
+      <button class="btn-ghost" open-type="share">分享结果</button>
     </view>
   </view>
 </view>

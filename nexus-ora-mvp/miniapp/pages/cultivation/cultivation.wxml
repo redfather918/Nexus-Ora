@@ -61,7 +61,7 @@
     <!-- 今日修炼 -->
     <view wx:if="{{tab=='today'}}">
       <view
-        class="card prac-item {{todayDone.includes(item.id) ? 'done' : ''}}"
+        class="card prac-item {{item.done ? 'done' : ''}}"
         wx:for="{{practices}}"
         wx:key="id"
         bindtap="startPractice"
@@ -72,7 +72,7 @@
           <text class="pi-name">{{item.name}}</text>
           <text class="pi-desc">{{item.desc}} · {{item.duration}}分钟</text>
         </view>
-        <text class="pi-check">{{todayDone.includes(item.id) ? '✅' : '▶'}}</text>
+        <text class="pi-check">{{item.done ? '✅' : '▶'}}</text>
       </view>
     </view>
 
@@ -83,13 +83,15 @@
         <text class="empty-title">开始您的修行之旅</text>
         <text class="empty-desc">每日坚持，积累灵性能量</text>
       </view>
-      <view class="card h-item" wx:else wx:for="{{history}}" wx:key="date">
-        <view class="hi-top">
-          <text class="hi-practice">{{item.practice}}</text>
-          <text class="hi-date">{{item.date}}</text>
+      <view wx:else>
+        <view class="card h-item" wx:for="{{history}}" wx:key="date">
+          <view class="hi-top">
+            <text class="hi-practice">{{item.practice}}</text>
+            <text class="hi-date">{{item.date}}</text>
+          </view>
+          <text class="hi-duration">修炼 {{item.duration}} 分钟</text>
+          <text class="hi-journal" wx:if="{{item.journal}}">📖 {{item.journal}}</text>
         </view>
-        <text class="hi-duration">修炼 {{item.duration}} 分钟</text>
-        <text class="hi-journal" wx:if="{{item.journal}}">📖 {{item.journal}}</text>
       </view>
     </view>
   </view>
