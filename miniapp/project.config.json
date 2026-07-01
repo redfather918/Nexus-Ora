@@ -30,7 +30,7 @@
     }
   },
   "compileType": "miniprogram",
-  "libVersion": "3.5.0",
+  "libVersion": "3.16.2",
   "appid": "wx3c837e3eef069d30",
   "projectname": "nexus-ora",
   "condition": {},

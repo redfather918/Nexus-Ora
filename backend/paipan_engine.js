@@ -115,7 +115,10 @@ function paipan(input) {
             day_gan: dayGan,
             day_wuxing: dayWuxing,
             body_strength: bodyStrength,
-            strength_score: strengthScore
+            strength_score: strengthScore,
+            animal: lunar.getYearShengXiao(),
+            zodiac: solar.getXingZuo(),
+            lunar: `${lunar.getYear()}年${lunar.getMonth()}月${lunar.getDay()}日`
         },
         pillars,
         wuxing_balance: wuxingCount,

@@ -18,8 +18,11 @@ Page({
       app.globalData.userProfile = p;
     }
     this.loadStats();
-    // 检查是否从 fortune 跳转过来要求填写档案
-    const query = this.getOpenerEventChannel?.();
+    // 从首页“设置出生信息”跳转过来时自动打开编辑
+    if (app.globalData.pendingAction === 'birth') {
+      this.setData({ editing: true });
+      app.globalData.pendingAction = null;
+    }
   },
 
   loadStats() {

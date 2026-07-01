@@ -1,5 +1,13 @@
 const app = getApp();
 
+const TAB_BAR_PAGES = [
+  '/pages/index/index',
+  '/pages/fortune/fortune',
+  '/pages/persona/persona',
+  '/pages/market/market',
+  '/pages/mine/mine'
+];
+
 Page({
   data: {
     hasProfile: false,
@@ -20,10 +28,16 @@ Page({
     this.setData({ hasProfile: !!p });
   },
   openBirthForm() {
-    wx.navigateTo({ url: '/pages/mine/mine?action=birth' });
+    app.globalData.pendingAction = 'birth';
+    wx.switchTab({ url: '/pages/mine/mine' });
   },
   goModule(e) {
     const page = e.currentTarget.dataset.page;
-    wx.navigateTo({ url: page });
+    if (!page) return;
+    if (TAB_BAR_PAGES.includes(page)) {
+      wx.switchTab({ url: page });
+    } else {
+      wx.navigateTo({ url: page });
+    }
   }
 });
