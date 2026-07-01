@@ -83,13 +83,15 @@
         <text class="empty-title">开始您的修行之旅</text>
         <text class="empty-desc">每日坚持，积累灵性能量</text>
       </view>
-      <view class="card h-item" wx:else wx:for="{{history}}" wx:key="date">
-        <view class="hi-top">
-          <text class="hi-practice">{{item.practice}}</text>
-          <text class="hi-date">{{item.date}}</text>
+      <view wx:else>
+        <view class="card h-item" wx:for="{{history}}" wx:key="date">
+          <view class="hi-top">
+            <text class="hi-practice">{{item.practice}}</text>
+            <text class="hi-date">{{item.date}}</text>
+          </view>
+          <text class="hi-duration">修炼 {{item.duration}} 分钟</text>
+          <text class="hi-journal" wx:if="{{item.journal}}">📖 {{item.journal}}</text>
         </view>
-        <text class="hi-duration">修炼 {{item.duration}} 分钟</text>
-        <text class="hi-journal" wx:if="{{item.journal}}">📖 {{item.journal}}</text>
       </view>
     </view>
   </view>
