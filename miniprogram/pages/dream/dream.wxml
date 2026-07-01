@@ -1,4 +1,86 @@
-<view class="container">
-  <view class="page-title">梦境回廊</view>
-  <view class="placeholder">功能开发中...</view>
+<!-- pages/dream/dream.wxml -->
+<view class="container dream-container">
+  <view class="header">
+    <view class="page-title">梦境回廊</view>
+    <view class="page-subtitle">AI解梦 · 双维度解析</view>
+  </view>
+
+  <!-- 输入态 -->
+  <view wx:if="{{!hasResult}}">
+    <view class="empty-state">
+      <view class="empty-icon">🌙</view>
+      <view class="empty-title">描述你的梦境</view>
+      <view class="empty-desc">东方周公解梦 + 西方心理学双视角，为你揭开梦境密码</view>
+    </view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">梦境描述</text>
+        <textarea class="dream-textarea" placeholder="如：梦见自己在一片花海中奔跑，天空下着金色的雨..." value="{{description}}" bindinput="onInput" maxlength="500" />
+        <text class="char-count">{{description.length}}/500</text>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">梦境氛围</text>
+        <view class="mood-list">
+          <view class="mood-item {{selectedMood === item.label ? 'active' : ''}}" wx:for="{{moods}}" wx:key="label" bindtap="selectMood" data-mood="{{item.label}}" style="{{selectedMood === item.label ? 'border-color:' + item.color + '; background:' + item.color + '20;' : ''}}">
+            <text class="mood-dot" style="background: {{item.color}};"></text>
+            <text class="mood-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <button class="submit-btn" bindtap="analyze" disabled="{{loading || description.length < 5}}">
+        {{loading ? '解析中...' : '开始解梦'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 结果态 -->
+  <view wx:else class="result-state">
+    <view class="score-card">
+      <view class="score-header">
+        <text class="score-mood">情绪：{{result.mood}}</text>
+        <text class="score-value">{{result.luck_score}}</text>
+      </view>
+      <view class="score-label">梦境能量指数</view>
+      <view class="symbols-list">
+        <text class="tag tag-purple" wx:for="{{result.symbols}}" wx:key="index">{{item}}</text>
+      </view>
+    </view>
+
+    <view class="analysis-card east" wx:if="{{result.east_analysis}}">
+      <view class="analysis-title">
+        <text class="title-icon">☯</text>
+        <text>周公解梦：{{result.east_analysis.title}}</text>
+      </view>
+      <view class="analysis-content">{{result.east_analysis.interpretation}}</view>
+      <view class="analysis-meta">
+        <text class="tag tag-blue">五行：{{result.east_analysis.five_element}}</text>
+        <text class="tag tag-amber">{{result.east_analysis.omen}}</text>
+      </view>
+      <view class="classic-ref">{{result.east_analysis.classic_ref}}</view>
+    </view>
+
+    <view class="analysis-card west" wx:if="{{result.west_analysis}}">
+      <view class="analysis-title">
+        <text class="title-icon">🧠</text>
+        <text>心理学解析：{{result.west_analysis.title}}</text>
+      </view>
+      <view class="analysis-subtitle">弗洛伊德视角</view>
+      <view class="analysis-content">{{result.west_analysis.freudian}}</view>
+      <view class="analysis-subtitle">荣格原型视角</view>
+      <view class="analysis-content">{{result.west_analysis.jungian}}</view>
+      <view class="analysis-meta">
+        <text class="tag tag-pink">原型：{{result.west_analysis.archetype}}</text>
+      </view>
+    </view>
+
+    <view class="summary-card" wx:if="{{result.summary}}">
+      <view class="summary-title">💡 综合建议</view>
+      <view class="summary-content">{{result.summary}}</view>
+    </view>
+
+    <button class="reset-btn" bindtap="reset">再解一梦</button>
+  </view>
 </view>

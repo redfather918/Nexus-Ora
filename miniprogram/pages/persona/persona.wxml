@@ -1,4 +1,106 @@
-<view class="container">
-  <view class="page-title">灵境人格</view>
-  <view class="placeholder">功能开发中...</view>
+<!-- pages/persona/persona.wxml -->
+<view class="container persona-container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <view class="page-title">灵境人格</view>
+    <view class="page-subtitle">十神人格 · AI 灵魂伴侣</view>
+  </view>
+
+  <!-- 输入态 -->
+  <view wx:if="{{!hasPersona}}">
+    <view class="empty-state">
+      <view class="empty-icon">🧬</view>
+      <view class="empty-title">生成你的专属人格</view>
+      <view class="empty-desc">输入出生信息，召唤一位与你命理互补的灵魂伴侣</view>
+    </view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">出生日期</text>
+        <picker mode="date" value="{{birthDate}}" bindchange="onDateChange" class="form-picker">
+          <view class="form-value {{birthDate ? '' : 'placeholder'}}">
+            {{birthDate || '请选择日期'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">出生时辰</text>
+        <picker mode="time" value="{{birthTime}}" bindchange="onTimeChange" class="form-picker">
+          <view class="form-value {{birthTime ? '' : 'placeholder'}}">
+            {{birthTime || '请选择时辰'}}
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-item">
+        <text class="form-label">性别</text>
+        <radio-group bindchange="onGenderChange" class="form-radio">
+          <label class="radio-item">
+            <radio value="male" color="#A855F7" checked="{{gender==='male'}}" />
+            <text>男</text>
+          </label>
+          <label class="radio-item">
+            <radio value="female" color="#A855F7" checked="{{gender==='female'}}" />
+            <text>女</text>
+          </label>
+        </radio-group>
+      </view>
+
+      <button class="submit-btn" bindtap="generatePersona" disabled="{{!canSubmit || loading}}">
+        {{loading ? '召唤中...' : '生成我的人格'}}
+      </button>
+      <view class="form-tip">人格仅本地缓存，可随时重置</view>
+    </view>
+  </view>
+
+  <!-- 结果态：人格展示 + 对话 -->
+  <view wx:else class="persona-result">
+    <view class="persona-card">
+      <view class="persona-header">
+        <view class="persona-avatar">{{persona.virtual_gender === '女' ? '👸' : '🧝'}}</view>
+        <view class="persona-meta">
+          <text class="persona-name">{{persona.name}}</text>
+          <text class="persona-archetype">{{persona.archetype}} · {{persona.main_shishen}}</text>
+        </view>
+      </view>
+      <view class="persona-tags">
+        <text class="tag tag-purple" wx:for="{{persona.traits}}" wx:key="*this">{{item}}</text>
+      </view>
+      <view class="persona-style">
+        <text class="style-label">说话风格：</text>
+        <text class="style-text">{{persona.speaking_style}}</text>
+      </view>
+      <view class="persona-weakness" wx:if="{{persona.weakness}}">
+        <text class="weakness-label">性格弱点：</text>
+        <text class="weakness-text">{{persona.weakness}}</text>
+      </view>
+    </view>
+
+    <view class="chat-card">
+      <view class="chat-title">💬 与 {{persona.name}} 对话</view>
+      <scroll-view class="chat-list" scroll-y scroll-into-view="{{scrollTo}}" scroll-with-animation>
+        <view class="chat-message" wx:for="{{messages}}" wx:key="index" id="msg-{{index}}">
+          <view class="message {{item.role}}">
+            <view class="avatar {{item.role}}-avatar">{{item.role === 'user' ? '我' : '灵'}}</view>
+            <view class="bubble {{item.role}}-bubble">
+              <text class="bubble-text">{{item.content}}</text>
+            </view>
+          </view>
+        </view>
+        <view wx:if="{{loading}}" class="typing">
+          <text class="typing-dot"></text>
+          <text class="typing-dot"></text>
+          <text class="typing-dot"></text>
+        </view>
+      </scroll-view>
+
+      <view class="chat-input-bar">
+        <input class="chat-input" placeholder="说点什么..." value="{{inputValue}}" bindinput="onInput" confirm-type="send" bindconfirm="sendMessage" />
+        <button class="send-btn" bindtap="sendMessage" disabled="{{!inputValue || loading}}">发送</button>
+      </view>
+    </view>
+
+    <button class="reset-btn" bindtap="resetPersona">重置人格</button>
+  </view>
 </view>

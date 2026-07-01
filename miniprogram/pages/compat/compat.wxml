@@ -1,4 +1,143 @@
-<view class="container">
-  <view class="page-title">缘分配对</view>
-  <view class="placeholder">功能开发中...</view>
+<!-- pages/compat/compat.wxml -->
+<view class="container compat-container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <view class="page-title">缘分配对</view>
+    <view class="page-subtitle">双人合盘 · 五维评分</view>
+  </view>
+
+  <!-- 输入态 -->
+  <view wx:if="{{!hasResult}}">
+    <view class="empty-state">
+      <view class="empty-icon">💞</view>
+      <view class="empty-title">看看你们的缘分</view>
+      <view class="empty-desc">输入双方出生信息，从五行、十神、日柱多维度解读关系</view>
+    </view>
+
+    <view class="form-card">
+      <view class="person-block">
+        <view class="person-title">
+          <text class="person-icon">👤</text>
+          <text>第一人信息</text>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">昵称</text>
+          <input class="form-input" placeholder="如：小明" value="{{personA.name}}" bindinput="onANameInput" />
+        </view>
+        <view class="form-row">
+          <view class="form-item half">
+            <text class="form-label">出生日期</text>
+            <picker mode="date" value="{{personA.birthDate}}" bindchange="onADateChange">
+              <view class="form-picker-value {{personA.birthDate ? '' : 'placeholder'}}">{{personA.birthDate || '选择'}}</view>
+            </picker>
+          </view>
+          <view class="form-item half">
+            <text class="form-label">出生时辰</text>
+            <picker mode="time" value="{{personA.birthTime}}" bindchange="onATimeChange">
+              <view class="form-picker-value {{personA.birthTime ? '' : 'placeholder'}}">{{personA.birthTime || '选择'}}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="form-label">性别</text>
+          <radio-group bindchange="onAGenderChange" class="form-radio">
+            <label class="radio-item"><radio value="male" color="#A855F7" checked="{{personA.gender==='male'}}" />男</label>
+            <label class="radio-item"><radio value="female" color="#A855F7" checked="{{personA.gender==='female'}}" />女</label>
+          </radio-group>
+        </view>
+      </view>
+
+      <view class="divider"></view>
+
+      <view class="person-block">
+        <view class="person-title">
+          <text class="person-icon">👤</text>
+          <text>第二人信息</text>
+        </view>
+
+        <view class="form-item">
+          <text class="form-label">昵称</text>
+          <input class="form-input" placeholder="如：小红" value="{{personB.name}}" bindinput="onBNameInput" />
+        </view>
+        <view class="form-row">
+          <view class="form-item half">
+            <text class="form-label">出生日期</text>
+            <picker mode="date" value="{{personB.birthDate}}" bindchange="onBDateChange">
+              <view class="form-picker-value {{personB.birthDate ? '' : 'placeholder'}}">{{personB.birthDate || '选择'}}</view>
+            </picker>
+          </view>
+          <view class="form-item half">
+            <text class="form-label">出生时辰</text>
+            <picker mode="time" value="{{personB.birthTime}}" bindchange="onBTimeChange">
+              <view class="form-picker-value {{personB.birthTime ? '' : 'placeholder'}}">{{personB.birthTime || '选择'}}</view>
+            </picker>
+          </view>
+        </view>
+        <view class="form-item">
+          <text class="form-label">性别</text>
+          <radio-group bindchange="onBGenderChange" class="form-radio">
+            <label class="radio-item"><radio value="male" color="#EC4899" checked="{{personB.gender==='male'}}" />男</label>
+            <label class="radio-item"><radio value="female" color="#EC4899" checked="{{personB.gender==='female'}}" />女</label>
+          </radio-group>
+        </view>
+      </view>
+
+      <button class="submit-btn" bindtap="calculate" disabled="{{!canSubmit || loading}}">
+        {{loading ? '合盘中...' : '开始合盘'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 结果态 -->
+  <view wx:else class="result-state">
+    <view class="score-card">
+      <view class="score-icon">{{result.compatibility.relation_icon}}</view>
+      <view class="score-type">{{result.compatibility.relation_type}}</view>
+      <view class="score-value">{{result.compatibility.overall_score}}<text class="score-unit">分</text></view>
+      <view class="score-label">缘分指数</view>
+      <view class="relation-desc">{{result.compatibility.relation_desc}}</view>
+    </view>
+
+    <view class="detail-card">
+      <view class="detail-title">五维关系图</view>
+      <view class="dimension-list">
+        <view class="dimension-item" wx:for="{{result.compatibility.dimensions}}" wx:for-index="key" wx:for-item="dim" wx:key="key">
+          <view class="dim-info">
+            <text class="dim-label">{{dim.label}}</text>
+            <text class="dim-score">{{dim.score}}分</text>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{dim.score}}%; background: {{dim.score>=80?'#4ADE80':dim.score>=60?'#A855F7':'#F87171'}};"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-card" wx:if="{{result.compatibility.wx_relation}}">
+      <view class="detail-title">五行关系</view>
+      <view class="meta-row">
+        <view class="meta-item">
+          <text class="meta-label">五行互动</text>
+          <text class="meta-value">{{result.compatibility.wx_relation}}</text>
+        </view>
+        <view class="meta-item" wx:if="{{result.compatibility.zhi_relation}}">
+          <text class="meta-label">日柱关系</text>
+          <text class="meta-value">{{result.compatibility.zhi_relation}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-card" wx:if="{{result.compatibility.advice && result.compatibility.advice.length}}">
+      <view class="detail-title">相处建议</view>
+      <view class="advice-list">
+        <view class="advice-item" wx:for="{{result.compatibility.advice}}" wx:key="index">
+          <text class="advice-dot">•</text>
+          <text class="advice-text">{{item}}</text>
+        </view>
+      </view>
+    </view>
+
+    <button class="reset-btn" bindtap="reset">重新合盘</button>
+  </view>
 </view>

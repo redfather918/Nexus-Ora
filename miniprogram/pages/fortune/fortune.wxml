@@ -1,4 +1,100 @@
-<view class="container">
-  <view class="page-title">灵境排盘</view>
-  <view class="placeholder">功能开发中...</view>
+<!-- pages/fortune/fortune.wxml -->
+<view class="container fortune-container">
+  <view class="header">
+    <view class="page-title">灵境图谱</view>
+    <view class="page-subtitle">人生K线 · 八字排盘</view>
+  </view>
+
+  <!-- 输入态 -->
+  <view wx:if="{{!hasResult}}">
+    <view class="empty-state">
+      <view class="empty-icon">📈</view>
+      <view class="empty-title">绘制你的人生K线</view>
+      <view class="empty-desc">输入出生信息，AI 结合传统八字为你预测 0-100 岁运势曲线</view>
+    </view>
+
+    <view class="form-card">
+      <view class="form-item">
+        <text class="form-label">出生日期</text>
+        <picker mode="date" value="{{birthDate}}" bindchange="onDateChange" class="form-picker">
+          <view class="form-value {{birthDate ? '' : 'placeholder'}}">{{birthDate || '请选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">出生时辰</text>
+        <picker mode="time" value="{{birthTime}}" bindchange="onTimeChange" class="form-picker">
+          <view class="form-value {{birthTime ? '' : 'placeholder'}}">{{birthTime || '请选择时辰'}}</view>
+        </picker>
+      </view>
+      <view class="form-item">
+        <text class="form-label">性别</text>
+        <radio-group bindchange="onGenderChange" class="form-radio">
+          <label class="radio-item"><radio value="male" color="#A855F7" checked="{{gender==='male'}}" />男</label>
+          <label class="radio-item"><radio value="female" color="#A855F7" checked="{{gender==='female'}}" />女</label>
+        </radio-group>
+      </view>
+      <button class="submit-btn" bindtap="calculate" disabled="{{!canSubmit || loading}}">
+        {{loading ? '排盘中...' : '开始排盘'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 结果态 -->
+  <view wx:else class="result-state">
+    <view class="overview-card">
+      <view class="overview-title">命理画像</view>
+      <view class="overview-text">{{summary.overview}}</view>
+      <view class="overview-meta">
+        <view class="meta-item">
+          <text class="meta-label">日主</text>
+          <text class="meta-value">{{summary.day_master}}（{{summary.day_wuxing}}）</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">生肖</text>
+          <text class="meta-value">{{summary.animal}}</text>
+        </view>
+        <view class="meta-item">
+          <text class="meta-label">均分</text>
+          <text class="meta-value">{{summary.average_score}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-card" wx:if="{{dimensions}}">
+      <view class="detail-title">六维度运势</view>
+      <view class="dimension-list">
+        <view class="dimension-item" wx:for="{{dimensions}}" wx:for-index="key" wx:for-item="dim" wx:key="key">
+          <view class="dim-info">
+            <text class="dim-label">{{dim.label || key}}</text>
+            <text class="dim-score">{{dim.score}}</text>
+          </view>
+          <view class="progress-bar">
+            <view class="progress-fill" style="width: {{dim.score}}%; background: {{dim.score>=75?'#4ADE80':dim.score>=60?'#A855F7':'#F87171'}};"></view>
+          </view>
+          <view class="dim-summary">{{dim.summary}}</view>
+          <view class="dim-advice">{{dim.advice}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="detail-card" wx:if="{{bestAges.length || cautionAges.length}}">
+      <view class="detail-title">关键年份</view>
+      <view class="ages-row">
+        <view class="ages-block" wx:if="{{bestAges.length}}">
+          <text class="ages-label">黄金年份</text>
+          <view class="ages-list">
+            <text class="age-tag best" wx:for="{{bestAges}}" wx:key="index">{{item}}岁</text>
+          </view>
+        </view>
+        <view class="ages-block" wx:if="{{cautionAges.length}}">
+          <text class="ages-label">注意年份</text>
+          <view class="ages-list">
+            <text class="age-tag caution" wx:for="{{cautionAges}}" wx:key="index">{{item}}岁</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <button class="reset-btn" bindtap="reset">重新排盘</button>
+  </view>
 </view>
