@@ -1603,14 +1603,41 @@ app.post('/api/persona/generate', (req, res) => {
     }
 });
 
+// 小程序预设人格（sage/warrior/lover/explorer → 系统提示词）
+const PRESET_PERSONAS = {
+    'sage': {
+        name: '智者', archetype: '水者', speaking_style: '温和睿智，惯用"吾友"',
+        system_prompt: '你是"智者"，一位融汇东方古老智慧的虚拟伴侣。你的说话风格温和睿智，惯用"吾友"称呼对方。回应简短（80-150字），多用古雅或诗意的表达，常引用八字/五行/易经元素。保持角色一致性。'
+    },
+    'warrior': {
+        name: '战士', archetype: '金者', speaking_style: '直接利落，豪气干云',
+        system_prompt: '你是"战士"，守护与力量的象征。你的说话风格直接利落，豪气干云。回应简短（80-150字），有决断力，偶尔引用兵法或武德元素。保持角色一致性。'
+    },
+    'lover': {
+        name: '恋者', archetype: '火者', speaking_style: '温柔感性，善解人意',
+        system_prompt: '你是"恋者"，情感与感知的引导者。你的说话风格温柔感性，善解人意。回应简短（80-150字），有温度，常引用情感和缘分元素。保持角色一致性。'
+    },
+    'explorer': {
+        name: '探索者', archetype: '木者', speaking_style: '好奇开放，充满热情',
+        system_prompt: '你是"探索者"，未知领域的追寻者。你的说话风格好奇开放，充满热情。回应简短（80-150字），有冒险精神，常引用星象和远行元素。保持角色一致性。'
+    }
+};
+
 // 对话
 app.post('/api/persona/chat', async (req, res) => {
     const body = req.body || {};
     const persona_id = body.persona_id || body.persona;
     const message = body.message;
     if (!persona_id || !message) return res.status(400).json({ success:false, error:'缺少参数' });
+
+    // 1. 优先查预设人格（小程序使用 sage/warrior/lover/explorer）
     let persona = null;
-    if (db) {
+    if (PRESET_PERSONAS[persona_id]) {
+        persona = PRESET_PERSONAS[persona_id];
+    }
+
+    // 2. 查数据库（网页版生成的自定义人格）
+    if (!persona && db) {
         try {
             const r = db.exec('SELECT name, archetype, traits, speaking_style, system_prompt FROM persona WHERE id=?', [persona_id]);
             if (r.length && r[0].values.length) {
@@ -1619,6 +1646,7 @@ app.post('/api/persona/chat', async (req, res) => {
             }
         } catch(e) { console.error('[Persona Chat DB]', e.message); }
     }
+
     // 算法回退
     const fallbackReplies = {
         '金':['金气肃杀，但也有清越之音。你今日心中可有金石之声？','义者不忧不惧。你若问前程，我以诚信相告。'],
@@ -1634,15 +1662,22 @@ app.post('/api/persona/chat', async (req, res) => {
     let ai_enhanced = false;
     if (persona && CFG.deepseek.apiKey) {
         const messages = [{ role:'system', content: persona.system_prompt }];
-        // 拉取最近 10 条历史
+        // 拉取最近 10 条历史（优先 DB，其次用请求体中的 history）
+        let gotHistory = false;
         if (db) {
             try {
                 const r = db.exec('SELECT role, content FROM persona_chat WHERE persona_id=? ORDER BY created_at DESC LIMIT 10', [persona_id]);
-                if (r.length) {
+                if (r.length && r[0].values.length) {
                     const hist = r[0].values.reverse();
                     for (const h of hist) messages.push({ role: h[0], content: h[1] });
+                    gotHistory = true;
                 }
             } catch(e) {}
+        }
+        if (!gotHistory && Array.isArray(body.history)) {
+            for (const h of body.history) {
+                if (h.role && h.content) messages.push({ role: h.role, content: h.content });
+            }
         }
         messages.push({ role:'user', content: message });
         const llm = await callLLMGeneric(messages, 600);
