@@ -1,0 +1,25 @@
+@import "../../app.wxss";
+.loader-ring {
+  width: 80rpx; height: 80rpx; margin: 0 auto;
+  border: 6rpx solid rgba(167,139,250,0.3); border-top-color: #a78bfa;
+  border-radius: 50%; animation: spin 1s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.score-hero { text-align: center; padding: 40rpx; }
+.score-circle { margin-bottom: 24rpx; }
+.score-big { display: block; font-size: 80rpx; font-weight: 900; color: #a78bfa; line-height: 1; }
+.score-lbl { display: block; font-size: 24rpx; color: #9CA3AF; margin-top: 8rpx; }
+.score-tags { display: flex; justify-content: center; gap: 16rpx; flex-wrap: wrap; }
+.stag { padding: 8rpx 20rpx; background: rgba(167,139,250,0.15); color: #a78bfa; border-radius: 40rpx; font-size: 24rpx; font-weight: 600; }
+.dim-list { display: flex; flex-direction: column; gap: 24rpx; }
+.dim-row { display: flex; align-items: center; gap: 16rpx; }
+.dim-left { flex: 1; }
+.dim-name { display: block; font-size: 24rpx; color: #E5E7EB; margin-bottom: 10rpx; font-weight: 600; }
+.dim-bar-bg { height: 16rpx; background: rgba(255,255,255,0.08); border-radius: 8rpx; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 8rpx; transition: width 0.8s ease; }
+.dim-score { width: 56rpx; font-size: 28rpx; font-weight: 800; text-align: right; }
+.dim-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
+.dim-detail-name { font-size: 28rpx; font-weight: 700; }
+.dim-detail-score { font-size: 28rpx; font-weight: 700; }
+.dim-detail-desc { font-size: 26rpx; color: #D1D5DB; line-height: 1.7; }
+.insight-text { font-size: 26rpx; color: #D1D5DB; line-height: 1.7; }

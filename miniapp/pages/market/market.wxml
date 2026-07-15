@@ -1,0 +1,80 @@
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">💎</text>
+    <view>
+      <text class="page-title">灵境市集</text>
+      <text class="page-subtitle">数字藏品 · 开运好物</text>
+    </view>
+    <view class="cart-badge" wx:if="{{cartCount > 0}}" bindtap="switchTab" data-t="cart">
+      <text class="cart-icon">🛍️</text>
+      <text class="cart-num">{{cartCount}}</text>
+    </view>
+  </view>
+
+  <!-- Tab -->
+  <view class="tab-nav">
+    <view class="tab {{tab=='items' ? 'active' : ''}}" bindtap="switchTab" data-t="items">精选好物</view>
+    <view class="tab {{tab=='cart' ? 'active' : ''}}" bindtap="switchTab" data-t="cart">
+      购物袋<text wx:if="{{cartCount > 0}}"> ({{cartCount}})</text>
+    </view>
+  </view>
+
+  <!-- 商品列表 -->
+  <view wx:if="{{tab=='items'}}">
+    <!-- 分类 -->
+    <scroll-view scroll-x class="cat-scroll">
+      <view class="cat-row">
+        <view
+          class="cat-btn {{activeCategory==item ? 'active' : ''}}"
+          wx:for="{{categories}}"
+          wx:key="*this"
+          bindtap="setCategory"
+          data-cat="{{item}}"
+        >{{item}}</view>
+      </view>
+    </scroll-view>
+
+    <!-- 商品网格 -->
+    <view class="item-grid" wx:if="{{!loading}}">
+      <view class="item-card" wx:for="{{items}}" wx:key="id">
+        <view class="item-img">
+          <text class="item-emoji">{{item.emoji}}</text>
+        </view>
+        <view class="item-info">
+          <text class="item-name">{{item.name}}</text>
+          <text class="item-tag">{{item.tag}}</text>
+          <text class="item-desc">{{item.desc}}</text>
+          <view class="item-footer">
+            <text class="item-price">¥{{item.price}}</text>
+            <view class="add-btn" bindtap="addToCart" data-id="{{item.id}}">+</view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:else class="loading-hint"><text>加载中...</text></view>
+  </view>
+
+  <!-- 购物袋 -->
+  <view wx:elif="{{tab=='cart'}}">
+    <view wx:if="{{cart.length == 0}}" class="card empty-state">
+      <text class="empty-icon">🛍️</text>
+      <text class="empty-title">购物袋是空的</text>
+      <text class="empty-desc">去挑选一些开运好物吧</text>
+    </view>
+    <view wx:else>
+      <view class="card cart-item" wx:for="{{cart}}" wx:key="id">
+        <text class="ci-emoji">{{item.emoji}}</text>
+        <view class="ci-info">
+          <text class="ci-name">{{item.name}}</text>
+          <text class="ci-price">¥{{item.price}} × {{item.qty}}</text>
+        </view>
+        <view class="ci-del" bindtap="removeFromCart" data-id="{{item.id}}">✕</view>
+      </view>
+      <view class="cart-total card">
+        <text class="ct-label">合计</text>
+        <text class="ct-price">¥{{cartTotal}}</text>
+      </view>
+      <button class="btn-primary" bindtap="checkout">💳 立即结算</button>
+    </view>
+  </view>
+</view>

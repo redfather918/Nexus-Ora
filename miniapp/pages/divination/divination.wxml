@@ -1,0 +1,79 @@
+<view class="page">
+  <view class="page-header">
+    <text class="page-icon">🎴</text>
+    <view>
+      <text class="page-title">灵境占卜</text>
+      <text class="page-subtitle">塔罗 · 签诗 · 六爻</text>
+    </view>
+  </view>
+
+  <!-- 方法选择 -->
+  <view class="method-row">
+    <view
+      class="method-btn {{method==item.key ? 'active' : ''}}"
+      wx:for="{{methods}}"
+      wx:key="key"
+      bindtap="selectMethod"
+      data-key="{{item.key}}"
+    >
+      <text class="m-emoji">{{item.emoji}}</text>
+      <text class="m-name">{{item.name}}</text>
+    </view>
+  </view>
+
+  <!-- 提问区 -->
+  <view class="card" wx:if="{{!result}}">
+    <text class="form-label">您想询问什么？</text>
+    <textarea class="textarea mt-12" placeholder="关于感情、事业、运势... 请提出您的问题" value="{{question}}" bindinput="onInput" maxlength="200"></textarea>
+
+    <!-- 摇签动画 -->
+    <view class="shake-anim" wx:if="{{shaking}}">
+      <text class="shake-icon">🎋</text>
+      <text class="shake-text">摇动签筒中...</text>
+    </view>
+
+    <button class="btn-primary mt-24 {{loading ? 'loading' : ''}}" bindtap="doDivination" disabled="{{loading || shaking}}">
+      <text wx:if="{{!loading && !shaking}}">✨ 开始占卜</text>
+      <text wx:else>占卜中...</text>
+    </button>
+  </view>
+
+  <!-- 占卜结果 -->
+  <view wx:elif="{{result}}">
+    <!-- 主牌/签诗/卦象 -->
+    <view class="card result-hero">
+      <text class="result-emoji">{{result.emoji || (method=='tarot' ? '🃏' : method=='jiaoqian' ? '🎋' : '☯️')}}</text>
+      <text class="result-name">{{result.name || result.card_name || result.qian_name || result.hexagram_name || ''}}</text>
+      <text class="result-title-line">{{result.tagline || result.upright || ''}}</text>
+    </view>
+
+    <!-- 解读 -->
+    <view class="card">
+      <text class="section-title">🔮 占卜解读</text>
+      <text class="interp-text">{{result.interpretation || result.meaning || result.poem || ''}}</text>
+    </view>
+
+    <!-- 建议 -->
+    <view class="card" wx:if="{{result.advice || result.suggestion}}">
+      <text class="section-title">💡 行动建议</text>
+      <text class="interp-text">{{result.advice || result.suggestion}}</text>
+    </view>
+
+    <!-- AI 增强 -->
+    <view class="card" wx:if="{{result.ai_reading}}">
+      <text class="section-title">✨ AI 深度解读</text>
+      <text class="interp-text">{{result.ai_reading}}</text>
+    </view>
+
+    <!-- 吉凶 -->
+    <view class="luck-bar" wx:if="{{result.luck_score != null}}">
+      <text class="luck-label">吉凶指数</text>
+      <view class="luck-track">
+        <view class="luck-fill" style="width:{{result.luck_score}}%"></view>
+      </view>
+      <text class="luck-num">{{result.luck_score}}</text>
+    </view>
+
+    <button class="btn-secondary mt-24" bindtap="reset">再次占卜</button>
+  </view>
+</view>

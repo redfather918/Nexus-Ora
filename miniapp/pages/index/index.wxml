@@ -1,0 +1,22 @@
+<view class="container">
+  <!-- Hero -->
+  <view class="hero">
+    <view class="hero-glow"></view>
+    <image class="hero-logo" src="/images/life-logo.jpg" mode="aspectFit"></image>
+    <text class="hero-title">Nexus Ora</text>
+    <text class="hero-sub">AI 原生玄学平台</text>
+    <view class="hero-actions">
+      <button class="btn-primary" bindtap="openBirthForm" wx:if="{{!hasProfile}}">设置出生信息</button>
+      <button class="btn-secondary" bindtap="openBirthForm" wx:else>更新出生信息</button>
+    </view>
+  </view>
+
+  <!-- 模块入口 -->
+  <view class="module-grid">
+    <view class="module-card" wx:for="{{modules}}" wx:key="id" bindtap="goModule" data-page="{{item.page}}">
+      <text class="module-icon">{{item.icon}}</text>
+      <text class="module-name">{{item.name}}</text>
+      <text class="module-desc">{{item.desc}}</text>
+    </view>
+  </view>
+</view>
