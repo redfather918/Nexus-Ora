@@ -42,6 +42,22 @@ const CFG = {
     adminPassword: process.env.ADMIN_PASSWORD || 'nexusadmin'
 };
 
+// ───────────────────── Nexus-Ora 重写模块 ─────────────────────
+// 借鉴 MiroFish 的多智能体与群体智能思想重写的三个模块：
+//   1. agents/        命理智能体议会（多 Agent 流水线替代单次巨型 prompt）
+//   2. swarm_fortune  群体涌现式运势算法（多因子代理加权共识）
+//   3. life_sandbox   人生沙盘推演（平行世界线人格演化）
+const { swarmFortune, swarmDimensions } = require('./swarm_fortune.js');
+const { runCouncil }                   = require('./agents/agent_council.js');
+const { runSandbox, PERSONAS, INTERVENTION_TYPES } = require('./life_sandbox.js');
+const llmClient = require('./agents/llm_client.js');
+llmClient.configure({
+    apiKey:  CFG.deepseek.apiKey,
+    url:     CFG.deepseek.url,
+    model:   CFG.deepseek.model,
+    timeout: CFG.deepseek.timeout
+});
+
 // ───────────────────────── Middleware ─────────────────────
 
 app.use(cors());
@@ -806,22 +822,27 @@ app.post('/api/fortune', async (req, res) => {
     catch(e) { return res.status(500).json({success:false,error:'Paipan: '+e.message}); }
     if (!paipanResult.success) return res.status(500).json(paipanResult);
 
-    // 2. LLM 运势曲线
-    let fortune, dimensions, overview = '', bestYears = [], cautionYears = [], llmOk = false;
+    // 2. 运势曲线：优先走「命理智能体议会」，失败则走「群体涌现算法」
+    let fortune, dimensions, overview = '', bestYears = [], cautionYears = [];
+    let llmOk = false, reportMode = '', councilMeta = null, swarmMeta = null;
 
-    const llmResult = await callLLM(paipanResult);
-    if (llmResult?.fortune_curve?.length >= 100) {
-        fortune      = llmResult.fortune_curve.slice(0,101);
-        dimensions   = llmResult.dimensions;
-        overview     = llmResult.overview || '';
-        bestYears    = llmResult.best_years || [];
-        cautionYears = llmResult.caution_years || [];
-        llmOk = true;
-        console.log('[LLM] fortune curve generated ✓');
+    const councilResult = await runCouncil(paipanResult);
+    if (councilResult?.fortune_curve?.length >= 100) {
+        fortune      = councilResult.fortune_curve.slice(0,101);
+        dimensions   = councilResult.dimensions || algorithmDimensions(paipanResult, fortune);
+        overview     = councilResult.overview || '';
+        bestYears    = councilResult.best_years || [];
+        cautionYears = councilResult.caution_years || [];
+        llmOk        = true;
+        reportMode   = councilResult.mode || 'council';
+        councilMeta  = councilResult.council || null;
+        console.log('[Council] fortune curve generated ✓ mode=' + (councilResult.mode || 'council'));
     } else {
-        fortune    = algorithmFortune(paipanResult);
-        dimensions = algorithmDimensions(paipanResult, fortune);
-        console.log('[ALG] fallback algorithm used');
+        const sw = swarmFortune(paipanResult);
+        fortune    = sw.fortune;
+        dimensions = swarmDimensions(paipanResult, fortune, sw.ctx);
+        swarmMeta  = sw;
+        console.log('[Swarm] emergent algorithm used');
     }
 
     const summary = buildSummary(fortune, paipanResult, dimensions);
@@ -836,7 +857,11 @@ app.post('/api/fortune', async (req, res) => {
         wuxing_balance: paipanResult.wuxing_balance,
         pillars: paipanResult.pillars,
         da_yun: computeDaYun(paipanResult, fortune),
-        ai_insight: summary.overview
+        ai_insight: summary.overview,
+        // ── 重写模块附加：供前端「智能体视角」/「群体共识」可视化 ──
+        engine: llmOk ? 'council' : 'swarm',
+        council: councilMeta,
+        swarm: llmOk ? null : { breakdown: swarmMeta?.breakdown, consensus: swarmMeta?.consensus }
     };
 
     // 3. 存库
@@ -855,6 +880,41 @@ app.post('/api/fortune', async (req, res) => {
     res.json({ success:true, report_id:rid, data:report });
 });
 
+// 人生沙盘推演：平行世界线演化（借鉴 MiroFish 平行数字世界思想）
+app.post('/api/sandbox', async (req, res) => {
+    console.log('[API] /api/sandbox body:', JSON.stringify(req.body));
+    const p = parseBirthInput(req.body);
+    if (!p.year || !p.month || !p.day) return res.status(400).json({success:false,error:'Missing year/month/day'});
+
+    let paipanResult;
+    try { paipanResult = paipan({year:+p.year,month:+p.month,day:+p.day,hour:+p.hour,minute:+p.minute,gender:p.gender}); }
+    catch(e) { return res.status(500).json({success:false,error:'Paipan: '+e.message}); }
+    if (!paipanResult.success) return res.status(500).json(paipanResult);
+
+    const opts = req.body.options || {};
+    // 干预变量规整：支持前端传 intervention（单数）/ interventions（数组）
+    let interventions = Array.isArray(opts.interventions) ? opts.interventions
+                     : (req.body.interventions ? [req.body.interventions] : []);
+    interventions = interventions.filter(Boolean).map(iv => ({
+        age:   Number(iv.age)   || 0,
+        type:  INTERVENTION_TYPES[iv.type] ? iv.type : 'custom',
+        note:  iv.note || (INTERVENTION_TYPES[iv.type]?.label || '自定义事件'),
+        targets: Array.isArray(iv.targets) ? iv.targets : (iv.targets ? [iv.targets] : [])
+    }));
+
+    const personas = Array.isArray(opts.personas) && opts.personas.length ? opts.personas
+                   : (Array.isArray(req.body.personas) ? req.body.personas : undefined);
+    const narrative = opts.narrative !== undefined ? opts.narrative : (req.body.narrative !== undefined ? req.body.narrative : true);
+
+    try {
+        const result = await runSandbox(paipanResult, { personas, interventions, narrative });
+        res.json({ success:true, data: result });
+    } catch (e) {
+        console.error('[Sandbox] error:', e.message);
+        res.status(500).json({ success:false, error: e.message });
+    }
+});
+
 // 灵境图谱：六维度深度分析（小程序专用）
 app.post('/api/radar', async (req, res) => {
     console.log('[API] /api/radar body:', JSON.stringify(req.body));
@@ -866,8 +926,9 @@ app.post('/api/radar', async (req, res) => {
     catch(e) { return res.status(500).json({success:false,error:'Paipan: '+e.message}); }
     if (!paipanResult.success) return res.status(500).json(paipanResult);
 
-    const fortune = algorithmFortune(paipanResult);
-    const dims = algorithmDimensions(paipanResult, fortune);
+    const sw = swarmFortune(paipanResult);
+    const fortune = sw.fortune;
+    const dims = swarmDimensions(paipanResult, fortune, sw.ctx);
     const summary = buildSummary(fortune, paipanResult, dims);
 
     const wx = paipanResult.wuxing_balance || {};
@@ -906,7 +967,11 @@ app.post('/api/radar', async (req, res) => {
         lucky_element: '喜用' + lucky,
         ai_summary: summary.overview,
         dimensions,
-        dimension_desc
+        dimension_desc,
+        // ── 群体涌现引擎附加 ──
+        engine: 'swarm',
+        breakdown: sw.breakdown,
+        consensus: sw.consensus
     };
     res.json({ success:true, data });
 });

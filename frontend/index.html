@@ -904,6 +904,78 @@ window.addEventListener('error', function(e) {
       </button>
     </div>
   </div>
+
+  <!-- ⑨ 引擎透视：智能体议会 / 群体共识 -->
+  <div id="engine-panel" class="glass-card p-5 md:p-7 mb-6 slide-in-d3 hidden-section">
+    <div class="flex items-center gap-2 mb-1">
+      <h3 class="text-lg font-bold">引擎透视</h3>
+      <span id="engine-mode-tag" class="tag text-xs"></span>
+    </div>
+    <p class="text-xs text-gray-500 mb-4">借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。</p>
+
+    <div class="flex gap-2 mb-4 flex-wrap" id="engine-tabs">
+      <button class="btn-tab" data-tab="agents" onclick="switchEngineTab('agents')" style="padding:6px 12px;border-radius:8px;font-size:12px;border:1px solid rgba(255,255,255,.1);color:#cbd5e1;background:transparent;">智能体视角</button>
+      <button class="btn-tab" data-tab="consensus" onclick="switchEngineTab('consensus')" style="padding:6px 12px;border-radius:8px;font-size:12px;border:1px solid rgba(255,255,255,.1);color:#cbd5e1;background:transparent;">因子共识图</button>
+    </div>
+
+    <div id="eng-tab-agents">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="agent-cards"></div>
+      <div id="narrator-box" class="mt-3 p-4 rounded-xl" style="background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.18);"></div>
+    </div>
+
+    <div id="eng-tab-consensus" class="hidden-section">
+      <div id="chart-swarm" style="width:100%;height:320px;"></div>
+      <div id="swarm-legend" class="flex flex-wrap gap-3 mt-2 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- ⑩ 人生沙盘推演 -->
+  <div class="glass-card p-5 md:p-7 mb-6 slide-in-d3">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <h3 class="text-lg font-bold">🪐 人生沙盘推演</h3>
+        <p class="text-xs text-gray-500 mt-1">同一命盘，孵化多条平行人生。注入关键抉择，看轨迹如何分叉。</p>
+      </div>
+      <button class="btn-primary text-sm" onclick="openSandbox()">开始推演</button>
+    </div>
+
+    <div id="sandbox-config" class="hidden-section mt-4">
+      <div class="mb-3">
+        <div class="text-sm text-gray-300 mb-2">选择平行世界线</div>
+        <div class="flex flex-wrap gap-3" id="persona-picks"></div>
+      </div>
+      <div class="mb-3">
+        <div class="text-sm text-gray-300 mb-2">注入一个人生干预（可选）</div>
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <select id="sb-type" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+            <option value="">— 无干预 —</option>
+            <option value="career_change">转行/跳槽</option>
+            <option value="startup">创业</option>
+            <option value="marriage">婚姻</option>
+            <option value="relocation">迁居/出国</option>
+            <option value="study">深造</option>
+            <option value="invest">重大投资</option>
+          </select>
+          <input id="sb-age" type="number" min="1" max="100" placeholder="发生年龄" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+          <input id="sb-note" type="text" placeholder="备注(如:裸辞创业)" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+          <select id="sb-target" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+            <option value="">作用于全部世界线</option>
+            <option value="aggressive">仅进取线</option>
+            <option value="steady">仅稳健线</option>
+            <option value="pivot">仅转型线</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-primary text-sm" onclick="runSandboxUI()" id="sb-run">推演</button>
+      <span id="sb-status" class="text-xs text-gray-500 ml-2"></span>
+    </div>
+
+    <div id="sandbox-result" class="hidden-section mt-4">
+      <div id="chart-sandbox" style="width:100%;height:360px;"></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4" id="world-cards"></div>
+      <div id="sandbox-verdict" class="mt-4 p-4 rounded-xl" style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);"></div>
+    </div>
+  </div>
 </section>
 
 <!-- ══════════════════ Section 3: Compatibility Results ══════════════════ -->
@@ -2821,6 +2893,9 @@ let isUnlocked  = false;
 let isDemoMode  = false;
 let chartMain   = null;
 let chartRadar  = null;
+let currentBirth = null;   // 当前测算的出生信息，供人生沙盘复用
+let chartSwarm  = null;
+let chartSandbox = null;
 
 // ── Server ping ────────────────────────────────
 (async () => {
@@ -2962,6 +3037,7 @@ document.getElementById('birth-form').addEventListener('submit', async e => {
   const [y, m, d] = document.getElementById('birth-date').value.split('-').map(Number);
   const [h, min]  = (document.getElementById('birth-time').value || '12:00').split(':').map(Number);
   const gender    = document.querySelector('input[name="gender"]:checked')?.value || '男';
+  currentBirth = { year: y, month: m, day: d, hour: h, minute: min, gender };
 
   let result;
   try {
@@ -3038,6 +3114,250 @@ function renderAll() {
   renderKLineInterp();
   renderSummary();
   renderDimensions();
+  renderEnginePanel();   // 新增：智能体议会 / 群体共识 透视
+}
+
+// ── ⑨ 引擎透视：智能体议会 / 群体共识 ────────────────
+function safeBirth() {
+  if (currentBirth && currentBirth.year) return currentBirth;
+  // 兜底：从分享/详情数据反推（缺小时则默认正午）
+  const info = reportData?.data?.bazi?.info || {};
+  const gd = (info.birth_date || '').split('-').map(Number);
+  if (gd.length >= 3 && gd[0]) {
+    return { year: gd[0], month: gd[1], day: gd[2], hour: 12, minute: 0, gender: info.gender || '男' };
+  }
+  return null;
+}
+
+function renderEnginePanel() {
+  const d = reportData?.data;
+  const panel = document.getElementById('engine-panel');
+  const tag = document.getElementById('engine-mode-tag');
+  if (!panel) return;
+
+  if (d?.engine === 'council' && d.council) {
+    panel.classList.remove('hidden-section');
+    tag.textContent = '🤖 多智能体议会';
+    tag.className = 'tag tag-purple text-xs';
+    renderCouncilView(d.council);
+    document.getElementById('eng-tab-consensus').classList.add('hidden-section');
+    document.getElementById('eng-tab-agents').classList.remove('hidden-section');
+    switchEngineTab('agents');
+  } else if (d?.engine === 'swarm' && d.swarm) {
+    panel.classList.remove('hidden-section');
+    tag.textContent = '🐝 群体涌现算法';
+    tag.className = 'tag tag-green text-xs';
+    renderSwarmView(d.swarm);
+    document.getElementById('eng-tab-agents').classList.add('hidden-section');
+    document.getElementById('eng-tab-consensus').classList.remove('hidden-section');
+    switchEngineTab('consensus');
+  } else {
+    panel.classList.add('hidden-section');
+  }
+}
+
+function renderCouncilView(council) {
+  const wrap = document.getElementById('agent-cards');
+  const AGENT_COLOR = { chart_analyst:'#8b5cf6', destiny_runner:'#3b82f6', life_strategist:'#10b981' };
+  wrap.innerHTML = (council.agents || []).map(a => {
+    const c = AGENT_COLOR[a.id] || '#a855f7';
+    const o = a.opinion || null;
+    let body = '';
+    if (a.id === 'chart_analyst' && o) {
+      body = `<div class="text-xs text-gray-300 leading-relaxed space-y-1">
+        <div><span class="text-gray-500">格局：</span>${o.geju || '-'}</div>
+        <div><span class="text-gray-500">喜用：</span>${o.xiyong || '-'}</div>
+        ${(o.core_features||[]).map(f=>`<div class="flex gap-1"><span style="color:${c}">◆</span><span>${f}</span></div>`).join('')}
+        ${(o.risks||[]).map(r=>`<div class="flex gap-1"><span class="text-red-400">⚠</span><span>${r}</span></div>`).join('')}
+        ${o.comment?`<div class="pt-1 italic text-gray-400">「${o.comment}」</div>`:''}
+      </div>`;
+    } else if (a.id === 'destiny_runner' && o) {
+      body = `<div class="text-xs text-gray-300 leading-relaxed space-y-1">
+        ${(o.turning_points||[]).map(t=>`<div class="flex gap-1"><span style="color:${c}">↗${t.age}岁</span><span>${t.why||''}</span></div>`).join('')}
+        <div><span class="text-gray-500">黄金年：</span>${(o.best_years||[]).join('、')||'-'}</div>
+        <div><span class="text-gray-500">谨慎年：</span>${(o.caution_years||[]).join('、')||'-'}</div>
+        ${o.comment?`<div class="pt-1 italic text-gray-400">「${o.comment}」</div>`:''}
+      </div>`;
+    } else if (a.id === 'life_strategist') {
+      body = `<div class="text-xs text-gray-300 leading-relaxed ${o?.comment?'':'text-gray-500'}">${o?.comment || '（本次缺席，由主笔人依据其他智能体补全）'}</div>`;
+    } else {
+      body = `<div class="text-xs text-gray-500">（本次缺席）</div>`;
+    }
+    return `<div class="rounded-xl p-4" style="background:${c}14;border:1px solid ${c}33;">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="text-lg">${a.icon||'🔮'}</span>
+        <div class="font-semibold" style="color:${c}">${a.name}</div>
+        <span class="text-[10px] text-gray-500 ml-auto">${a.role||''}</span>
+      </div>${body}</div>`;
+  }).join('');
+
+  const nb = document.getElementById('narrator-box');
+  const n = council.narrator;
+  if (n) {
+    nb.innerHTML = `<div class="text-xs text-purple-200/90 leading-relaxed space-y-1">
+      <div><span class="font-semibold text-purple-300">📜 ${n.name}（议会综述）：</span></div>
+      ${n.consensus?`<div><span class="text-gray-500">共识：</span>${n.consensus}</div>`:''}
+      ${(n.disputes||[]).length?`<div><span class="text-gray-500">分歧与裁定：</span>${(n.disputes||[]).join('；')}</div>`:''}
+      ${n.final_advice?`<div><span class="text-gray-500">最重要的一条建议：</span>${n.final_advice}</div>`:''}
+    </div>`;
+  } else { nb.innerHTML = ''; }
+}
+
+function renderSwarmView(swarm) {
+  if (typeof echarts === 'undefined') return;
+  const breakdown = swarm.breakdown || [];
+  const palette = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#06b6d4'];
+  const series = breakdown.map((b, i) => ({
+    name: b.name, type: 'line', smooth: true, showSymbol: false,
+    lineStyle: { width: 1.4, opacity: .6, color: palette[i % palette.length] },
+    itemStyle: { color: palette[i % palette.length] },
+    data: (b.scores || []).map(v => Math.round(v))
+  }));
+  chartSwarm = echarts.init(document.getElementById('chart-swarm'), null, { renderer: 'canvas' });
+  chartSwarm.setOption({
+    tooltip: { trigger:'axis' },
+    legend: { type:'scroll', textStyle:{color:'#cbd5e1'}, top: 0, fontSize: 10 },
+    grid: { left: 38, right: 16, top: 40, bottom: 28 },
+    xAxis: { type:'category', data: Array.from({length:101},(_,i)=>i), name:'岁',
+             axisLabel:{color:'#94a3b8', fontSize:10}, axisLine:{lineStyle:{color:'#475569'}} },
+    yAxis: { type:'value', min:0, max:100, axisLabel:{color:'#94a3b8'}, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}} },
+    series
+  });
+  document.getElementById('swarm-legend').innerHTML = breakdown.map((b,i)=>
+    `<span class="inline-flex items-center gap-1"><i style="width:10px;height:10px;border-radius:2px;background:${palette[i%palette.length]};display:inline-block;"></i>${b.name}</span>`
+  ).join('') + `<div class="text-gray-500 ml-2">· 加权共识曲线 = 六大因子代理投票聚合（MiroFish 群体智能思想）</div>`;
+}
+
+function switchEngineTab(tab) {
+  document.querySelectorAll('#engine-tabs .btn-tab').forEach(btn => {
+    const on = btn.dataset.tab === tab;
+    btn.style.background = on ? 'rgba(168,85,247,.22)' : 'transparent';
+    btn.style.color = on ? '#fff' : '#cbd5e1';
+  });
+  document.getElementById('eng-tab-agents').classList.toggle('hidden-section', tab !== 'agents');
+  document.getElementById('eng-tab-consensus').classList.toggle('hidden-section', tab !== 'consensus');
+  if (tab === 'consensus' && chartSwarm) chartSwarm.resize();
+}
+
+// ── ⑩ 人生沙盘推演（调用 /api/sandbox）────────────────
+const SANDBOX_PERSONAS = [
+  { id:'aggressive', name:'进取世界线', icon:'🔥', desc:'高风险高回报：主动跳槽、创业、加杠杆' },
+  { id:'steady',     name:'稳健世界线', icon:'🛡️', desc:'守成路线：体制内/大平台深耕、强储蓄' },
+  { id:'pivot',      name:'转型世界线', icon:'🦋', desc:'低谷期主动转型换赛道，大器晚成型' }
+];
+
+function openSandbox() {
+  const cfg = document.getElementById('sandbox-config');
+  cfg.classList.toggle('hidden-section');
+  if (!cfg.dataset.built) {
+    document.getElementById('persona-picks').innerHTML = SANDBOX_PERSONAS.map(p =>
+      `<label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer"
+              style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+        <input type="checkbox" class="sb-persona" value="${p.id}" checked>
+        <span>${p.icon} ${p.name}</span>
+      </label>`).join('');
+    cfg.dataset.built = '1';
+  }
+}
+
+async function runSandboxUI() {
+  const birth = safeBirth();
+  const status = document.getElementById('sb-status');
+  if (!birth) { status.textContent = '⚠️ 无法获取出生信息'; return; }
+  const personas = Array.from(document.querySelectorAll('.sb-persona:checked')).map(c => c.value);
+  const type = document.getElementById('sb-type').value;
+  const age  = parseInt(document.getElementById('sb-age').value, 10);
+  const note = document.getElementById('sb-note').value.trim();
+  const target = document.getElementById('sb-target').value;
+  const interventions = [];
+  if (type && age >= 1 && age <= 100) {
+    interventions.push({ age, type, note: note || undefined, targets: target ? [target] : [] });
+  }
+  status.textContent = '推演中…';
+  const runBtn = document.getElementById('sb-run');
+  runBtn.disabled = true;
+  try {
+    const res = await fetch(API_BASE + '/api/sandbox', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...birth, options: { personas, interventions, narrative: true } })
+    });
+    const json = await res.json();
+    if (!json.success) throw new Error(json.error || 'server error');
+    renderSandboxResult(json.data);
+    status.textContent = json.data.ai_enhanced ? '✓ AI 叙事增强' : '✓ 离线推演完成';
+  } catch (e) {
+    status.textContent = '⚠️ ' + (e.message || '推演失败');
+  } finally {
+    runBtn.disabled = false;
+  }
+}
+
+function renderSandboxResult(data) {
+  const res = document.getElementById('sandbox-result');
+  res.classList.remove('hidden-section');
+  const worlds = data.worlds || [];
+  const palette = { baseline:'#8b8b9e', aggressive:'#e74c5b', steady:'#3f9d6f', pivot:'#6c5ce7' };
+
+  // 多世界线曲线
+  if (typeof echarts !== 'undefined') {
+    const allLines = [];
+    worlds.forEach(w => {
+      const ev = (w.events||[])[0];
+      const s = {
+        name: w.name, type: 'line', smooth: true, showSymbol: false,
+        lineStyle: { width: w.id === data.recommended ? 3 : 1.6, color: w.color || palette[w.id] || '#888' },
+        itemStyle: { color: w.color || palette[w.id] || '#888' },
+        data: (w.scores || []).map(v => Math.round(v)),
+        z: w.id === data.recommended ? 5 : 2
+      };
+      if (ev) s.markPoint = { symbol:'pin', symbolSize:42, data:[{ coord:[ev.age, ev.score], value: ev.label||'事件' }] };
+      allLines.push(s);
+    });
+    chartSandbox = echarts.init(document.getElementById('chart-sandbox'), null, { renderer:'canvas' });
+    chartSandbox.setOption({
+      tooltip: { trigger:'axis' },
+      legend: { type:'scroll', textStyle:{color:'#cbd5e1'}, top:0, fontSize:10 },
+      grid: { left:38, right:16, top:40, bottom:28 },
+      xAxis: { type:'category', data: Array.from({length:101},(_,i)=>i), name:'岁',
+               axisLabel:{color:'#94a3b8', fontSize:10}, axisLine:{lineStyle:{color:'#475569'}} },
+      yAxis: { type:'value', min:0, max:100, axisLabel:{color:'#94a3b8'}, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}} },
+      series: allLines
+    });
+  }
+
+  // 世界线卡片
+  document.getElementById('world-cards').innerHTML = worlds.map(w => {
+    const s = w.stats || {};
+    const rec = w.id === data.recommended;
+    const div = `<div class="rounded-xl p-4" style="background:${w.color||'#888'}14;border:1px solid ${w.color||'#888'}55;">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-lg">${w.icon||'🌐'}</span>
+        <div class="font-semibold text-sm" style="color:${w.color||'#888'}">${w.name}</div>
+        ${rec?'<span class="ml-auto text-[10px] px-2 py-0.5 rounded-full" style="background:rgba(245,158,11,.2);color:#fbbf24;">推荐</span>':''}
+      </div>
+      <div class="text-[11px] text-gray-500 mb-2">${w.desc||''}</div>
+      <div class="text-xs text-gray-300 space-y-0.5">
+        <div>均分 <b>${s.average??'-'}</b> · 峰值 <b>${s.peak_score??'-'}</b>@${s.peak_age??'-'}岁</div>
+        <div>谷底 <b>${s.valley_score??'-'}</b>@${s.valley_age??'-'}岁 · 波动 ${s.volatility??'-'}</div>
+        <div class="text-gray-500">黄金 ${s.golden_years??'-'} 年 / 低谷 ${s.dark_years??'-'} 年</div>
+      </div>
+      ${w.narrative?`<div class="text-[11px] text-gray-400 mt-2 italic leading-snug">${w.narrative}</div>`:''}
+    </div>`;
+    return div;
+  }).join('');
+
+  // 分叉点提示
+  const divs = Object.entries(data.divergences || {}).map(([id, arr]) => {
+    const w = worlds.find(x => x.id === id);
+    return arr.length ? `${w?w.name:id} 在 ${arr.slice(0,4).join('、')} 岁与本我线分叉` : null;
+  }).filter(Boolean);
+
+  document.getElementById('sandbox-verdict').innerHTML = `
+    <div class="text-xs text-blue-200/90 leading-relaxed space-y-1">
+      <div><span class="font-semibold text-blue-300">🪐 沙盘结论：</span>${data.verdict || ''}</div>
+      ${divs.length?`<div class="text-gray-400">分叉信号：${divs.join('；')}</div>`:''}
+    </div>`;
+  if (chartSandbox) setTimeout(() => chartSandbox.resize(), 50);
 }
 
 // ── ① Overview ────────────────────────────────
