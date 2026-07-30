@@ -302,6 +302,30 @@ body{
 }
 .cdp-wrap select:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(168,85,247,.15);}
 .cdp-wrap select option{background:#1A1630;color:var(--text);}
+/* ===== 推演过程可视化（AI 感） ===== */
+.ai-stage{position:relative;overflow:hidden;border-radius:12px;}
+.ai-stage::before{content:"";position:absolute;left:0;right:0;top:-50%;height:200%;background:linear-gradient(180deg,transparent,rgba(139,92,246,.07),transparent);background-size:100% 6px;animation:scanmove 3.6s linear infinite;pointer-events:none;opacity:.55;}
+@keyframes scanmove{0%{transform:translateY(-30%)}100%{transform:translateY(30%)}}
+.ai-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);color:#c4b5fd;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.thinking-dots{display:inline-flex;gap:3px;align-items:center;}
+.thinking-dots i{width:5px;height:5px;border-radius:50%;background:#a78bfa;animation:think 1.2s infinite ease-in-out;}
+.thinking-dots i:nth-child(2){animation-delay:.18s}
+.thinking-dots i:nth-child(3){animation-delay:.36s}
+@keyframes think{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
+.type-cursor{display:inline-block;width:7px;height:14px;background:#c4b5fd;margin-left:2px;vertical-align:-2px;border-radius:1px;animation:blink 1s steps(1) infinite;}
+@keyframes blink{50%{opacity:0}}
+.hatch{opacity:0;transform:translateY(12px);animation:hatchin .55s ease-out forwards;}
+.world-hatch{opacity:0;transform:scale(.95) translateY(8px);animation:hatchin .55s ease-out forwards;}
+@keyframes hatchin{to{opacity:1;transform:none}}
+.vote-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;}
+.vote-bar>i{display:block;height:100%;border-radius:3px;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1);}
+.progress-rail{height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;}
+.progress-rail>i{display:block;height:100%;background:linear-gradient(90deg,#8b5cf6,#ec4899);width:0;transition:width .5s ease;}
+.hatch-log{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+.hatch-log .ln{opacity:0;animation:hatchin .4s ease-out forwards;}
+.hatch-log .ln b{color:#a78bfa;}
+.hatch-log .ln .ok{color:#34d399;}
+.hatch-log .ln .ev{color:#fbbf24;}
 </style>
 <!-- 百度统计 -->
 <script>
@@ -908,23 +932,30 @@ window.addEventListener('error', function(e) {
   <!-- ⑨ 引擎透视：智能体议会 / 群体共识 -->
   <div id="engine-panel" class="glass-card p-5 md:p-7 mb-6 slide-in-d3 hidden-section">
     <div class="flex items-center gap-2 mb-1">
-      <h3 class="text-lg font-bold">引擎透视</h3>
+      <h3 class="text-lg font-bold">🧠 引擎透视</h3>
       <span id="engine-mode-tag" class="tag text-xs"></span>
     </div>
-    <p class="text-xs text-gray-500 mb-4">借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。</p>
+    <p class="text-xs text-gray-500 mb-3">借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。下方展示完整的推演过程。</p>
+
+    <!-- AI 推演状态条 -->
+    <div class="flex items-center gap-2 mb-4 flex-wrap">
+      <span class="ai-badge"><span class="thinking-dots"><i></i><i></i><i></i></span><span id="engine-status">推演就绪</span></span>
+      <div class="progress-rail flex-1 min-w-[120px]"><i id="engine-progress"></i></div>
+    </div>
 
     <div class="flex gap-2 mb-4 flex-wrap" id="engine-tabs">
       <button class="btn-tab" data-tab="agents" onclick="switchEngineTab('agents')" style="padding:6px 12px;border-radius:8px;font-size:12px;border:1px solid rgba(255,255,255,.1);color:#cbd5e1;background:transparent;">智能体视角</button>
       <button class="btn-tab" data-tab="consensus" onclick="switchEngineTab('consensus')" style="padding:6px 12px;border-radius:8px;font-size:12px;border:1px solid rgba(255,255,255,.1);color:#cbd5e1;background:transparent;">因子共识图</button>
     </div>
 
-    <div id="eng-tab-agents">
+    <div id="eng-tab-agents" class="ai-stage">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="agent-cards"></div>
       <div id="narrator-box" class="mt-3 p-4 rounded-xl" style="background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.18);"></div>
     </div>
 
-    <div id="eng-tab-consensus" class="hidden-section">
-      <div id="chart-swarm" style="width:100%;height:320px;"></div>
+    <div id="eng-tab-consensus" class="hidden-section ai-stage">
+      <div id="factor-votes" class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3"></div>
+      <div id="chart-swarm" style="width:100%;height:300px;"></div>
       <div id="swarm-legend" class="flex flex-wrap gap-3 mt-2 text-xs"></div>
     </div>
   </div>
@@ -970,7 +1001,13 @@ window.addEventListener('error', function(e) {
       <span id="sb-status" class="text-xs text-gray-500 ml-2"></span>
     </div>
 
-    <div id="sandbox-result" class="hidden-section mt-4">
+    <!-- 推演剧场 -->
+    <div id="sandbox-theater" class="hidden-section mt-4">
+      <div class="flex items-center gap-2 mb-3 flex-wrap">
+        <span class="ai-badge"><span class="thinking-dots"><i></i><i></i><i></i></span><span id="sb-stage-status">孵化中…</span></span>
+        <div class="progress-rail flex-1 min-w-[120px]"><i id="sb-stage-progress"></i></div>
+      </div>
+      <div id="sb-hatch-log" class="hatch-log text-xs text-gray-400 space-y-1 mb-3"></div>
       <div id="chart-sandbox" style="width:100%;height:360px;"></div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4" id="world-cards"></div>
       <div id="sandbox-verdict" class="mt-4 p-4 rounded-xl" style="background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.18);"></div>
@@ -3129,6 +3166,33 @@ function safeBirth() {
   return null;
 }
 
+// ── 推演过程可视化工具 ──
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function setStatus(id,t){const e=document.getElementById(id); if(e) e.textContent=t;}
+function setProgress(barId,pct){const b=document.getElementById(barId); if(b) b.style.width=pct+'%';}
+function typewriter(el,text,speed){
+  speed=speed||14;
+  return new Promise(resolve=>{
+    if(!text){resolve();return;}
+    el.innerHTML=''; const cur=document.createElement('span'); cur.className='type-cursor'; el.appendChild(cur);
+    let i=0; const tick=()=>{
+      if(i<text.length){ cur.insertAdjacentText('beforebegin',text[i]); i++; setTimeout(tick,speed); }
+      else { setTimeout(()=>{ if(cur.parentNode) cur.remove(); resolve(); },350); }
+    };
+    tick();
+  });
+}
+function thinkingCard(color,icon,name,role){
+  return `<div class="rounded-xl p-4" style="background:${color}14;border:1px solid ${color}33;opacity:.55">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-lg">${icon}</span>
+      <div class="font-semibold" style="color:${color}">${name}</div>
+      <span class="text-[10px] text-gray-500 ml-auto">${role||''}</span>
+    </div>
+    <div class="text-xs text-gray-400 flex items-center gap-1"><span class="thinking-dots"><i></i><i></i><i></i></span> 推演中…</div>
+  </div>`;
+}
+
 function renderEnginePanel() {
   const d = reportData?.data;
   const panel = document.getElementById('engine-panel');
@@ -3139,93 +3203,122 @@ function renderEnginePanel() {
     panel.classList.remove('hidden-section');
     tag.textContent = '🤖 多智能体议会';
     tag.className = 'tag tag-purple text-xs';
-    renderCouncilView(d.council);
     document.getElementById('eng-tab-consensus').classList.add('hidden-section');
     document.getElementById('eng-tab-agents').classList.remove('hidden-section');
     switchEngineTab('agents');
+    playCouncil(d.council);
   } else if (d?.engine === 'swarm' && d.swarm) {
     panel.classList.remove('hidden-section');
     tag.textContent = '🐝 群体涌现算法';
     tag.className = 'tag tag-green text-xs';
-    renderSwarmView(d.swarm);
     document.getElementById('eng-tab-agents').classList.add('hidden-section');
     document.getElementById('eng-tab-consensus').classList.remove('hidden-section');
     switchEngineTab('consensus');
+    playSwarm(d.swarm);
   } else {
     panel.classList.add('hidden-section');
   }
 }
 
-function renderCouncilView(council) {
+// 智能体议会：逐个登场（思考→输出→完成）+ 主笔人综述流式
+async function playCouncil(council) {
+  setStatus('engine-status','议会推演中'); setProgress('engine-progress',5);
   const wrap = document.getElementById('agent-cards');
+  const nb = document.getElementById('narrator-box');
   const AGENT_COLOR = { chart_analyst:'#8b5cf6', destiny_runner:'#3b82f6', life_strategist:'#10b981' };
-  wrap.innerHTML = (council.agents || []).map(a => {
-    const c = AGENT_COLOR[a.id] || '#a855f7';
+  const agents = council.agents || [];
+  wrap.innerHTML = agents.map(a=>thinkingCard(AGENT_COLOR[a.id]||'#a855f7', a.icon||'🔮', a.name, a.role||'')).join('');
+  nb.innerHTML = `<div class="text-xs text-purple-200/90"><span class="thinking-dots"><i></i><i></i><i></i></span> 📜 主笔人正在综合三方观点、裁定分歧…</div>`;
+  let done=0;
+  for (const a of agents) {
+    await sleep(700);
+    const c = AGENT_COLOR[a.id]||'#a855f7';
     const o = a.opinion || null;
-    let body = '';
-    if (a.id === 'chart_analyst' && o) {
+    let body='';
+    if (a.id==='chart_analyst' && o){
       body = `<div class="text-xs text-gray-300 leading-relaxed space-y-1">
-        <div><span class="text-gray-500">格局：</span>${o.geju || '-'}</div>
-        <div><span class="text-gray-500">喜用：</span>${o.xiyong || '-'}</div>
+        <div><span class="text-gray-500">格局：</span>${o.geju||'-'}</div>
+        <div><span class="text-gray-500">喜用：</span>${o.xiyong||'-'}</div>
         ${(o.core_features||[]).map(f=>`<div class="flex gap-1"><span style="color:${c}">◆</span><span>${f}</span></div>`).join('')}
         ${(o.risks||[]).map(r=>`<div class="flex gap-1"><span class="text-red-400">⚠</span><span>${r}</span></div>`).join('')}
         ${o.comment?`<div class="pt-1 italic text-gray-400">「${o.comment}」</div>`:''}
       </div>`;
-    } else if (a.id === 'destiny_runner' && o) {
+    } else if (a.id==='destiny_runner' && o){
       body = `<div class="text-xs text-gray-300 leading-relaxed space-y-1">
         ${(o.turning_points||[]).map(t=>`<div class="flex gap-1"><span style="color:${c}">↗${t.age}岁</span><span>${t.why||''}</span></div>`).join('')}
         <div><span class="text-gray-500">黄金年：</span>${(o.best_years||[]).join('、')||'-'}</div>
         <div><span class="text-gray-500">谨慎年：</span>${(o.caution_years||[]).join('、')||'-'}</div>
         ${o.comment?`<div class="pt-1 italic text-gray-400">「${o.comment}」</div>`:''}
       </div>`;
-    } else if (a.id === 'life_strategist') {
+    } else if (a.id==='life_strategist'){
       body = `<div class="text-xs text-gray-300 leading-relaxed ${o?.comment?'':'text-gray-500'}">${o?.comment || '（本次缺席，由主笔人依据其他智能体补全）'}</div>`;
     } else {
       body = `<div class="text-xs text-gray-500">（本次缺席）</div>`;
     }
-    return `<div class="rounded-xl p-4" style="background:${c}14;border:1px solid ${c}33;">
-      <div class="flex items-center gap-2 mb-2">
+    const card=[...wrap.children].find(ch=>ch.querySelector('.font-semibold')?.textContent===a.name);
+    if (card){
+      card.style.opacity='1';
+      card.innerHTML = `<div class="flex items-center gap-2 mb-2">
         <span class="text-lg">${a.icon||'🔮'}</span>
         <div class="font-semibold" style="color:${c}">${a.name}</div>
         <span class="text-[10px] text-gray-500 ml-auto">${a.role||''}</span>
-      </div>${body}</div>`;
-  }).join('');
-
-  const nb = document.getElementById('narrator-box');
-  const n = council.narrator;
-  if (n) {
-    nb.innerHTML = `<div class="text-xs text-purple-200/90 leading-relaxed space-y-1">
-      <div><span class="font-semibold text-purple-300">📜 ${n.name}（议会综述）：</span></div>
-      ${n.consensus?`<div><span class="text-gray-500">共识：</span>${n.consensus}</div>`:''}
-      ${(n.disputes||[]).length?`<div><span class="text-gray-500">分歧与裁定：</span>${(n.disputes||[]).join('；')}</div>`:''}
-      ${n.final_advice?`<div><span class="text-gray-500">最重要的一条建议：</span>${n.final_advice}</div>`:''}
-    </div>`;
-  } else { nb.innerHTML = ''; }
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${c}22;color:${c}">✓ 已推演</span>
+      </div><div class="council-body hatch" style="animation-delay:.05s">${body}</div>`;
+    }
+    done++; setProgress('engine-progress', Math.round(5+80*done/agents.length));
+  }
+  const n=council.narrator;
+  if (n){
+    nb.innerHTML = `<div class="text-xs text-purple-200/90"><span class="font-semibold text-purple-300">📜 ${n.name}（议会综述）：</span></div><div class="narrator-body mt-1 text-purple-200/80"></div>`;
+    const parts=[];
+    if (n.consensus) parts.push('共识：'+n.consensus);
+    if ((n.disputes||[]).length) parts.push('分歧与裁定：'+(n.disputes||[]).join('；'));
+    if (n.final_advice) parts.push('最重要的一条建议：'+n.final_advice);
+    await typewriter(nb.querySelector('.narrator-body'), parts.join(' ｜ '), 9);
+  } else { nb.innerHTML=''; }
+  setProgress('engine-progress',100); setStatus('engine-status','议会推演完成 ✓');
 }
 
-function renderSwarmView(swarm) {
-  if (typeof echarts === 'undefined') return;
+// 因子共识：逐个代理投票点亮 + 共识曲线生长
+async function playSwarm(swarm) {
+  setStatus('engine-status','因子代理投票中'); setProgress('engine-progress',5);
   const breakdown = swarm.breakdown || [];
   const palette = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#06b6d4'];
-  const series = breakdown.map((b, i) => ({
-    name: b.name, type: 'line', smooth: true, showSymbol: false,
-    lineStyle: { width: 1.4, opacity: .6, color: palette[i % palette.length] },
-    itemStyle: { color: palette[i % palette.length] },
-    data: (b.scores || []).map(v => Math.round(v))
-  }));
-  chartSwarm = echarts.init(document.getElementById('chart-swarm'), null, { renderer: 'canvas' });
-  chartSwarm.setOption({
-    tooltip: { trigger:'axis' },
-    legend: { type:'scroll', textStyle:{color:'#cbd5e1'}, top: 0, fontSize: 10 },
-    grid: { left: 38, right: 16, top: 40, bottom: 28 },
-    xAxis: { type:'category', data: Array.from({length:101},(_,i)=>i), name:'岁',
-             axisLabel:{color:'#94a3b8', fontSize:10}, axisLine:{lineStyle:{color:'#475569'}} },
-    yAxis: { type:'value', min:0, max:100, axisLabel:{color:'#94a3b8'}, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}} },
-    series
-  });
-  document.getElementById('swarm-legend').innerHTML = breakdown.map((b,i)=>
-    `<span class="inline-flex items-center gap-1"><i style="width:10px;height:10px;border-radius:2px;background:${palette[i%palette.length]};display:inline-block;"></i>${b.name}</span>`
-  ).join('') + `<div class="text-gray-500 ml-2">· 加权共识曲线 = 六大因子代理投票聚合（MiroFish 群体智能思想）</div>`;
+  const votesEl = document.getElementById('factor-votes');
+  if (votesEl) votesEl.innerHTML = breakdown.map((b,i)=>`
+    <div class="rounded-lg p-2" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)">
+      <div class="flex items-center justify-between text-[11px] mb-1">
+        <span style="color:${palette[i%6]}">${b.name}</span>
+        <span class="text-gray-400 font-mono" data-vote="${i}">0</span>
+      </div>
+      <div class="vote-bar"><i data-fill="${i}" style="background:${palette[i%6]}"></i></div>
+    </div>`).join('');
+  for (let i=0;i<breakdown.length;i++){
+    await sleep(420);
+    const sc=breakdown[i].scores||[];
+    const avg=Math.round(sc.reduce((a,b)=>a+b,0)/Math.max(1,sc.length));
+    const fill=votesEl?.querySelector(`[data-fill="${i}"]`); if(fill) fill.style.width='100%';
+    const vote=votesEl?.querySelector(`[data-vote="${i}"]`); if(vote) vote.textContent=avg;
+    setProgress('engine-progress', Math.round(10+85*(i+1)/breakdown.length));
+  }
+  if (typeof echarts!=='undefined'){
+    const series=breakdown.map((b,i)=>({name:b.name,type:'line',smooth:true,showSymbol:false,
+      lineStyle:{width:1.4,opacity:.6,color:palette[i%6]},itemStyle:{color:palette[i%6]},
+      data:(b.scores||[]).map(v=>Math.round(v))}));
+    if (typeof chartSwarm!=='undefined' && chartSwarm){chartSwarm.dispose();chartSwarm=null;}
+    chartSwarm = echarts.init(document.getElementById('chart-swarm'),null,{renderer:'canvas'});
+    chartSwarm.setOption({
+      tooltip:{trigger:'axis'},
+      legend:{type:'scroll',textStyle:{color:'#cbd5e1'},top:0,fontSize:10},
+      grid:{left:38,right:16,top:40,bottom:28},
+      xAxis:{type:'category',data:Array.from({length:101},(_,i)=>i),name:'岁',axisLabel:{color:'#94a3b8',fontSize:10},axisLine:{lineStyle:{color:'#475569'}}},
+      yAxis:{type:'value',min:0,max:100,axisLabel:{color:'#94a3b8'},splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}}},
+      animationDuration:1500, animationEasing:'cubicOut', series
+    });
+  }
+  const lg=document.getElementById('swarm-legend');
+  if (lg) lg.innerHTML = breakdown.map((b,i)=>`<span class="inline-flex items-center gap-1"><i style="width:10px;height:10px;border-radius:2px;background:${palette[i%6]};display:inline-block;"></i>${b.name}</span>`).join('') + `<div class="text-gray-500 ml-2">· 加权共识 = 六大因子代理投票聚合（MiroFish 群体智能）</div>`;
+  setProgress('engine-progress',100); setStatus('engine-status','共识达成 ✓');
 }
 
 function switchEngineTab(tab) {
@@ -3236,7 +3329,7 @@ function switchEngineTab(tab) {
   });
   document.getElementById('eng-tab-agents').classList.toggle('hidden-section', tab !== 'agents');
   document.getElementById('eng-tab-consensus').classList.toggle('hidden-section', tab !== 'consensus');
-  if (tab === 'consensus' && chartSwarm) chartSwarm.resize();
+  if (tab === 'consensus' && typeof chartSwarm!=='undefined' && chartSwarm) chartSwarm.resize();
 }
 
 // ── ⑩ 人生沙盘推演（调用 /api/sandbox）────────────────
@@ -3283,7 +3376,7 @@ async function runSandboxUI() {
     });
     const json = await res.json();
     if (!json.success) throw new Error(json.error || 'server error');
-    renderSandboxResult(json.data);
+    await playSandbox(json.data, interventions);
     status.textContent = json.data.ai_enhanced ? '✓ AI 叙事增强' : '✓ 离线推演完成';
   } catch (e) {
     status.textContent = '⚠️ ' + (e.message || '推演失败');
@@ -3292,13 +3385,38 @@ async function runSandboxUI() {
   }
 }
 
-function renderSandboxResult(data) {
-  const res = document.getElementById('sandbox-result');
-  res.classList.remove('hidden-section');
+// 推演剧场：孵化日志 → 世界线逐个孵化 → 曲线生长 → AI 结论流式
+async function playSandbox(data, intvList) {
+  const theater = document.getElementById('sandbox-theater');
+  const log = document.getElementById('sb-hatch-log');
   const worlds = data.worlds || [];
   const palette = { baseline:'#8b8b9e', aggressive:'#e74c5b', steady:'#3f9d6f', pivot:'#6c5ce7' };
+  theater.classList.remove('hidden-section');
+  log.innerHTML = '';
+  setStatus('sb-stage-status','孵化本我世界线…'); setProgress('sb-stage-progress',8);
+  const addLog = (html, delay) => new Promise(res => {
+    setTimeout(() => { const d=document.createElement('div'); d.className='ln'; d.innerHTML=html; log.appendChild(d); res(); }, delay||0);
+  });
 
-  // 多世界线曲线
+  await addLog('<b>🌱</b> 初始化命盘种子，孵化 <b>本我世界线</b>（基线）… <span class="ok">就绪</span>');
+  const nonBase = worlds.filter(x => x.id !== 'baseline');
+  let k = 0;
+  for (const w of worlds) {
+    if (w.id === 'baseline') continue;
+    await sleep(550);
+    await addLog(`<b>🧬</b> 孵化『${w.name}』${w.icon||''} — ${(w.desc||'').slice(0,18)}…`);
+    k++; setProgress('sb-stage-progress', Math.round(8 + 45 * k / nonBase.length));
+  }
+  const intv = (intvList && intvList.length) ? intvList : [];
+  if (intv.length) {
+    await sleep(400);
+    for (const it of intv) {
+      const tname = { career_change:'转行/跳槽', startup:'创业', marriage:'婚姻', relocation:'迁居/出国', study:'深造', invest:'重大投资' }[it.type] || it.type;
+      await addLog(`<span class="ev">⚡ 注入干预</span>：${it.age}岁 · ${tname}${it.note?('《'+it.note+'》'):''} → 轨迹开始 <span class="ev">分叉</span>`);
+    }
+  }
+
+  // 多世界线曲线（生长动画）
   if (typeof echarts !== 'undefined') {
     const allLines = [];
     worlds.forEach(w => {
@@ -3313,6 +3431,7 @@ function renderSandboxResult(data) {
       if (ev) s.markPoint = { symbol:'pin', symbolSize:42, data:[{ coord:[ev.age, ev.score], value: ev.label||'事件' }] };
       allLines.push(s);
     });
+    if (typeof chartSandbox !== 'undefined' && chartSandbox) { chartSandbox.dispose(); chartSandbox = null; }
     chartSandbox = echarts.init(document.getElementById('chart-sandbox'), null, { renderer:'canvas' });
     chartSandbox.setOption({
       tooltip: { trigger:'axis' },
@@ -3321,16 +3440,22 @@ function renderSandboxResult(data) {
       xAxis: { type:'category', data: Array.from({length:101},(_,i)=>i), name:'岁',
                axisLabel:{color:'#94a3b8', fontSize:10}, axisLine:{lineStyle:{color:'#475569'}} },
       yAxis: { type:'value', min:0, max:100, axisLabel:{color:'#94a3b8'}, splitLine:{lineStyle:{color:'rgba(255,255,255,.05)'}} },
-      series: allLines
+      animationDuration:1700, animationEasing:'cubicOut', series: allLines
     });
   }
 
-  // 世界线卡片
-  document.getElementById('world-cards').innerHTML = worlds.map(w => {
+  // 世界线卡片逐个 hatch
+  let idx = 0;
+  const wc = document.getElementById('world-cards'); wc.innerHTML = '';
+  for (const w of worlds) {
     const s = w.stats || {};
     const rec = w.id === data.recommended;
-    const div = `<div class="rounded-xl p-4" style="background:${w.color||'#888'}14;border:1px solid ${w.color||'#888'}55;">
-      <div class="flex items-center gap-2 mb-1">
+    const div = document.createElement('div');
+    div.className = 'world-hatch rounded-xl p-4';
+    div.style.background = (w.color||'#888') + '14';
+    div.style.border = '1px solid ' + (w.color||'#888') + '55';
+    div.style.animationDelay = (idx * 0.12) + 's';
+    div.innerHTML = `<div class="flex items-center gap-2 mb-1">
         <span class="text-lg">${w.icon||'🌐'}</span>
         <div class="font-semibold text-sm" style="color:${w.color||'#888'}">${w.name}</div>
         ${rec?'<span class="ml-auto text-[10px] px-2 py-0.5 rounded-full" style="background:rgba(245,158,11,.2);color:#fbbf24;">推荐</span>':''}
@@ -3341,23 +3466,26 @@ function renderSandboxResult(data) {
         <div>谷底 <b>${s.valley_score??'-'}</b>@${s.valley_age??'-'}岁 · 波动 ${s.volatility??'-'}</div>
         <div class="text-gray-500">黄金 ${s.golden_years??'-'} 年 / 低谷 ${s.dark_years??'-'} 年</div>
       </div>
-      ${w.narrative?`<div class="text-[11px] text-gray-400 mt-2 italic leading-snug">${w.narrative}</div>`:''}
-    </div>`;
-    return div;
-  }).join('');
+      ${w.narrative?`<div class="text-[11px] text-gray-400 mt-2 italic leading-snug">${w.narrative}</div>`:''}`;
+    wc.appendChild(div); idx++;
+    await sleep(180);
+  }
 
-  // 分叉点提示
+  // AI 综合结论（流式）
+  await addLog('<b>🤖</b> AI 正在综合多条人生轨迹，生成沙盘结论…');
+  setProgress('sb-stage-progress', 92);
   const divs = Object.entries(data.divergences || {}).map(([id, arr]) => {
     const w = worlds.find(x => x.id === id);
     return arr.length ? `${w?w.name:id} 在 ${arr.slice(0,4).join('、')} 岁与本我线分叉` : null;
   }).filter(Boolean);
-
-  document.getElementById('sandbox-verdict').innerHTML = `
-    <div class="text-xs text-blue-200/90 leading-relaxed space-y-1">
-      <div><span class="font-semibold text-blue-300">🪐 沙盘结论：</span>${data.verdict || ''}</div>
-      ${divs.length?`<div class="text-gray-400">分叉信号：${divs.join('；')}</div>`:''}
-    </div>`;
-  if (chartSandbox) setTimeout(() => chartSandbox.resize(), 50);
+  const vb = document.getElementById('sandbox-verdict');
+  vb.innerHTML = `<div class="text-xs text-blue-200/90 leading-relaxed space-y-1">
+    <div><span class="font-semibold text-blue-300">🪐 AI 沙盘结论：</span><span class="verdict-body"></span></div>
+    <div class="text-gray-400 divs-body"></div></div>`;
+  await typewriter(vb.querySelector('.verdict-body'), data.verdict || '', 11);
+  vb.querySelector('.divs-body').innerHTML = divs.length ? `分叉信号：${divs.join('；')}` : '';
+  setProgress('sb-stage-progress', 100); setStatus('sb-stage-status', '推演完成 ✓');
+  if (typeof chartSandbox !== 'undefined' && chartSandbox) setTimeout(() => chartSandbox.resize(), 50);
 }
 
 // ── ① Overview ────────────────────────────────
