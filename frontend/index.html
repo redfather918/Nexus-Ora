@@ -6342,6 +6342,39 @@ function adminSaveConfig() {
         checkAdminHash();
     }
 })();
+
+// 预览模式：URL ?preview=1 自动渲染 Demo 报告并跳转到结果页，便于直接查看「引擎透视」面板
+(function() {
+    function checkPreviewQuery() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('preview') === '1' || params.get('demo') === '1') {
+            try {
+                reportData = buildDemoReport();
+                isDemoMode = true;
+                hideAll();
+                showSection('section-results');
+                const bar = document.createElement('div');
+                bar.id = 'demo-bar';
+                bar.className = 'w-full mb-4 px-4 py-2 rounded-lg text-xs text-center';
+                bar.style.cssText = 'background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);color:#d8b4fe;';
+                bar.textContent = '🔮 预览模式 · Demo 数据 · 引擎透视 / 人生沙盘推演可直接体验';
+                const section = document.getElementById('section-results');
+                if (section && !document.getElementById('demo-bar')) {
+                    section.insertBefore(bar, section.firstChild);
+                }
+                renderAll();
+                showToast('已加载预览报告，向下滑动查看「引擎透视」与「人生沙盘推演」');
+            } catch (e) {
+                console.error('[Preview] auto demo failed', e);
+            }
+        }
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkPreviewQuery);
+    } else {
+        checkPreviewQuery();
+    }
+})();
 </script>
 
 </body>
