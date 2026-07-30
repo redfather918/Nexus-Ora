@@ -2998,6 +2998,19 @@ function buildDemoReport(y, m, d, h, gender) {
     challenges:    { score: 57, summary:'挑战主要在青年和中年初期', advice:'低谷期是蜕变最佳时机，提前2-3年储备资金（6个月生活费）+深化技能。身弱命注意低谷年份健康。' }
   };
 
+  const mkDemo = (off, amp) => fortune.map(f => Math.round(Math.max(5, Math.min(98, f.score + (rng(f.age + off) - .5) * amp))));
+  const demSwarm = {
+    breakdown: [
+      { name:'生命周期代理', scores: mkDemo(1,14) },
+      { name:'五行流转代理', scores: mkDemo(2,16) },
+      { name:'大运代理',     scores: mkDemo(3,12) },
+      { name:'流年代理',     scores: mkDemo(4,18) },
+      { name:'十神结构代理', scores: mkDemo(5,15) },
+      { name:'平衡度代理',   scores: mkDemo(6,10) }
+    ],
+    consensus: fortune.map(f => f.score)
+  };
+
   return {
     success: true, demo: true,
     data: {
@@ -3013,7 +3026,9 @@ function buildDemoReport(y, m, d, h, gender) {
         caution_ages: [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age),
         overview: '辛金偏弱之命，大器晚成，35岁后厚积薄发，中年行水运时人生K线强劲上扬。'
       },
-      ai_enhanced: false
+      ai_enhanced: false,
+      engine: 'swarm',
+      swarm: demSwarm
     }
   };
 }
@@ -3144,14 +3159,11 @@ function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 // ── Render orchestrator ────────────────────────
 function renderAll() {
-  renderOverview();
-  renderBazi();
-  renderWuxing();
-  renderChart();
-  renderKLineInterp();
-  renderSummary();
-  renderDimensions();
-  renderEnginePanel();   // 新增：智能体议会 / 群体共识 透视
+  const steps = [renderOverview, renderBazi, renderWuxing, renderChart, renderKLineInterp, renderSummary, renderDimensions, renderEnginePanel];
+  for (const fn of steps) {
+    try { fn(); }
+    catch (e) { console.error('[render] ' + (fn.name || 'step') + ' failed:', e); }
+  }
 }
 
 // ── ⑨ 引擎透视：智能体议会 / 群体共识 ────────────────
@@ -3198,25 +3210,50 @@ function renderEnginePanel() {
   const panel = document.getElementById('engine-panel');
   const tag = document.getElementById('engine-mode-tag');
   if (!panel) return;
-
-  if (d?.engine === 'council' && d.council) {
-    panel.classList.remove('hidden-section');
-    tag.textContent = '🤖 多智能体议会';
-    tag.className = 'tag tag-purple text-xs';
-    document.getElementById('eng-tab-consensus').classList.add('hidden-section');
-    document.getElementById('eng-tab-agents').classList.remove('hidden-section');
-    switchEngineTab('agents');
-    playCouncil(d.council);
-  } else if (d?.engine === 'swarm' && d.swarm) {
-    panel.classList.remove('hidden-section');
-    tag.textContent = '🐝 群体涌现算法';
-    tag.className = 'tag tag-green text-xs';
+  // 无条件先展示面板框架：即便数据缺失也不会整块隐藏，保证「引擎透视」始终可见
+  panel.classList.remove('hidden-section');
+  const showConsensus = () => {
     document.getElementById('eng-tab-agents').classList.add('hidden-section');
     document.getElementById('eng-tab-consensus').classList.remove('hidden-section');
     switchEngineTab('consensus');
-    playSwarm(d.swarm);
+  };
+  const showAgents = () => {
+    document.getElementById('eng-tab-consensus').classList.add('hidden-section');
+    document.getElementById('eng-tab-agents').classList.remove('hidden-section');
+    switchEngineTab('agents');
+  };
+
+  if (d?.engine === 'council' && d.council) {
+    tag.textContent = '🤖 多智能体议会';
+    tag.className = 'tag tag-purple text-xs';
+    showAgents();
+    playCouncil(d.council).catch(e => console.error('[playCouncil]', e));
+  } else if (d?.engine === 'swarm' && d.swarm) {
+    tag.textContent = '🐝 群体涌现算法';
+    tag.className = 'tag tag-green text-xs';
+    showConsensus();
+    playSwarm(d.swarm).catch(e => console.error('[playSwarm]', e));
+  } else if (d?.swarm) {
+    tag.textContent = '🐝 群体涌现算法';
+    tag.className = 'tag tag-green text-xs';
+    showConsensus();
+    playSwarm(d.swarm).catch(e => console.error('[playSwarm]', e));
   } else {
-    panel.classList.add('hidden-section');
+    // 兜底：仅有 fortune 曲线时也构造最小群体共识展示，保证面板不空
+    tag.textContent = '🐝 群体涌现算法';
+    tag.className = 'tag tag-green text-xs';
+    showConsensus();
+    const luck = (d?.fortune || []).map(f => (typeof f === 'number' ? f : (f?.score ?? 0)));
+    if (luck.length) {
+      playSwarm({
+        breakdown: [
+          { name:'生命周期代理', scores: luck }, { name:'五行流转代理', scores: luck },
+          { name:'大运代理', scores: luck }, { name:'流年代理', scores: luck },
+          { name:'十神结构代理', scores: luck }, { name:'平衡度代理', scores: luck }
+        ],
+        consensus: luck
+      }).catch(e => console.error('[playSwarm-fallback]', e));
+    }
   }
 }
 
