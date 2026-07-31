@@ -4026,15 +4026,15 @@ function openShareCard() {
 }
 
 function renderShareQR() {
-  const el = document.getElementById('share-qr');
-  if (!el || typeof QRCode === 'undefined') return;
-  el.innerHTML = '';
+  const container = document.getElementById('share-qr');
+  if (!container || typeof QRCode === 'undefined') return;
+  container.innerHTML = '';
   const base = (typeof window.__SHARE_URL !== 'undefined' && window.__SHARE_URL)
     || (typeof window.location !== 'undefined' ? window.location.origin : '')
     || 'https://life.p1web.site';
   const url = base.replace(/\/$/, '') + '/?utm_source=share_card&utm_medium=qr&utm_campaign=nexus_ora';
   try {
-    new QRCode(el, {
+    new QRCode(container, {
       text: url,
       width: 56,
       height: 56,
@@ -4044,7 +4044,7 @@ function renderShareQR() {
     });
   } catch (e) {
     console.error('[QR]', e);
-    el.innerHTML = '<div style="font-size:8px;color:#6B7280;text-align:center;line-height:1.2;">扫码<br/>测算</div>';
+    container.innerHTML = '<div style="font-size:8px;color:#6B7280;text-align:center;line-height:1.2;">扫码<br/>测算</div>';
   }
 }
 function closeShareCard() {
@@ -4083,7 +4083,7 @@ function generateShareCardHTML() {
     var wx = sum.day_wuxing || '金';
     var scores = d?.fortune || [];
     var sp='', sa='';
-    if(scores.length>0){var pts=scores.slice(0,30).map(function(s,i){return{x:Math.round(i*320/30),y:Math.round(70-s.score/100*58)}});sp='M '+pts[0].x+' '+pts[0].y;for(var i=1;i<pts.length;i++){var cx=(pts[i-1].x+pts[i].x)/2;sp+=' C '+cx+' '+pts[i-1].y+', '+cx+' '+pts[i].y+', '+pts[i].x+' '+pts[i].y;}sa=sp+' L 320 80 L 0 80 Z';}else{sp='M0,55C10,52 20,48 30,58C40,52 50,42 60,55C70,62 80,58 90,45C100,35 110,22 120,18C130,12 140,20 150,28C160,35 170,40 180,40';sa=sp+' L320 80 L0 80 Z';}
+    if(scores.length>0){var pts=scores.slice(0,30).map(function(s,i){var sc=(s&&typeof s.score==='number'&&isFinite(s.score))?s.score:50;return{x:Math.round(i*320/30),y:Math.max(8,Math.min(72,Math.round(70-sc/100*58)))}});var validPts=pts.filter(function(p){return isFinite(p.x)&&isFinite(p.y);});if(validPts.length>1){sp='M '+validPts[0].x+' '+validPts[0].y;for(var i=1;i<validPts.length;i++){var cx=(validPts[i-1].x+validPts[i].x)/2;sp+=' C '+cx+' '+validPts[i-1].y+', '+cx+' '+validPts[i].y+', '+validPts[i].x+' '+validPts[i].y;}sa=sp+' L 320 80 L 0 80 Z';}else{sp='M0,55C10,52 20,48 30,58C40,52 50,42 60,55C70,62 80,58 90,45C100,35 110,22 120,18C130,12 140,20 150,28C160,35 170,40 180,40';sa=sp+' L320 80 L0 80 Z';}}else{sp='M0,55C10,52 20,48 30,58C40,52 50,42 60,55C70,62 80,58 90,45C100,35 110,22 120,18C130,12 140,20 150,28C160,35 170,40 180,40';sa=sp+' L320 80 L0 80 Z';}
     var dcx=scores.length?Math.round((sum.peak_age||35)/80*320):200, dcy=scores.length?Math.round(70-(sum.peak_score||89)/100*58):12;
 
     return _wrap(_brand()+
@@ -4140,18 +4140,45 @@ function generateShareCardHTML() {
 function downloadShareCard() {
   const el = document.getElementById('share-card-canvas');
   if (!el) return;
-  // Use html2canvas if available, otherwise fallback to screenshot hint
-  if (typeof html2canvas !== 'undefined') {
-    html2canvas(el, { scale: 3, backgroundColor: '#0F0C1F', useCORS: true }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `nexus-ora-${currentModule}-share.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-      showToast('📸 分享图已保存', '#4ADE80');
-    });
-  } else {
-    showToast('📱 请长按图片保存截图', '#60A5FA');
+  if (typeof html2canvas === 'undefined') {
+    showToast('📱 保存组件加载失败，请截图或右键保存图片', '#F59E0B');
+    return;
   }
+  // Force cross-origin on any images inside the card to avoid canvas taint
+  el.querySelectorAll('img').forEach(function(img) {
+    if (!img.src || img.src.startsWith('data:')) return;
+    img.crossOrigin = 'anonymous';
+    // Re-load with CORS if not already anonymous
+    if (img.complete && img.naturalWidth > 0) {
+      var src = img.src;
+      img.src = '';
+      img.src = src;
+    }
+  });
+  showToast('⏳ 正在生成分享图...', '#60A5FA');
+  html2canvas(el, {
+    scale: 3,
+    backgroundColor: '#0F0C1F',
+    useCORS: true,
+    allowTaint: false,
+    logging: false,
+    onclone: function(clonedDoc) {
+      clonedDoc.querySelectorAll('img').forEach(function(img) {
+        if (!img.src.startsWith('data:')) img.crossOrigin = 'anonymous';
+      });
+    }
+  }).then(function(canvas) {
+    const link = document.createElement('a');
+    link.download = `nexus-ora-${currentModule || 'share'}-share.png`;
+    link.href = canvas.toDataURL('image/png');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('📸 分享图已保存', '#4ADE80');
+  }).catch(function(err) {
+    console.error('[downloadShareCard]', err);
+    showToast('❌ 保存失败，请截图或右键保存图片', '#EF4444');
+  });
 }
 
 // ── Value Matrix Tab Switching ──────────────────
@@ -6049,7 +6076,7 @@ function buyDemo(name) {
 
     <!-- 操作提示 -->
     <div style="text-align:center;margin-top:16px;color:#6B7280;font-size:12px;">
-      📱 长按图片保存 · 分享到抖音/小红书
+      💾 点击按钮保存图片 · 分享到抖音/小红书/朋友圈
     </div>
     <div style="text-align:center;margin-top:8px;">
       <button onclick="downloadShareCard()" style="padding:10px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,#8B5CF6,#EC4899);color:#fff;font-size:14px;font-weight:600;cursor:pointer;">📥 保存图片</button>
