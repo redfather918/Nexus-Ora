@@ -39,7 +39,9 @@ const CFG = {
         currency:    'USD',
         demoMode:    !process.env.PAYPAL_CLIENT_ID || process.env.PAYPAL_CLIENT_ID === 'YOUR_PAYPAL_CLIENT_ID'
     },
-    adminPassword: process.env.ADMIN_PASSWORD || 'nexusadmin'
+    adminPassword: process.env.ADMIN_PASSWORD || 'nexusadmin',
+    // 推广模式：设为 true 时完整报告对所有人免费开放（默认 false 保留付费墙）
+    unlockFullReport: process.env.UNLOCK_FULL_REPORT === 'true'
 };
 
 // ───────────────────── Nexus-Ora 重写模块 ─────────────────────
@@ -806,7 +808,8 @@ app.get('/api/membership/plans', (_req, res) => {
 
 // 健康检查
 app.get('/api/health', (_req, res) => {
-    res.json({ status:'ok', version:'5.0.0', llm: !!CFG.deepseek.apiKey, db: !!db });
+    res.json({ status:'ok', version:'5.2.0', llm: !!CFG.deepseek.apiKey, db: !!db,
+               unlock_full_report: CFG.unlockFullReport });
 });
 
 // 主接口：排盘 → LLM → 报告
@@ -861,7 +864,9 @@ app.post('/api/fortune', async (req, res) => {
         // ── 重写模块附加：供前端「智能体视角」/「群体共识」可视化 ──
         engine: llmOk ? 'council' : 'swarm',
         council: councilMeta,
-        swarm: llmOk ? null : { breakdown: swarmMeta?.breakdown, consensus: swarmMeta?.consensus }
+        swarm: llmOk ? null : { breakdown: swarmMeta?.breakdown, consensus: swarmMeta?.consensus },
+        // ── 推广模式开关：true 时隐藏付费墙，完整报告免费开放 ──
+        unlock_full_report: CFG.unlockFullReport
     };
 
     // 3. 存库
@@ -908,7 +913,7 @@ app.post('/api/sandbox', async (req, res) => {
 
     try {
         const result = await runSandbox(paipanResult, { personas, interventions, narrative });
-        res.json({ success:true, data: result });
+        res.json({ success:true, data: { ...result, unlock_full_report: CFG.unlockFullReport } });
     } catch (e) {
         console.error('[Sandbox] error:', e.message);
         res.status(500).json({ success:false, error: e.message });
@@ -971,7 +976,8 @@ app.post('/api/radar', async (req, res) => {
         // ── 群体涌现引擎附加 ──
         engine: 'swarm',
         breakdown: sw.breakdown,
-        consensus: sw.consensus
+        consensus: sw.consensus,
+        unlock_full_report: CFG.unlockFullReport
     };
     res.json({ success:true, data });
 });
