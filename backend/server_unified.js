@@ -41,7 +41,9 @@ const CFG = {
     },
     adminPassword: process.env.ADMIN_PASSWORD || 'nexusadmin',
     // 推广模式：设为 true 时完整报告对所有人免费开放（默认 false 保留付费墙）
-    unlockFullReport: process.env.UNLOCK_FULL_REPORT === 'true'
+    unlockFullReport: process.env.UNLOCK_FULL_REPORT === 'true',
+    // 分享图/二维码引流域名（空则使用当前访问域名）
+    shareUrl: process.env.SHARE_URL || process.env.FRONTEND_URL || ''
 };
 
 // ───────────────────── Nexus-Ora 重写模块 ─────────────────────
@@ -809,7 +811,8 @@ app.get('/api/membership/plans', (_req, res) => {
 // 健康检查
 app.get('/api/health', (_req, res) => {
     res.json({ status:'ok', version:'5.2.0', llm: !!CFG.deepseek.apiKey, db: !!db,
-               unlock_full_report: CFG.unlockFullReport });
+               unlock_full_report: CFG.unlockFullReport,
+               share_url: CFG.shareUrl });
 });
 
 // 主接口：排盘 → LLM → 报告

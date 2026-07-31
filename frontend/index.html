@@ -108,6 +108,8 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" onerror="console.warn('ECharts CDN failed, will use demo mode')"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" onerror="console.warn('QRCode.js CDN failed')"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" onerror="console.warn('html2canvas CDN failed')"></script>
 <script>
 tailwind.config = {
   theme: {
@@ -2942,6 +2944,7 @@ let forceUnlocked = false; // 由后端 UNLOCK_FULL_REPORT 控制：true 时隐�
     const j = await r.json();
     document.getElementById('server-dot').className   = 'w-2 h-2 rounded-full bg-green-500 animate-pulse';
     document.getElementById('server-label').textContent = j.llm ? 'AI Ready' : 'Online (Demo AI)';
+    if (j.share_url) window.__SHARE_URL = j.share_url;
     if (j.unlock_full_report) {
       forceUnlocked = true;
       isUnlocked = true;
@@ -4018,7 +4021,31 @@ function handleCopyLink() {
 function openShareCard() {
   const canvas = document.getElementById('share-card-canvas');
   canvas.innerHTML = generateShareCardHTML();
+  renderShareQR();
   document.getElementById('share-modal').style.display = 'block';
+}
+
+function renderShareQR() {
+  const el = document.getElementById('share-qr');
+  if (!el || typeof QRCode === 'undefined') return;
+  el.innerHTML = '';
+  const base = (typeof window.__SHARE_URL !== 'undefined' && window.__SHARE_URL)
+    || (typeof window.location !== 'undefined' ? window.location.origin : '')
+    || 'https://life.p1web.site';
+  const url = base.replace(/\/$/, '') + '/?utm_source=share_card&utm_medium=qr&utm_campaign=nexus_ora';
+  try {
+    new QRCode(el, {
+      text: url,
+      width: 56,
+      height: 56,
+      colorDark: '#000000',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) {
+    console.error('[QR]', e);
+    el.innerHTML = '<div style="font-size:8px;color:#6B7280;text-align:center;line-height:1.2;">扫码<br/>测算</div>';
+  }
 }
 function closeShareCard() {
   document.getElementById('share-modal').style.display = 'none';
@@ -4033,13 +4060,15 @@ function generateShareCardHTML() {
   const sum = d?.summary || {};
 
   // ── Common helpers (v2.0) ──
-  const APP_URL = (typeof window.__APP_URL !== 'undefined' && window.__APP_URL)
+  // 二维码/分享链接域名优先读取后端配置的 SHARE_URL，否则使用当前访问域名
+  const APP_URL = (typeof window.__SHARE_URL !== 'undefined' && window.__SHARE_URL)
+    || (typeof window.__APP_URL !== 'undefined' && window.__APP_URL)
     || (document.querySelector('meta[name="app-url"]')?.content)
     || (typeof window.location !== 'undefined' ? window.location.origin : '')
     || 'https://life.p1web.site';
 
   function _brand() { return '<div style="display:flex;align-items:center;gap:10px;position:relative;z-index:2;margin-bottom:16px;"><div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#7C3AED,#EC4899);display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 12px rgba(168,85,247,.4);">✦</div><div style="font-size:11px;color:#9CA3AF;letter-spacing:2px;font-weight:500;">NEXUS ORA</div></div>'; }
-  function _footer(l, s) { s=s||'免费'; return '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;position:relative;z-index:2;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);"><div style="font-size:10px;color:#6B7280;">@NexusOra · AI玄学平台</div><a href="'+APP_URL+'" target="_blank" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:9px;color:#9CA3AF;text-align:center;line-height:1.3;">扫码<br/>'+l+'</div><div style="font-size:8px;color:#4B5563;">'+s+'</div></a></div>'; }
+  function _footer(l, socialLine, s) { l=l||'测算'; s=s||'免费'; socialLine=socialLine||'@NexusOra · AI玄学平台'; return '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;position:relative;z-index:2;padding-top:10px;border-top:1px solid rgba(255,255,255,.04);"><div style="display:flex;flex-direction:column;gap:4px;max-width:210px;"><div style="font-size:10px;color:#E5E7EB;font-weight:600;line-height:1.4;">'+socialLine+'</div><div style="font-size:9px;color:#6B7280;">@NexusOra · AI玄学平台</div><div style="font-size:8px;color:#4B5563;">#NexusOra · #AI算命 · #人生海拔图</div></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><div id="share-qr" style="width:64px;height:64px;padding:4px;background:#fff;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;overflow:hidden;"></div><div style="font-size:8px;color:#9CA3AF;">扫码'+l+'</div><div style="font-size:8px;color:#4B5563;">'+s+'</div></div></div>'; }
   function _insight(lbl, txt) { return '<div style="position:relative;z-index:2;margin:4px 0 10px;padding:12px 14px;border-radius:14px;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);"><div style="font-size:9px;color:#7C3AED;letter-spacing:1px;margin-bottom:4px;">'+lbl+'</div><div style="font-size:13px;color:#E5E7EB;line-height:1.65;font-weight:500;">'+txt+'</div></div>'; }
   function _ring(sc, cl) { var r=42,c=Math.round(2*Math.PI*r),p=Math.round(c*sc/100); return '<svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg)"><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="7"/><circle cx="50" cy="50" r="'+r+'" fill="none" stroke="'+cl+'" stroke-width="7" stroke-linecap="round" stroke-dasharray="'+p+' '+c+'"/></svg>'; }
   function _tag(t,v){v=v||'purple';var o={purple:['rgba(168,85,247,.18)','#C084FC','rgba(168,85,247,.2)'],pink:['rgba(236,72,153,.18)','#F472B6','rgba(236,72,153,.2)'],blue:['rgba(96,165,250,.18)','#60A5FA','rgba(96,165,250,.2)'],green:['rgba(34,197,94,.18)','#4ADE80','rgba(34,197,94,.2)'],amber:['rgba(245,158,11,.18)','#FCD34D','rgba(245,158,11,.2)']};var c=o[v]||o.purple;return'<span style="padding:5px 13px;border-radius:20px;font-size:11px;font-weight:600;background:'+c[0]+';color:'+c[1]+';border:1px solid '+c[2]+';">'+t+'</span>';}
@@ -4058,13 +4087,18 @@ function generateShareCardHTML() {
     var dcx=scores.length?Math.round((sum.peak_age||35)/80*320):200, dcy=scores.length?Math.round(70-(sum.peak_score||89)/100*58):12;
 
     return _wrap(_brand()+
-      '<div style="position:relative;z-index:2;margin-bottom:14px;"><div style="font-size:36px;margin-bottom:8px;line-height:1;display:block;">⛰️</div><div style="font-size:24px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的人生海拔图</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">命运 K线 · 灵境图谱测算</div></div>'+
+      '<div style="position:relative;z-index:2;margin-bottom:12px;"><div style="font-size:36px;margin-bottom:6px;line-height:1;display:block;">⛰️</div><div style="font-size:24px;font-weight:900;line-height:1.2;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">我的人生海拔图</div><div style="font-size:11px;color:#6B7280;margin-top:3px;">命运 K线 · 灵境图谱测算</div><div style="margin-top:6px;font-size:10px;color:#A78BFA;background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.15);padding:5px 10px;border-radius:20px;display:inline-block;">✨ AI 用八字 + 大运 + 流年画出了我的人生曲线</div></div>'+
       '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2;">'+
-      '<div style="width:100%;height:80px;position:relative;margin-bottom:14px;overflow:hidden;border-radius:12px;"><svg viewBox="0 0 320 80" preserveAspectRatio="none" style="width:100%;height:100%;"><defs><linearGradient id="lgLife" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A855F7" stop-opacity=".8"/><stop offset="60%" stop-color="#3B0764" stop-opacity=".4"/><stop offset="100%" stop-color="#100828" stop-opacity="0"/></linearGradient><linearGradient id="lgLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3B82F6"/><stop offset="40%" stop-color="#A855F7"/><stop offset="75%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path fill="url(#lgLife)" opacity=".6" d="'+sa+'"/><path fill="none" stroke="url(#lgLine)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" d="'+sp+'"/><circle r="5" fill="#F59E0B" filter="url(#glow)" opacity=".9" cx="'+dcx+'" cy="'+dcy+'"/><line x1="80" y1="0" x2="80" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="160" y1="0" x2="160" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="240" y1="0" x2="240" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><text x="40" y="76" text-anchor="middle" font-size="7" fill="rgba(99,102,241,.7)">蛰伏积累</text><text x="120" y="76" text-anchor="middle" font-size="7" fill="rgba(168,85,247,.7)">初露锋芒</text><text x="200" y="76" text-anchor="middle" font-size="7" fill="rgba(245,158,11,.9)">主升浪 🔥</text><text x="280" y="76" text-anchor="middle" font-size="7" fill="rgba(236,72,153,.7)">厚积薄发</text></svg></div>'+
+      '<div style="width:100%;height:80px;position:relative;margin-bottom:10px;overflow:hidden;border-radius:12px;"><svg viewBox="0 0 320 80" preserveAspectRatio="none" style="width:100%;height:100%;"><defs><linearGradient id="lgLife" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#A855F7" stop-opacity=".8"/><stop offset="60%" stop-color="#3B0764" stop-opacity=".4"/><stop offset="100%" stop-color="#100828" stop-opacity="0"/></linearGradient><linearGradient id="lgLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#3B82F6"/><stop offset="40%" stop-color="#A855F7"/><stop offset="75%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#EC4899"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><path fill="url(#lgLife)" opacity=".6" d="'+sa+'"/><path fill="none" stroke="url(#lgLine)" stroke-width="2.5" stroke-linecap="round" filter="url(#glow)" d="'+sp+'"/><circle r="5" fill="#F59E0B" filter="url(#glow)" opacity=".9" cx="'+dcx+'" cy="'+dcy+'"/><line x1="80" y1="0" x2="80" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="160" y1="0" x2="160" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><line x1="240" y1="0" x2="240" y2="80" stroke="rgba(255,255,255,.06)" stroke-dasharray="3,3"/><text x="40" y="76" text-anchor="middle" font-size="7" fill="rgba(99,102,241,.7)">蛰伏积累</text><text x="120" y="76" text-anchor="middle" font-size="7" fill="rgba(168,85,247,.7)">初露锋芒</text><text x="200" y="76" text-anchor="middle" font-size="7" fill="rgba(245,158,11,.9)">主升浪 🔥</text><text x="280" y="76" text-anchor="middle" font-size="7" fill="rgba(236,72,153,.7)">厚积薄发</text></svg></div>'+
+      '<div style="display:flex;justify-content:space-around;margin-bottom:10px;">'+
+      '<div style="text-align:center;"><div style="font-size:16px;font-weight:800;background:linear-gradient(135deg,#C084FC,#F472B6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">'+peak+'岁</div><div style="font-size:8px;color:#6B7280;">峰值年龄</div></div>'+
+      '<div style="text-align:center;"><div style="font-size:16px;font-weight:800;color:#F59E0B;">'+peakSc+'</div><div style="font-size:8px;color:#6B7280;">峰值分数</div></div>'+
+      '<div style="text-align:center;"><div style="font-size:16px;font-weight:800;color:#4ADE80;">'+avg+'</div><div style="font-size:8px;color:#6B7280;">命运均分</div></div>'+
+      '<div style="text-align:center;"><div style="font-size:16px;font-weight:800;color:#60A5FA;">'+dm+'</div><div style="font-size:8px;color:#6B7280;">日主</div></div></div>'+
       '<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-bottom:10px;">'+_tag(dm+wx+'日主','purple')+_tag('🔥 主升浪中','amber')+_tag('峰值 '+peakSc+'分','green')+'</div>'+
       _insight('✦ 命理洞察', peak+'岁前你一直在<span style="color:#C084FC;font-weight:700;">积蓄能量</span>，<br/>步入黄金期后事业财运<span style="color:#C084FC;font-weight:700;">双线飙升</span>——<br/>贵人会在最意外的地方出现。')+
-      '<div style="text-align:center;font-size:11px;color:#6B7280;padding:10px 4px 0;border-top:1px solid rgba(255,255,255,.04);margin-top:6px;">「你不是晚熟，你是在等最好的时机一鸣惊人」</div></div>'+
-      _footer('测算'), '168,85,247');
+      '<div style="text-align:center;font-size:10px;color:#9CA3AF;padding:8px 4px 0;border-top:1px solid rgba(255,255,255,.04);margin-top:6px;line-height:1.6;">「你不是晚熟，你是在等最好的时机一鸣惊人」<br/><span style="color:#A78BFA;">#NexusOra #AI算命 #人生海拔图</span></div></div>'+
+      _footer('测算','🔮 我的人生海拔图 · 命运K线'), '168,85,247');
   }
 
   // ═══════════ CARD 2-8: SIMPLIFIED v2.0 CARDS ═══════════
