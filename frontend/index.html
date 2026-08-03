@@ -363,6 +363,7 @@ window.addEventListener('error', function(e) {
   <div class="flex gap-3 items-center">
     <span class="text-xs text-gray-500 hidden sm:inline" id="nav-tagline">AI Soul Companion · 东方玄学 × AI</span>
     <!-- Language Switcher -->
+    <button onclick="openEnlighten()" class="px-2.5 py-1 rounded-lg text-xs font-medium" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);color:#C4B5FD;cursor:pointer;white-space:nowrap;" data-i18n="enlighten_btn">🧭 灵境启蒙</button>
     <div class="flex gap-1 items-center" id="lang-switcher">
       <button onclick="setLang('zh')" id="lang-zh" class="lang-btn active" title="中文">中</button>
       <button onclick="setLang('en')" id="lang-en" class="lang-btn" title="English">EN</button>
@@ -533,8 +534,74 @@ window.addEventListener('error', function(e) {
     <button class="module-tab" onclick="switchModule('ziwei')" id="tab-ziwei">
       <span class="mr-1.5">🌟</span> <span data-i18n="tab_ziwei">紫微斗数</span>
     </button>
+    <button class="module-tab" onclick="switchModule('number')" id="tab-number">
+      <span class="mr-1.5">🔢</span> <span data-i18n="num_title">灵境数测</span>
+    </button>
   </div>
 </div>
+
+<!-- ══════════════════ 修习阶梯 (v6.0 分层递进) ══════════════════ -->
+<div class="max-w-5xl mx-auto px-6 pb-2">
+  <div style="background:rgba(168,85,247,.04);border:1px dashed rgba(168,85,247,.2);border-radius:18px;padding:16px 18px;">
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-purple-300 font-semibold text-sm" data-i18n="ladder_title">修习阶梯 · 由浅入深</span>
+    </div>
+    <p class="text-xs text-gray-500 mb-3" data-i18n="ladder_sub">按认知深度分层递进，而非功能并列 —— 找到你此刻所在的层级</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:14px;padding:12px;">
+        <div class="text-sm font-bold text-green-400 mb-1"><span data-i18n="ladder_t1">启蒙</span> · <span class="text-xs font-normal text-gray-500" data-i18n="ladder_t1_desc">认识自己 · 轻量趣味</span></div>
+        <div class="flex flex-wrap gap-1.5">
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">📈 灵境图谱</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🔢 灵境数测</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🃏 灵境占卜</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">📿 每日一签</span>
+        </div>
+      </div>
+      <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.2);border-radius:14px;padding:12px;">
+        <div class="text-sm font-bold text-purple-300 mb-1"><span data-i18n="ladder_t2">进阶</span> · <span class="text-xs font-normal text-gray-500" data-i18n="ladder_t2_desc">读懂格局 · 深度参考</span></div>
+        <div class="flex flex-wrap gap-1.5">
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🌟 紫微斗数</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">💫 缘分配对</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">💞 灵境人格</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🌙 梦境回廊</span>
+        </div>
+      </div>
+      <div style="background:rgba(234,179,8,.06);border:1px solid rgba(234,179,8,.2);border-radius:14px;padding:12px;">
+        <div class="text-sm font-bold text-amber-300 mb-1"><span data-i18n="ladder_t3">宗师</span> · <span class="text-xs font-normal text-gray-500" data-i18n="ladder_t3_desc">推演因果 · 平行人生</span></div>
+        <div class="flex flex-wrap gap-1.5">
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🧭 钦天四化</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🎲 人生沙盘</span>
+          <span style="font-size:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:2px 8px;border-radius:999px;color:#ddd;">🏛 多智能体解读</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 灵境数测 (v6.0) ══════════════════ -->
+<section id="section-hero-number" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🔢</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="num_title">灵境数测</h2>
+      <p class="text-gray-400 text-sm" data-i18n="num_subtitle">手机号 / 车牌号 / 电动车牌号 · 数字能量学趣味解读</p>
+    </div>
+
+    <div class="flex flex-wrap gap-2 justify-center mb-4" id="num-kind-tabs">
+      <button class="module-tab active" data-kind="phone" onclick="selectNumKind('phone',this)" data-i18n="num_kind_phone">📱 手机号</button>
+      <button class="module-tab" data-kind="plate" onclick="selectNumKind('plate',this)" data-i18n="num_kind_plate">🚗 车牌号</button>
+      <button class="module-tab" data-kind="bike" onclick="selectNumKind('bike',this)" data-i18n="num_kind_bike">🛵 电动车牌</button>
+    </div>
+
+    <div class="flex gap-2">
+      <input id="num-input" type="text" class="input-field flex-1" placeholder="输入号码，如 138 0013 8000" style="font-size:15px;">
+      <button id="num-btn" onclick="analyzeNumber()" class="btn-primary" style="padding:12px 20px;" data-i18n="num_btn">测算</button>
+    </div>
+    <p class="text-xs text-gray-600 mt-2 text-center" data-i18n="num_hint">数字能量学为趣味参考，结果不构成任何专业建议</p>
+
+    <div id="num-result" class="hidden-section mt-6"></div>
+  </div>
+</section>
 
 <!-- ══════════════════ Section 0: Hero ══════════════════ -->
 <section id="section-hero" class="max-w-3xl mx-auto px-6 py-4 slide-in">
@@ -1695,6 +1762,28 @@ window.addEventListener('error', function(e) {
 // ════════════════════════════════════════════════
 const I18N = {
   zh: {
+    // ── v6.0 策略升级：灵境数测 / 灵境启蒙 / 修习阶梯 / 线下 O2O ──
+    num_title: '灵境数测', num_subtitle: '手机号 / 车牌号 / 电动车牌号 · 数字能量学趣味解读',
+    num_kind_phone: '📱 手机号', num_kind_plate: '🚗 车牌号', num_kind_bike: '🛵 电动车牌',
+    num_btn: '测算', num_hint: '数字能量学为趣味参考，结果不构成任何专业建议',
+    num_pairs: '数字组合能量', num_stars: '星象分布', num_wuxing: '五行分布',
+    enlighten_btn: '🧭 灵境启蒙', about_btn: 'ⓘ 关于灵境',
+    enlighten_title: '灵境启蒙 · 新手村',
+    enlighten_p1: '灵境不是「AI 算命」，而是一套把东方千年命理学（八字 / 紫微 / 数字能量）重构为可交互、可可视化、可分享的计算工具。',
+    enlighten_p2: '我们的核心是「可验证的计算」：排盘算法基于公开历法与传统命理规则，结果可复现；AI 只在后台作为「推演引擎」，把晦涩的命理语言翻译成现代人能懂的建议，绝不替代命理师，也不臆造结论。',
+    enlighten_p3: '📈 灵境图谱：输入出生时间，生成四柱八字 + 五行 + 十神 + 人生 K 线。',
+    enlighten_p4: '🌟 紫微斗数 / 钦天四化：十二宫格局与四化流动的进阶视角。',
+    enlighten_p5: '🔢 灵境数测：手机号 / 车牌 / 电动车牌的数字能量趣味解读。',
+    enlighten_p6: '🔮 占卜 / 修行 / 市集：作为日常陪伴与生活方式的延伸。',
+    enlighten_warn: '⚠️ 所有结果仅供娱乐与自我探索参考，不构成任何医疗、财务或人生决策的专业建议。',
+    ladder_title: '修习阶梯 · 由浅入深', ladder_sub: '按认知深度分层递进，而非功能并列 —— 找到你此刻所在的层级',
+    ladder_t1: '启蒙', ladder_t1_desc: '认识自己 · 轻量趣味',
+    ladder_t2: '进阶', ladder_t2_desc: '读懂格局 · 深度参考',
+    ladder_t3: '宗师', ladder_t3_desc: '推演因果 · 平行人生',
+    o2o_title: '灵境·线下 — 线上线下一体生态',
+    o2o_sub: '线上测算建立信任，线下活动沉淀关系。凭你的「灵境图谱 / 命盘报告」，到任一合作沙龙 / 禅修营可享专属 1v1 解读。',
+    o2o_name: '称呼', o2o_phone: '手机号', o2o_done: '已报名 ✓ 到店凭报告享专属解读',
+    pos_tagline: '东方命理 · 算法可视化平台',
     btn_share_img: '生成分享图',
     faq_title: '常见问题 · AI 算命百科',
     admin_title: '⚙️ 系统配置',
@@ -1705,7 +1794,7 @@ const I18N = {
     admin_login_btn: '登录',
     admin_save: '保存配置',
     // Nav
-    nav_tagline: 'AI Soul Companion · 东方玄学 × AI',
+    nav_tagline: '东方命理 · 算法可视化平台',
     nav_profile_default_name: '命主',
     nav_profile_empty: '建立档案',
     nav_profile_empty_title: '建立命运档案',
@@ -1718,7 +1807,7 @@ const I18N = {
     tab_compat: '缘分配对', tab_divination: '灵境占卜', tab_cultivation: '灵境修行',
     tab_market: '灵境市集', tab_ziwei: '紫微斗数',
     // Hero
-    hero_title: 'AI算命 · 八字排盘 · 人生K线',
+    hero_title: '东方命理 · 八字排盘 · 人生K线',
     hero_subtitle: '免费在线AI算命与八字排盘<br>让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>',
     birth_date: '出生日期', birth_time: '出生时间', birth_time_hint: '未知可保留默认值',
     gender: '性别', gender_male: '男', gender_female: '女',
@@ -1834,8 +1923,8 @@ const I18N = {
     cult_alert_updated: '已更新今日日记', cult_alert_saved: '已保存今日日记', cult_alert_medit_fail: '加载冥想引导失败：',
 
     // Matrix section (homepage)
-    matrix_badge: 'AI 原生玄学平台',
-    matrix_hero_title: 'AI算命 · 八字排盘 · 紫微斗数',
+    matrix_badge: '东方命理 · 算法可视化平台',
+    matrix_hero_title: '东方命理 · 八字排盘 · 紫微斗数',
     matrix_hero_desc: '东方玄学智慧 <span class="text-purple-300 font-semibold">×</span> AI 科技 &nbsp;·&nbsp;八字命理 <span class="text-pink-300 font-semibold">×</span> 数据可视化 &nbsp;·&nbsp;古老智慧 <span class="text-amber-300 font-semibold">×</span> 现代交互',
     matrix_hero_sub: '免费在线AI算命、八字排盘、紫微斗数命盘 — 将千年东方玄学体系重构为可交互、可视化、可分享的 AI 原生数字产品',
     matrix_tab_life_stage: '人生阶段',
@@ -1952,7 +2041,7 @@ const I18N = {
     admin_password_placeholder: 'Enter password',
     admin_login_btn: 'Login',
     admin_save: 'Save Config',
-    nav_tagline: 'AI Soul Companion · Eastern Wisdom × AI',
+    nav_tagline: 'Eastern Astrology · Algorithmic Visualization',
     nav_profile_default_name: 'Guest',
     nav_profile_empty: 'Create Profile',
     nav_profile_empty_title: 'Create Your Destiny Profile',
@@ -1962,7 +2051,7 @@ const I18N = {
     nav_membership_title: 'Membership Center',
     tab_compat: 'Compatibility', tab_divination: 'Divination', tab_cultivation: 'Cultivation',
     tab_market: 'Mystic Market', tab_ziwei: 'Zi Wei',
-    hero_title: 'AI Fortune Telling · BaZi Chart · Life K-Line',
+    hero_title: 'Eastern Astrology · BaZi Chart · Life K-Line',
     hero_subtitle: 'Free Online AI Fortune Telling & BaZi Chart<br>Make your destiny <strong class="text-purple-300">visible</strong>, <strong class="text-pink-300">interactive</strong>, <strong class="text-purple-300">shareable</strong>',
     birth_date: 'Birth Date', birth_time: 'Birth Time', birth_time_hint: 'Leave default if unknown',
     gender: 'Gender', gender_male: 'Male', gender_female: 'Female',
@@ -2048,8 +2137,8 @@ const I18N = {
     cult_alert_updated: 'Diary updated', cult_alert_saved: 'Diary saved', cult_alert_medit_fail: 'Failed to load meditation: ',
 
     // Matrix section
-    matrix_badge: 'AI Native Mystical Platform',
-    matrix_hero_title: 'AI Fortune · BaZi · Zi Wei',
+    matrix_badge: 'Eastern Astrology · Algorithmic Platform',
+    matrix_hero_title: 'Eastern Astrology · BaZi · Zi Wei',
     matrix_hero_desc: 'Eastern Wisdom <span class="text-purple-300 font-semibold">×</span> AI Tech &nbsp;·&nbsp;BaZi Destiny <span class="text-pink-300 font-semibold">×</span> Data Visualization &nbsp;·&nbsp;Ancient Wisdom <span class="text-amber-300 font-semibold">×</span> Modern Interaction',
     matrix_hero_sub: 'Free online AI fortune telling, BaZi chart, and Zi Wei chart — rebuilding millennia of Eastern mysticism as interactive, visual, shareable AI-native products',
     matrix_tab_life_stage: 'Life Stages',
@@ -2166,7 +2255,7 @@ const I18N = {
     admin_password_placeholder: 'パスワードを入力',
     admin_login_btn: 'ログイン',
     admin_save: '設定を保存',
-    nav_tagline: 'AIソウルコンパニオン · 東洋玄学 × AI',
+    nav_tagline: '東洋命理 · アルゴリズム可視化',
     nav_profile_default_name: 'ゲスト',
     nav_profile_empty: 'プロフィール作成',
     nav_profile_empty_title: '運命プロフィールを作成',
@@ -2176,7 +2265,7 @@ const I18N = {
     nav_membership_title: '会員センター',
     tab_compat: '縁分配対', tab_divination: '霊境占い', tab_cultivation: '霊境修行',
     tab_market: '霊境市場', tab_ziwei: '紫微斗数',
-    hero_title: 'AI占い · 四柱推命 · 人生Kライン',
+    hero_title: '東洋命理 · 四柱推命 · 人生Kライン',
     hero_subtitle: '無料AI占いと四柱推命<br>運命を<strong class="text-purple-300">可視化</strong>し、<strong class="text-pink-300">インタラクティブ</strong>に、<strong class="text-purple-300">シェア可能</strong>に',
     birth_date: '生年月日', birth_time: '生まれた時間', birth_time_hint: '不明な場合はデフォルトのまま',
     gender: '性別', gender_male: '男性', gender_female: '女性',
@@ -2262,8 +2351,8 @@ const I18N = {
     cult_alert_updated: '日記を更新しました', cult_alert_saved: '日記を保存しました', cult_alert_medit_fail: '瞑想ガイドの読み込みに失敗：',
 
     // Matrix section
-    matrix_badge: 'AIネイティブ玄学プラットフォーム',
-    matrix_hero_title: 'AI占い · 四柱推命 · 紫微斗数',
+    matrix_badge: '東洋命理 · アルゴリズム可視化',
+    matrix_hero_title: '東洋命理 · 四柱推命 · 紫微斗数',
     matrix_hero_desc: '東洋玄学の智慧 <span class="text-purple-300 font-semibold">×</span> AIテクノロジー &nbsp;·&nbsp;八字命理 <span class="text-pink-300 font-semibold">×</span> データ可視化 &nbsp;·&nbsp;古代の智慧 <span class="text-amber-300 font-semibold">×</span> モダンインタラクション',
     matrix_hero_sub: '無料のオンラインAI占い、四柱推命、紫微斗数命盤 — 千年の東洋玄学を、インタラクティブで可視化・シェア可能なAIネイティブデジタルプロダクトに再構築',
     matrix_tab_life_stage: '人生段階',
@@ -4221,6 +4310,8 @@ function switchModule(module) {
     } else if (module === 'market') {
         showSection('section-hero-market');
         if (typeof loadMarket === 'function') loadMarket();
+    } else if (module === 'number') {
+        showSection('section-hero-number');
     }
 
     // Reset chart refs
@@ -4231,7 +4322,7 @@ function hideAll() {
     ['section-hero', 'section-hero-compat', 'section-hero-ziwei', 'section-hero-dream',
      'section-hero-persona', 'section-hero-divination', 'section-hero-cultivation', 'section-hero-market',
      'section-loading', 'section-results', 'section-compat-results', 'section-ziwei-results',
-     'section-dream-results', 'section-dream-history', 'section-matrix']
+     'section-dream-results', 'section-dream-history', 'section-matrix', 'section-hero-number']
         .forEach(id => { const el = document.getElementById(id); if (el) el.classList.add('hidden-section'); });
 }
 
@@ -5884,6 +5975,21 @@ function buyDemo(name) {
       <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
     </div>
     <div id="market-content" class="hidden-section"></div>
+
+    <!-- 灵境·线下 O2O 生态 (v6.0) -->
+    <div style="margin-top:24px;padding:18px;border-radius:18px;background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);">
+      <h3 class="text-lg font-bold text-cyan-300 mb-1" data-i18n="o2o_title">灵境·线下 — 线上线下一体生态</h3>
+      <p class="text-xs text-gray-400 mb-3" data-i18n="o2o_sub">线上测算建立信任，线下活动沉淀关系。凭你的「灵境图谱 / 命盘报告」，到任一合作沙龙 / 禅修营可享专属 1v1 解读。</p>
+      <div id="o2o-events"></div>
+      <div id="o2o-signup" class="hidden-section mt-3">
+        <div class="flex flex-wrap gap-2">
+          <input id="o2o-name" placeholder="称呼" class="input-field" style="max-width:120px;font-size:13px;">
+          <input id="o2o-phone" placeholder="手机号" class="input-field" style="max-width:140px;font-size:13px;">
+          <button onclick="signupEvent()" class="btn-primary" style="padding:10px 16px;font-size:13px;" data-i18n="o2o_signup">报名留资</button>
+        </div>
+        <p class="text-xs text-gray-600 mt-2">留资仅存本地浏览器，用于到店核销，不上传服务器</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -5897,6 +6003,24 @@ function buyDemo(name) {
 .market-item { transition:all .3s; }
 .market-item:hover { transform:translateY(-3px); border-color:rgba(168,85,247,.2); box-shadow:0 8px 24px rgba(168,85,247,.1); }
 </style>
+
+<!-- ═══════════════ 灵境启蒙 / 关于 modal (v6.0) ═══════════════ -->
+<div id="enlighten-modal" style="display:none;position:fixed;inset:0;z-index:10002;background:rgba(0,0,0,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:linear-gradient(180deg,#1A1630 0%,#0F0A1F 100%);border:1px solid rgba(168,85,247,.25);border-radius:24px;padding:28px 24px;width:100%;max-width:520px;max-height:84vh;overflow-y:auto;position:relative;">
+    <button onclick="closeEnlighten()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#9CA3AF;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+    <h3 class="text-xl font-bold text-white mb-1" data-i18n="enlighten_title">灵境启蒙 · 新手村</h3>
+    <p class="text-xs text-purple-300 mb-4" data-i18n="pos_tagline">东方命理 · 算法可视化平台</p>
+    <div class="space-y-3 text-sm text-gray-300 leading-relaxed">
+      <p data-i18n="enlighten_p1">灵境不是「AI 算命」，而是一套把东方千年命理学（八字 / 紫微 / 数字能量）重构为可交互、可可视化、可分享的计算工具。</p>
+      <p data-i18n="enlighten_p2">我们的核心是「可验证的计算」：排盘算法基于公开历法与传统命理规则，结果可复现；AI 只在后台作为「推演引擎」，把晦涩的命理语言翻译成现代人能懂的建议，绝不替代命理师，也不臆造结论。</p>
+      <p data-i18n="enlighten_p3">📈 灵境图谱：输入出生时间，生成四柱八字 + 五行 + 十神 + 人生 K 线。</p>
+      <p data-i18n="enlighten_p4">🌟 紫微斗数 / 钦天四化：十二宫格局与四化流动的进阶视角。</p>
+      <p data-i18n="enlighten_p5">🔢 灵境数测：手机号 / 车牌 / 电动车牌的数字能量趣味解读。</p>
+      <p data-i18n="enlighten_p6">🔮 占卜 / 修行 / 市集：作为日常陪伴与生活方式的延伸。</p>
+    </div>
+    <div style="margin-top:16px;padding:12px 14px;border-radius:12px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);font-size:12px;color:#FCA5A5;line-height:1.6;" data-i18n="enlighten_warn">⚠️ 所有结果仅供娱乐与自我探索参考，不构成任何医疗、财务或人生决策的专业建议。</div>
+  </div>
+</div>
 
 <!-- ═══════════════ 命运档案 Modal ═══════════════ -->
 <div id="profile-modal">
@@ -6402,6 +6526,109 @@ function adminSaveConfig() {
         btn.disabled = false;
     });
 }
+
+// ════════════════ 灵境数测 (v6.0) ═════════════════
+let currentNumKind = 'phone';
+function selectNumKind(k, el) {
+  currentNumKind = k;
+  document.querySelectorAll('#num-kind-tabs .module-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const ph = k === 'phone' ? '输入手机号，如 138 0013 8000'
+           : k === 'plate' ? '输入车牌号，如 粤B12345'
+           : '输入电动车牌号，如 沪A12345';
+  document.getElementById('num-input').placeholder = ph;
+}
+async function analyzeNumber() {
+  const raw = (document.getElementById('num-input').value || '').trim();
+  if (!raw) { showToast(currentLang === 'zh' ? '请先输入号码' : 'Please enter a number'); return; }
+  const btn = document.getElementById('num-btn');
+  btn.disabled = true; btn.textContent = '测算中…';
+  const box = document.getElementById('num-result');
+  try {
+    const r = await fetch('/api/number-fortune', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number: raw, kind: currentNumKind })
+    }).then(x => x.json());
+    if (!r.success) { box.classList.remove('hidden-section'); box.innerHTML = '<p class="text-center text-gray-400">' + (r.message || '测算失败') + '</p>'; return; }
+    renderNumberResult(r);
+  } catch (e) {
+    box.classList.remove('hidden-section');
+    box.innerHTML = '<p class="text-center text-red-400">网络错误，请确认服务已启动</p>';
+  } finally {
+    btn.disabled = false; btn.textContent = t('num_btn');
+  }
+}
+function renderNumberResult(r) {
+  const wx = Object.entries(r.wuxing).map(([k, v]) =>
+    `<span style="background:${r.wuxingColor[k]}22;color:${r.wuxingColor[k]};border:1px solid ${r.wuxingColor[k]}55;padding:2px 10px;border-radius:999px;font-size:12px;margin:2px;">${k} ${v}</span>`).join('');
+  const stars = Object.entries(r.starCounts).sort((a, b) => b[1] - a[1]).map(([s, c]) =>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);"><span>${s}</span><span style="color:#A78BFA;">× ${c}</span></div>`).join('');
+  const pairs = r.pairs.map(p =>
+    `<span style="display:inline-block;margin:3px;padding:3px 8px;border-radius:8px;font-size:12px;${p.level === '吉' ? 'background:rgba(239,68,68,.12);color:#FCA5A5;' : p.level === '凶' ? 'background:rgba(34,197,94,.1);color:#86EFAC;' : 'background:rgba(255,255,255,.05);color:#9CA3AF;'}">${p.pair}${p.star ? (' · ' + p.star) : ''}</span>`).join('');
+  document.getElementById('num-result').innerHTML = `
+    <div class="text-center mb-4">
+      <div style="font-size:42px;font-weight:800;color:${r.gradeColor};">${r.score}</div>
+      <div style="font-size:14px;color:${r.gradeColor};font-weight:700;">${r.grade}</div>
+    </div>
+    <div style="text-align:center;margin-bottom:12px;">${wx}</div>
+    <div class="mb-3"><div class="text-xs text-gray-500 mb-1">${t('num_pairs')}</div>${pairs}</div>
+    <div class="mb-3"><div class="text-xs text-gray-500 mb-1">${t('num_stars')}</div>${stars || '<p class="text-gray-500 text-sm">无明显星象</p>'}</div>
+    <div style="background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.15);border-radius:14px;padding:14px;font-size:13px;color:#ddd;line-height:1.7;">${r.interpretation}</div>
+    <div class="text-center mt-4">
+      <button class="btn-secondary" style="padding:10px 18px;font-size:13px;" onclick="showToast('分享图功能即将上线，可先截图保存 📸')">生成分享图</button>
+    </div>`;
+  document.getElementById('num-result').classList.remove('hidden-section');
+}
+
+// ════════════════ 灵境启蒙 / 关于 modal (v6.0) ═══════════════
+function openEnlighten() { const m = document.getElementById('enlighten-modal'); if (m) m.style.display = 'flex'; }
+function closeEnlighten() { const m = document.getElementById('enlighten-modal'); if (m) m.style.display = 'none'; }
+
+// ════════════════ 线下 O2O (v6.0) ═══════════════
+let o2oEvents = [];
+async function renderO2O() {
+  const box = document.getElementById('o2o-events');
+  if (!box) return;
+  try {
+    const r = await fetch('/api/market/events').then(x => x.json());
+    o2oEvents = (r && r.items) || [];
+  } catch (e) { o2oEvents = []; }
+  if (!o2oEvents.length) {
+    box.innerHTML = '<p class="text-gray-500 text-sm">暂无线下活动，敬请期待。</p>';
+    return;
+  }
+  box.innerHTML = o2oEvents.map((ev, i) => `
+    <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <div class="text-sm font-semibold text-cyan-200">${ev.title || ('活动 ' + (i + 1))}</div>
+          <div class="text-xs text-gray-500">${ev.time || ''} · ${ev.place || ''}</div>
+        </div>
+        <button class="btn-primary" style="padding:6px 14px;font-size:12px;white-space:nowrap;" onclick="showO2OSignup(${i})">报名</button>
+      </div>
+    </div>`).join('');
+}
+function showO2OSignup(i) {
+  const el = document.getElementById('o2o-signup');
+  if (el) { el.classList.remove('hidden-section'); el.dataset.ev = i; }
+}
+function signupEvent() {
+  const el = document.getElementById('o2o-signup');
+  const i = (el && el.dataset.ev) || 0;
+  const name = (document.getElementById('o2o-name').value || '').trim();
+  const phone = (document.getElementById('o2o-phone').value || '').trim();
+  if (!name || !phone) { showToast(currentLang === 'zh' ? '请填写称呼与手机号' : 'Please fill name & phone'); return; }
+  try {
+    const key = 'nexus_o2o_signups';
+    const list = JSON.parse(localStorage.getItem(key) || '[]');
+    list.push({ event: (o2oEvents[i] && o2oEvents[i].title) || ('活动' + (Number(i) + 1)), name, phone, at: new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(list));
+  } catch (e) {}
+  el.classList.add('hidden-section');
+  showToast(t('o2o_done'));
+}
+if (document.readyState !== 'loading') renderO2O();
+else document.addEventListener('DOMContentLoaded', renderO2O);
 
 // 路由：URL hash #admin 打开管理页
 (function() {

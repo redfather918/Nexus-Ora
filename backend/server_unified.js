@@ -31,7 +31,7 @@ const CFG = {
         timeout:  90_000
     },
     prices: { report: 999, monthly: 2999 },
-    db:     path.join(__dirname, 'nexus_ora.db'),
+    db:     process.env.NEXUS_DB || path.join(__dirname, 'nexus_ora.db'),
     paypal: {
         clientId:     process.env.PAYPAL_CLIENT_ID || '',
         clientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
@@ -1473,6 +1473,79 @@ function algorithmDreamAnalysis(description, mood) {
         luck_score: luckScore
     };
 }
+
+// ════════════════ 灵境数测：手机号 / 车牌号 / 电动车牌号 (v6.0) ════════════════
+// 数字能量学（八星）纯算法，无需 LLM，离线可用
+const NUMBER_STARS = {
+  13:'天医',31:'天医',68:'天医',86:'天医',
+  19:'延年',91:'延年',78:'延年',87:'延年',
+  14:'生气',41:'生气',67:'生气',76:'生气',
+  11:'伏位',22:'伏位',33:'伏位',44:'伏位',66:'伏位',77:'伏位',88:'伏位',99:'伏位',
+  16:'六煞',61:'六煞',47:'六煞',74:'六煞',
+  17:'祸害',71:'祸害',89:'祸害',98:'祸害',
+  18:'五鬼',81:'五鬼',79:'五鬼',97:'五鬼',
+  12:'绝命',21:'绝命',69:'绝命',96:'绝命'
+};
+const STAR_LEVEL  = { 天医:'吉',延年:'吉',生气:'吉',伏位:'中',六煞:'凶',祸害:'凶',五鬼:'凶',绝命:'凶' };
+const STAR_WEIGHT = { 天医:18,延年:15,生气:12,伏位:4,六煞:-12,祸害:-14,五鬼:-16,绝命:-20 };
+const STAR_DESC = {
+  天医:'主财运与姻缘，易得正财、贵人牵线',
+  延年:'主事业与健康，有领导力、自律强',
+  生气:'主贵人运，乐观开朗、人缘好',
+  伏位:'主平稳延续，保守持重、蓄势待发',
+  六煞:'主感情波折与人际纠葛，需防情绪内耗',
+  祸害:'主口舌是非与健康耗损，谨言慎行',
+  五鬼:'主变动破财与思路跳跃，防暗中小人',
+  绝命:'主大起大落与冲动投资，忌高风险'
+};
+const WUXING_DIGIT  = { 1:'水',6:'水',2:'火',7:'火',3:'木',8:'木',4:'金',9:'金',5:'土',0:'土' };
+const WUXING_COLOR  = { 金:'#FCD34D',木:'#4ADE80',水:'#38BDF8',火:'#F87171',土:'#FBBF24' };
+
+function computeNumberEnergy(raw, kind) {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (!digits || digits.length < 2) {
+    return { ok:false, error:'号码至少需要 2 位数字' };
+  }
+  const pairs = [];
+  for (let i = 0; i < digits.length - 1; i++) {
+    const v = parseInt(digits.substr(i, 2), 10);
+    const star = NUMBER_STARS[v] || null;
+    pairs.push({ pair:String(v).padStart(2,'0'), star, level: star ? STAR_LEVEL[star] : '—' });
+  }
+  const starCounts = {};
+  let weightSum = 0;
+  pairs.forEach(p => { if (p.star) { starCounts[p.star] = (starCounts[p.star] || 0) + 1; weightSum += STAR_WEIGHT[p.star]; } });
+  const n = pairs.length;
+  let score = Math.round(50 + (weightSum / n) * 2.6);
+  score = Math.max(1, Math.min(99, score));
+  const wuxing = {};
+  digits.split('').forEach(d => { const w = WUXING_DIGIT[d]; wuxing[w] = (wuxing[w] || 0) + 1; });
+  let grade, gradeColor;
+  if (score >= 75)      { grade='大吉'; gradeColor='#ef4444'; }
+  else if (score >= 60) { grade='小吉'; gradeColor='#f97316'; }
+  else if (score >= 45) { grade='平稳'; gradeColor='#9CA3AF'; }
+  else if (score >= 30) { grade='小凶'; gradeColor='#22c55e'; }
+  else                  { grade='大凶'; gradeColor='#16a34a'; }
+  const tops = Object.entries(starCounts).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([s,c])=>`${s}(${c})`);
+  const kindName = kind==='plate'?'车牌号':kind==='bike'?'电动车牌号':kind==='phone'?'手机号':'号码';
+  const interpretation = `你的${kindName}以「${tops.join('、')||'无明显星象'}」为主导能量。` +
+    (score>=60?'整体磁场偏旺，利于事业财运与人际展开；':score>=45?'能量平稳，守成为上，适合稳步经营；':'能量偏弱，建议搭配五行调理与水晶平衡，重要决策多斟酌；') +
+    `数字并非定数——灵境数测意在帮你觉察日常能量场，作为自我探索的趣味参考，不构成任何专业建议。`;
+  return { ok:true, digits, pairs, starCounts, wuxing,
+           wuxingColor:WUXING_COLOR, score, grade, gradeColor, interpretation,
+           starDesc:STAR_DESC, kindName };
+}
+
+app.post('/api/number-fortune', (req, res) => {
+  try {
+    const { number, kind } = req.body || {};
+    const r = computeNumberEnergy(number, kind || 'phone');
+    if (!r.ok) return res.json({ success:false, message:r.error });
+    res.json({ success:true, ...r });
+  } catch (e) {
+    res.json({ success:false, message:String(e && e.message ? e.message : e) });
+  }
+});
 
 // 记录并分析梦境
 app.post('/api/dream', async (req, res) => {
