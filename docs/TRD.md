@@ -1,6 +1,6 @@
 # Nexus Ora — 技术需求文档 (TRD)
 
-> 版本：v5.1 | 更新日期：2026-07-16 | 8 大模块 + 微信小程序 v4.4.5 + 会员订阅 v5.0 + PayPal + 全站 SEO + 多语言 i18n + 钦天四化（北派飞星）v5.1
+> 版本：v6.1 | 更新日期：2026-08-03 | 9 大模块（v6.0 新增灵境数测）+ 微信小程序 v4.4.5 + 会员订阅 v5.0 + PayPal + 全站 SEO + 多语言 i18n + 钦天四化（北派飞星）v5.1 + 推演引擎 v5.2 + 产品策略升级 v6.0
 
 ---
 
@@ -28,11 +28,11 @@
 │              Node.js Express Server                   │
 │              (server_unified.js — v3.9)               │
 │  ┌─────────────┬──────────────┬────────────────────┐ │
-│  │ Paipan Engine│  LLM Client  │  8 Module Handlers │ │
+│  │ Paipan Engine│  LLM Client  │  9 Module Handlers │ │
 │  │ (纯 JS)      │ (DeepSeek)   │  K / Compat / Dream│ │
 │  │ + Ziwei      │              │  / Persona / Oracle│ │
 │  │              │              │  / Cultivation /   │ │
-│  │              │              │  / Market / ...    │ │
+│  │              │              │  / Market / Number │ │
 │  │ + Payments   │ + Membership │  + Admin Config   │ │
 │  │ (Stripe +    │ (free/      │  (runtime hot     │ │
 │  │  PayPal)     │  monthly/    │  config update)   │ │
@@ -167,6 +167,62 @@ qinTian = {
 - 飞星总数恒为 48（12 宫 × 4 化）
 - 离心自化 ⊂ 飞星（isSelf=true），向心自化为对宫互映射
 - 纯算法、无 LLM、可复现（同输入同输出）
+
+### 3.8 灵境数测引擎（`server_unified.js` — v6.0 新增）
+
+**背景**：v6.0 新增的「灵境数测」模块，用数字能量学（八星）对手机号 / 车牌号 / 电动车牌号做趣味测算。定位为**低门槛拉新与社交裂变入口**，因此采用**纯算法实现、零 LLM 依赖、可离线运行**，与 ADR-009（算法回退一致性）原则一致。
+
+**核心算法（`computeNumberEnergy(raw, kind)`）**：
+
+```
+输入号码字符串（自动去非数字）
+    ↓
+digits = raw.replace(/\D/g, '')          // 仅保留数字
+if (digits.length < 2) return { ok:false, error:'号码至少需要 2 位数字' }
+    ↓
+① 相邻两位配对（共 n = len-1 对）
+   for i in 0..n-1:
+     v = parseInt(digits.substr(i,2))
+     star = NUMBER_STARS[v]              // 查八星映射表，未命中为 null
+     pairs.push({ pair, star, level })   // level ∈ 吉/中/凶/—
+    ↓
+② 星统计 + 加权
+   starCounts[star]++ ;  weightSum += STAR_WEIGHT[star]
+    ↓
+③ 评分（夹紧 1–99，沿用运势等级红涨绿跌）
+   score = round(50 + (weightSum / n) * 2.6)
+   score = clamp(score, 1, 99)
+    ↓
+④ 五行分布
+   for d in digits: wuxing[WUXING_DIGIT[d]]++
+    ↓
+⑤ 等级 + 解读
+   grade = 大吉(≥75)/小吉(≥60)/平稳(≥45)/小凶(≥30)/大凶(<30)
+   interpretation = kindName + 主导星象 + 能量建议 + 免责声明
+    ↓
+返回 { ok, digits, pairs, starCounts, wuxing, score, grade, gradeColor, interpretation, kindName }
+```
+
+**关键映射表**：
+
+| 表名 | 内容 |
+|------|------|
+| `NUMBER_STARS` | 两位数 → 八星：天医(13/31/68/86)、延年(19/91/78/87)、生气(14/41/67/76)、伏位(11/22/33/44/66/77/88/99)、六煞(16/61/47/74)、祸害(17/71/89/98)、五鬼(18/81/79/97)、绝命(12/21/69/96) |
+| `STAR_LEVEL` | 天医/延年/生气=吉，伏位=中，六煞/祸害/五鬼/绝命=凶 |
+| `STAR_WEIGHT` | 天医 18 / 延年 15 / 生气 12 / 伏位 4 / 六煞 −12 / 祸害 −14 / 五鬼 −16 / 绝命 −20 |
+| `WUXING_DIGIT` | 1/6 水、2/7 火、3/8 木、4/9 金、5/0 土 |
+| `STAR_DESC` | 八星象义（天医主财姻、延年主事业健康、生气主人缘、伏位主平稳、六煞主感情波折、祸害主口舌、五鬼主变动、绝命主大耗） |
+
+**集成点**：
+- `server_unified.js` `POST /api/number-fortune`：解析 `{ number, kind }`，调用 `computeNumberEnergy`，成功返回 `{ success:true, ...r }`，失败返回 `{ success:false, message }`。
+- 前端 `index.html`：灵境数测模块（`switchModule('number')`）调用该接口渲染分数环、八星分布、五行条与解读；红涨绿跌。
+- `kind` 仅影响 `kindName` 文案（手机号/车牌号/电动车牌号），不改变算法。
+
+**测试要点**：
+- 边界：数字 < 2 位返回 `ok:false`（如单数字 "1" 返回错误）。
+- 可复现：同号码同 `kind` 恒得同分（无随机性）。
+- 等级阈值与 §2.4 运势等级一致；`gradeColor` 红涨绿跌（大吉=红 #ef4444，大凶=绿 #16a34a）。
+- 零外部依赖：不调用 LLM、不读写数据库、不依赖网络。
 
 ### 3.1 排盘引擎 (`paipan_engine.js`)
 
@@ -462,6 +518,36 @@ POST /api/admin/config             # 热更新配置（无需重启服务）
 
 ---
 
+### 4.14 灵境数测 (v6.0)
+
+```
+POST /api/number-fortune
+Body: { number: string, kind?: 'phone' | 'plate' | 'bike' }
+Response (success):
+{
+  success: true,
+  ok: true,
+  digits: string,                 // 仅数字串
+  pairs:  [ { pair, star, level } ],      // 相邻两位的八星映射
+  starCounts: { [star]: count },          // 八星分布
+  wuxing: { [wuxing]: count },            // 数字五行分布
+  score: number,                 // 1–99
+  grade: '大吉'|'小吉'|'平稳'|'小凶'|'大凶',
+  gradeColor: '#ef4444'|...,     // 红涨绿跌
+  interpretation: string,        // 含免责声明
+  kindName: '手机号'|'车牌号'|'电动车牌号'|'号码',
+  starDesc: { [star]: desc }     // 八星象义
+}
+Response (fail):
+{ success: false, message: '号码至少需要 2 位数字' }
+```
+
+- 纯算法：不调用 LLM、不读写 DB、可不联网。
+- `kind` 缺省按 `phone` 处理，仅影响 `kindName` 与解读文案。
+- 前端对应模块：`switchModule('number')`，结果渲染分数环 + 八星分布 + 五行条 + 解读，红涨绿跌。
+
+---
+
 ## 5. 文件结构
 
 ```
@@ -606,7 +692,7 @@ const API_BASE = '';
 - **影响**：本地开发与生产部署无需切换配置；降低因端口不匹配进入 Demo 模式的风险
 
 ### ADR-008: 模块化路由组织 (v3.7)
-- **决策**：8 大模块 API 全部内联在 `server_unified.js` 中，不拆分为独立 router 文件
+- **决策**：9 大模块（v6.0 起含灵境数测）API 全部内联在 `server_unified.js` 中，不拆分为独立 router 文件
 - **理由**：单进程架构下，所有 handler 在同一闭包中可共享 `db` / `LLM` / `paipan` 等核心对象，无需额外导入；按模块顺序在文件中排列，便于阅读
 - **影响**：文件较长（1500+ 行），但避免了跨文件 import 复杂度；如未来拆分可按模块 ID 切分
 - **代码组织约定**：`// ────── {模块名} API ──────` 分隔符标记每个模块
@@ -713,6 +799,22 @@ const API_BASE = '';
 - **决策**：`.env` 不得进入 git 仓库；Admin 配置支持运行时热更新，不再依赖 .env 明文
 - **理由**：曾因推送脚本不读 `.gitignore` 导致 `backend/.env` 泄露至公开仓库（含 Stripe/PayPal/DeepSeek 密钥），需密钥轮换并清理 git 历史
 - **影响**：部署改用环境变量或 Admin 配置页；CI 启用 GitHub secret scanning
+
+---
+
+### ADR-023: 灵境数测纯算法实现 (v6.0)
+- **决策**：「灵境数测」模块（手机号/车牌号/电动车牌号）采用数字能量学八星**纯算法**，不调用 LLM、不读写数据库、可离线运行。
+- **理由**：
+  - 定位为低门槛拉新与社交裂变入口，需极快响应（<10ms）与零成本（不消耗 LLM 额度）；
+  - 数字能量学本身是确定性规则，算法结果可复现、便于测试与传播一致性；
+  - 与 ADR-009（算法回退一致性）一脉相承——核心功能不依赖外部服务。
+- **实现**：`computeNumberEnergy(raw, kind)` 置于 `server_unified.js`；评分 `score = 50 + (∑星权重 / 相邻对数) × 2.6` 夹紧 1–99；`kind` 仅影响文案。
+- **影响**：结果需明确标注「仅供娱乐与自我探索参考」；未来若需更个性化解读可叠加可选 LLM 润色（保持算法为默认）。
+
+### ADR-024: v6.0 产品策略升级（定位与信息架构）
+- **决策**：基于用户反馈做六项策略采纳——① 对外去「AI 算命」话术化，统一为「东方命理 · 算法可视化平台」；② 明确定位主轴为「可验证计算 + 垂直建议为核，娱乐/社区为翼」；③ 新增「修习阶梯」将九大模块按认知深度分 启蒙/进阶/宗师 三层（非并列）；④ 新增「灵境启蒙」新手村（八字/五行/十神/K线 科普 + AI 角色声明 + 免责）；⑤ 新增「灵境数测」纯算法传播模块；⑥ 市集新增「灵境·线下」O2O 闭环（活动报名留资 + 凭报告享专属解读）。
+- **理由**：命理/玄学领域提 AI 是双刃剑，过度强调「AI 算命」既引发伦理顾虑，又诱导用户转向通用 ChatBot；分层递进的信息架构体现专业度与差异化高级感；新手铺垫与线上线下生态提升信任与粘性。
+- **影响**：所有对外文案（tagline/hero/badge/声明）须遵循新口径；AI 角色被明确定义为「后台推演引擎」而非算命主体；详见 PRD §1.4 与 §2.16。
 
 ---
 
