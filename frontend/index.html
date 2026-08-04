@@ -209,7 +209,10 @@ body{
 
 /* ── module tabs ── */
 .module-tabs{display:flex;gap:4px;padding:4px;background:rgba(255,255,255,.03);border-radius:16px;max-width:360px;margin:0 auto;}
-.module-tab{flex:1;padding:12px 20px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;transition:all .35s;text-align:center;border:none;background:transparent;color:var(--dim);position:relative;}
+.module-tab{flex:1;padding:12px 20px;border-radius:13px;font-size:14px;font-weight:600;cursor:pointer;transition:all .35s;text-align:center;border:none;background:transparent;color:var(--dim);position:relative;white-space:nowrap;}
+.module-tabs-main{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px;}
+.module-tabs-main .module-tab{display:flex;align-items:center;justify-content:center;padding:10px 4px;font-size:12px;}
+@media(max-width:760px){.module-tabs-main{grid-template-columns:repeat(3,1fr);}.module-tabs-main .module-tab{font-size:13px;padding:10px 6px;}}
 .module-tab.active{background:linear-gradient(135deg,rgba(168,85,247,.2),rgba(236,72,153,.1));color:#fff;box-shadow:0 4px 20px rgba(168,85,247,.15);}
 .module-tab:hover:not(.active){color:var(--text);background:rgba(255,255,255,.04);}
 
@@ -509,7 +512,7 @@ window.addEventListener('error', function(e) {
 
 <!-- ── Module Switcher ── -->
 <div id="module-switcher" class="max-w-5xl mx-auto px-6 pb-2">
-  <div class="module-tabs" style="max-width:780px; flex-wrap:wrap;">
+  <div class="module-tabs module-tabs-main" style="max-width:100%;">
     <button class="module-tab active" onclick="switchModule('kline')" id="tab-kline" aria-label="AI算命 八字排盘 灵境图谱">
       <span class="mr-1.5">📈</span> <span data-i18n="tab_kline">灵境图谱</span>
     </button>
