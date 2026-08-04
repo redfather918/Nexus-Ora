@@ -834,7 +834,7 @@ window.addEventListener('error', function(e) {
       <div class="text-3xl flex-shrink-0 mt-1" id="overview-emoji">🔮</div>
       <div>
         <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <span class="text-xs text-purple-400 font-semibold tracking-wide">命理画像</span>
+          <span class="text-xs text-purple-400 font-semibold tracking-wide" data-i18n="overview_label">命理画像</span>
           <span class="tag tag-purple text-xs" id="overview-mode-tag">Algorithm</span>
         </div>
         <p class="text-base md:text-lg font-semibold leading-relaxed" id="overview-text">--</p>
@@ -898,8 +898,8 @@ window.addEventListener('error', function(e) {
         <span class="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="section_kline">人生K线 · Life K-Line</span>
       </h2>
       <div class="flex gap-2 items-center flex-wrap">
-        <span class="text-xs text-gray-500">跳转到</span>
-        <input type="number" id="age-jump" min="0" max="100" placeholder="岁" class="w-16 text-center text-sm rounded-lg border border-gray-700 bg-black/30 text-white px-2 py-1 outline-none focus:border-purple-500">
+        <span class="text-xs text-gray-500" data-i18n="age_jump_label">跳转到</span>
+        <input type="number" id="age-jump" min="0" max="100" placeholder="岁" class="w-16 text-center text-sm rounded-lg border border-gray-700 bg-black/30 text-white px-2 py-1 outline-none focus:border-purple-500" data-i18n-placeholder="age_jump_placeholder">
         <span class="tag tag-purple text-xs" id="chart-phase">--</span>
       </div>
     </div>
@@ -1001,14 +1001,14 @@ window.addEventListener('error', function(e) {
   <!-- ⑨ 引擎透视：智能体议会 / 群体共识 -->
   <div id="engine-panel" class="glass-card p-5 md:p-7 mb-6 slide-in-d3 hidden-section">
     <div class="flex items-center gap-2 mb-1">
-      <h3 class="text-lg font-bold">🧠 引擎透视</h3>
+      <h3 class="text-lg font-bold" data-i18n="engine_title">🧠 引擎透视</h3>
       <span id="engine-mode-tag" class="tag text-xs"></span>
     </div>
-    <p class="text-xs text-gray-500 mb-3">借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。下方展示完整的推演过程。</p>
+    <p class="text-xs text-gray-500 mb-3" data-i18n="engine_desc">借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。下方展示完整的推演过程。</p>
 
     <!-- AI 推演状态条 -->
     <div class="flex items-center gap-2 mb-4 flex-wrap">
-      <span class="ai-badge"><span class="thinking-dots"><i></i><i></i><i></i></span><span id="engine-status">推演就绪</span></span>
+      <span class="ai-badge"><span class="thinking-dots"><i></i><i></i><i></i></span><span id="engine-status" data-i18n="engine_status_ready">推演就绪</span></span>
       <div class="progress-rail flex-1 min-w-[120px]"><i id="engine-progress"></i></div>
     </div>
 
@@ -1056,8 +1056,8 @@ window.addEventListener('error', function(e) {
             <option value="study">深造</option>
             <option value="invest">重大投资</option>
           </select>
-          <input id="sb-age" type="number" min="1" max="100" placeholder="发生年龄" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
-          <input id="sb-note" type="text" placeholder="备注(如:裸辞创业)" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+          <input id="sb-age" type="number" min="1" max="100" placeholder="发生年龄" data-i18n-placeholder="sb_age_placeholder" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
+          <input id="sb-note" type="text" placeholder="备注(如:裸辞创业)" data-i18n-placeholder="sb_note_placeholder" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
           <select id="sb-target" class="input-dark" style="background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 12px;font-size:14px;color:#fff;">
             <option value="">作用于全部世界线</option>
             <option value="aggressive">仅进取线</option>
@@ -1754,8 +1754,15 @@ const I18N = {
     // ── v6.0 策略升级：灵境数测 / 灵境启蒙 / 修习阶梯 / 线下 O2O ──
     num_title: '灵境数测', num_subtitle: '手机号 / 车牌号 / 电动车牌号 · 数字能量学趣味解读',
     num_kind_phone: '📱 手机号', num_kind_plate: '🚗 车牌号', num_kind_bike: '🛵 电动车牌',
+    num_ph_phone: '输入手机号，如 138 0013 8000', num_ph_plate: '输入车牌号，如 粤B12345', num_ph_bike: '输入电动车牌号，如 沪A12345',
+    sb_age_placeholder: '发生年龄', sb_note_placeholder: '备注(如:裸辞创业)',
+    pf_name_placeholder: '怎么称呼你？', admin_new_password: '新密码',
+    num_empty_hint: '请先输入号码', o2o_signup_empty: '请填写称呼与手机号',
     num_btn: '测算', num_hint: '数字能量学为趣味参考，结果不构成任何专业建议',
     num_pairs: '数字组合能量', num_stars: '星象分布', num_wuxing: '五行分布',
+    wuxing_metal: '金', wuxing_wood: '木', wuxing_water: '水', wuxing_fire: '火', wuxing_earth: '土',
+    body_weak: '偏弱', body_strong: '偏强', body_neutral: '中和',
+    bazi_destiny_suffix: '命',
     enlighten_btn: '🧭 灵境启蒙', about_btn: 'ⓘ 关于灵境',
     enlighten_title: '灵境启蒙 · 新手村',
     enlighten_p1: '灵境不是「AI 算命」，而是一套把东方千年命理学（八字 / 紫微 / 数字能量）重构为可交互、可可视化、可分享的计算工具。',
@@ -1765,6 +1772,20 @@ const I18N = {
     enlighten_p5: '🔢 灵境数测：手机号 / 车牌 / 电动车牌的数字能量趣味解读。',
     enlighten_p6: '🔮 占卜 / 修行 / 市集：作为日常陪伴与生活方式的延伸。',
     enlighten_warn: '⚠️ 所有结果仅供娱乐与自我探索参考，不构成任何医疗、财务或人生决策的专业建议。',
+    overview_label: '命理画像',
+    engine_title: '🧠 引擎透视',
+    engine_desc: '借鉴 MiroFish 群体智能：运势由多个「智能体」并发推演后聚合，而非单一公式。下方展示完整的推演过程。',
+    engine_status_ready: '推演就绪',
+    engine_status_council: '议会推演中',
+    engine_status_council_done: '议会推演完成 ✓',
+    engine_status_swarm: '因子代理投票中',
+    engine_status_consensus: '共识达成 ✓',
+    engine_narrator_thinking: '📜 主笔人正在综合三方观点、裁定分歧…',
+    engine_agent_done: '✓ 已推演',
+    engine_consensus_note: '· 加权共识 = 六大因子代理投票聚合（MiroFish 群体智能）',
+    preview_banner: '🔮 预览模式 · Demo 数据 · 引擎透视 / 人生沙盘推演可直接体验（提交真实排盘将自动覆盖）',
+    preview_toast: '已加载预览报告，向下滑动查看「引擎透视」与「人生沙盘推演」',
+    demo_overview: '辛金偏弱之命，大器晚成，35岁后厚积薄发，中年行水运时人生K线强劲上扬。',
     ladder_title: '修习阶梯 · 由浅入深', ladder_sub: '按认知深度分层递进，而非功能并列 —— 找到你此刻所在的层级',
     ladder_t1: '启蒙', ladder_t1_desc: '认识自己 · 轻量趣味',
     ladder_t2: '进阶', ladder_t2_desc: '读懂格局 · 深度参考',
@@ -1772,7 +1793,7 @@ const I18N = {
     ladder_tag_daily: '每日一签', ladder_tag_qintian: '钦天四化', ladder_tag_sandbox: '人生沙盘', ladder_tag_multi: '多智能体解读',
     o2o_title: '灵境·线下 — 线上线下一体生态',
     o2o_sub: '线上测算建立信任，线下活动沉淀关系。凭你的「灵境图谱 / 命盘报告」，到任一合作沙龙 / 禅修营可享专属 1v1 解读。',
-    o2o_name: '称呼', o2o_phone: '手机号', o2o_done: '已报名 ✓ 到店凭报告享专属解读',
+    o2o_name: '称呼', o2o_phone: '手机号', o2o_done: '已报名 ✓ 到店凭报告享专属解读', o2o_signup: '报名留资',
     pos_tagline: '东方命理 · 算法可视化平台',
     btn_share_img: '生成分享图',
     faq_title: '常见问题 · AI 算命百科',
@@ -1795,7 +1816,7 @@ const I18N = {
     // Module tabs
     tab_kline: '灵境图谱', tab_persona: '灵境人格', tab_dream: '梦境回廊',
     tab_compat: '缘分配对', tab_divination: '灵境占卜', tab_cultivation: '灵境修行',
-    tab_market: '灵境市集', tab_ziwei: '紫微斗数',
+    tab_market: '灵境市集', tab_ziwei: '紫微斗数', tab_number: '灵境数测',
     // Hero
     hero_title: '东方命理 · 八字排盘 · 人生K线',
     hero_subtitle: '免费在线AI算命与八字排盘<br>让命运变得<strong class="text-purple-300">可见</strong>，<strong class="text-pink-300">可交互</strong>，<strong class="text-purple-300">可分享</strong>',
@@ -1867,6 +1888,7 @@ const I18N = {
     market_digital: '数字周边', market_crystals: '水晶', market_events: '线下',
     // Chart hint
     chart_hint: '悬停数据点查看每年运势详情 · <span class="text-red-400">红色上涨</span> = 运势好，<span class="text-green-400">绿色下跌</span> = 运势差（中国股市惯例）',
+    age_jump_label: '跳转到',
     age_jump_placeholder: '岁',
     // Footer
     footer: 'Nexus Ora v3.0 © 2026 · AI Soul Companion · 人生K线 + 缘分配对 + 紫微斗数 · 东方玄学 × 现代AI',
@@ -2039,6 +2061,44 @@ const I18N = {
     nav_membership_empty: 'Upgrade',
     nav_membership_empty_title: 'Upgrade Membership',
     nav_membership_title: 'Membership Center',
+    enlighten_btn: '🧭 Soul Guide', about_btn: 'ⓘ About',
+    enlighten_title: 'Soul Guide · Newcomer Village',
+    enlighten_p1: 'Nexus Ora is not "AI fortune-telling". It is a set of interactive, visual, shareable computation tools that reconstruct Eastern millennium metaphysics (BaZi / Zi Wei / Numerology).',
+    enlighten_p2: 'Our core is "verifiable computation": the chart algorithms are based on public calendars and traditional metaphysical rules, and results are reproducible. AI only works backstage as an "inference engine", translating obscure metaphysical language into modern, actionable advice. It never replaces a real practitioner or fabricates conclusions.',
+    enlighten_p3: '📈 Soul Map: enter birth time to generate Four Pillars, Five Elements, Ten Gods, and Life K-Line.',
+    enlighten_p4: '🌟 Zi Wei Dou Shu / Qintian Sihua: advanced perspective of twelve palaces and transformation flows.',
+    enlighten_p5: '🔢 Number Energy: playful interpretation of phone / license plate / e-bike plate numbers.',
+    enlighten_p6: '🔮 Divination / Cultivation / Market: extensions for daily companionship and lifestyle.',
+    enlighten_warn: '⚠️ All results are for entertainment and self-exploration only, not professional medical, financial, or life advice.',
+    overview_label: 'Destiny Profile',
+    engine_title: '🧠 Engine Lens',
+    engine_desc: 'Inspired by MiroFish swarm intelligence: fortune is inferred concurrently by multiple "agents" and then aggregated, rather than by a single formula. The full inference process is shown below.',
+    engine_status_ready: 'Ready',
+    engine_status_council: 'Council inferring…',
+    engine_status_council_done: 'Council done ✓',
+    engine_status_swarm: 'Factor agents voting…',
+    engine_status_consensus: 'Consensus reached ✓',
+    engine_narrator_thinking: '📜 The narrator is synthesizing three views and resolving disputes…',
+    engine_agent_done: '✓ Done',
+    engine_consensus_note: '· Weighted consensus = aggregation of six factor-agent votes (MiroFish swarm intelligence)',
+    preview_banner: '🔮 Preview Mode · Demo Data · Engine Lens / Life Sandbox are ready to explore (submit a real chart to override)',
+    preview_toast: 'Preview report loaded. Scroll down to see Engine Lens and Life Sandbox.',
+    demo_overview: 'A Xin-metal day master with moderate strength — late bloomer. After 35, momentum builds; during midlife water luck, your Life K-Line rises strongly.',
+    num_title: 'Number Energy', num_subtitle: 'Phone / License Plate / E-bike Plate · Fun numerology reading',
+    num_kind_phone: '📱 Phone', num_kind_plate: '🚗 License Plate', num_kind_bike: '🛵 E-bike Plate',
+    num_ph_phone: 'Enter phone number, e.g. 138 0013 8000', num_ph_plate: 'Enter license plate, e.g. ABC123', num_ph_bike: 'Enter e-bike plate, e.g. ABC123',
+    sb_age_placeholder: 'Age of the event', sb_note_placeholder: 'Note (e.g. quit job to start a business)',
+    pf_name_placeholder: 'What should we call you?', admin_new_password: 'New password',
+    num_empty_hint: 'Please enter a number', o2o_signup_empty: 'Please fill in name & phone',
+    o2o_title: 'Nexus Ora Offline — Online-to-Offline Ecosystem',
+    o2o_sub: 'Online readings build trust; offline events deepen relationships. Bring your Nexus Chart / BaZi report to any partner salon or meditation retreat for an exclusive 1-on-1 reading.',
+    o2o_name: 'Name', o2o_phone: 'Phone', o2o_done: 'Registered ✓ Show this report in-store for your exclusive reading',
+    pos_tagline: 'Eastern Metaphysics · Algorithm Visualization Platform', o2o_signup: 'Sign Up',
+    num_btn: 'Analyze', num_hint: 'Numerology is for fun and reference only, not professional advice',
+    num_pairs: 'Number Pair Energy', num_stars: 'Star Distribution', num_wuxing: 'Element Distribution',
+    wuxing_metal: 'Metal', wuxing_wood: 'Wood', wuxing_water: 'Water', wuxing_fire: 'Fire', wuxing_earth: 'Earth',
+    body_weak: 'Weak', body_strong: 'Strong', body_neutral: 'Neutral',
+    bazi_destiny_suffix: ' destiny',
     tab_compat: 'Compatibility', tab_divination: 'Divination', tab_cultivation: 'Cultivation',
     tab_market: 'Mystic Market', tab_ziwei: 'Zi Wei', tab_number: 'Number Energy',
     ladder_title: 'Practice Ladder · From Beginner to Master', ladder_sub: 'Progress by depth of understanding, not by feature list — find your current level',
@@ -2071,6 +2131,7 @@ const I18N = {
     pillar_year: 'Year Pillar', pillar_month: 'Month Pillar',
     pillar_day: 'Day Pillar (Self)', pillar_hour: 'Hour Pillar',
     pillar_self: 'Self · Day Master',
+    bazi_animal_label: 'Zodiac', bazi_zodiac_label: 'Horoscope',
     loading_main: 'Calculating your BaZi chart...', loading_sub: 'Consulting ancient wisdom',
     step0: 'Computing Eight Characters...', step1: 'Analyzing Five Elements balance...',
     step2: 'AI master predicting 100-year fortune...', step3: 'Generating 6-dimension analysis...', step4: 'Drawing Life K-Line chart...',
@@ -2090,6 +2151,7 @@ const I18N = {
     market_title: 'Mystic Market', market_subtitle: 'Digital Goods · Crystal Energy · Live Events',
     market_digital: 'Digital', market_crystals: 'Crystals', market_events: 'Events',
     chart_hint: 'Hover data points for yearly fortune details · <span class="text-red-400">Red rise</span> = good fortune, <span class="text-green-400">Green drop</span> = caution (Chinese market convention)',
+    age_jump_label: 'Jump to',
     age_jump_placeholder: 'age',
     footer: 'Nexus Ora v3.0 © 2026 · AI Soul Companion · Life K-Line + Compatibility + Zi Wei · Eastern Wisdom × Modern AI',
     compat_score_label: 'Compatibility', compat_radar_title: 'Five Elements Comparison',
@@ -2258,6 +2320,44 @@ const I18N = {
     nav_membership_empty: 'アップグレード',
     nav_membership_empty_title: '会員をアップグレード',
     nav_membership_title: '会員センター',
+    enlighten_btn: '🧭 霊境ガイド', about_btn: 'ⓘ 概要',
+    enlighten_title: '霊境ガイド · 初心者村',
+    enlighten_p1: 'Nexus Ora は「AI占い」ではありません。東洋の千年命理学（四柱推命 / 紫微斗数 / 数秘術）を、対話的で視覚的、シェア可能な計算ツールとして再構築したものです。',
+    enlighten_p2: '私たちの核は「検証可能な計算」です。命盤アルゴリズムは公開暦法と伝統的な命理ルールに基づき、結果は再現可能。AI は舞台裏で「推論エンジン」としてのみ働き、難解な命理用語を現代人にわかるアドバイスに翻訳します。決して命理師の代わりにはならず、でっち上げもしません。',
+    enlighten_p3: '📈 ソウルマップ：生年月時を入力して、四柱推命 · 五行 · 十神 · 人生Kラインを生成。',
+    enlighten_p4: '🌟 紫微斗数 / 欽天四化：12宮と四化流れの上級視点。',
+    enlighten_p5: '🔢 数測：携帯番号 / ナンバープレート / 電動バイク番号の数字エネルギーお遊び解読。',
+    enlighten_p6: '🔮 占い / 修行 / 市場：日常の伴走とライフスタイルの延長。',
+    enlighten_warn: '⚠️ すべての結果は娯楽と自己探索の参考であり、医療・財務・人生決断の専門的アドバイスではありません。',
+    engine_title: '🧠 エンジンレンズ',
+    engine_desc: 'MiroFish 群知能を参考に：運勢は複数の「エージェント」が並列推演し、その後集約されるもので、単一の式ではありません。完全な推演プロセスを以下に表示します。',
+    engine_status_ready: '準備完了',
+    engine_status_council: '議会推演中…',
+    engine_status_council_done: '議会推演完了 ✓',
+    engine_status_swarm: '因子エージェント投票中…',
+    engine_status_consensus: 'コンセンサス達成 ✓',
+    engine_narrator_thinking: '📜 ナレーターが3つの視点を統合し、相違を裁定中…',
+    engine_agent_done: '✓ 完了',
+    engine_consensus_note: '· 加重コンセンサス = 6つの因子エージェントの投票集約（MiroFish 群知能）',
+    preview_banner: '🔮 プレビューモード · デモデータ · エンジンレンズ / 人生サンドボックスを直接体験できます（実際の命盤を送信すると上書きされます）',
+    preview_toast: 'プレビューレポートを読み込みました。下にスクロールしてエンジンレンズと人生サンドボックスをご覧ください。',
+    demo_overview: '辛金属の日主でやや弱め — 大器晩成型。35歳以降に蓄積が開花し、中年の水運では人生Kラインが力強く上昇します。',
+    overview_label: '運命プロフィール',
+    num_title: '数測', num_subtitle: '携帯番号 / ナンバープレート / 電動バイク番号 · 数字エネルギーお遊び解読',
+    num_kind_phone: '📱 携帯番号', num_kind_plate: '🚗 ナンバープレート', num_kind_bike: '🛵 電動バイク番号',
+    num_ph_phone: '携帯番号を入力、例: 138 0013 8000', num_ph_plate: 'ナンバープレートを入力、例: ABC123', num_ph_bike: '電動バイク番号を入力、例: ABC123',
+    sb_age_placeholder: '出来事の年齢', sb_note_placeholder: 'メモ（例：会社を辞めて起業）',
+    pf_name_placeholder: 'お名前は？', admin_new_password: '新しいパスワード',
+    num_empty_hint: '番号を入力してください', o2o_signup_empty: 'お名前と電話番号を入力してください',
+    o2o_title: '霊境・オフライン — オンラインとオフラインの融合エコシステム',
+    o2o_sub: 'オンライン鑑定で信頼を築き、オフラインイベントで関係を深めます。あなたの「霊境図譜 / 命盤レポート」を提示すれば、提携サロンや瞑想キャンプで特別な1対1鑑定を受けられます。',
+    o2o_name: 'お名前', o2o_phone: '電話番号', o2o_done: '登録完了 ✓ 店頭でレポートを提示すると特別鑑定をご利用いただけます',
+    pos_tagline: '東洋命理 · アルゴリズム可視化プラットフォーム', o2o_signup: '登録する',
+    num_btn: '測定', num_hint: '数字エネルギーはお遊び参考であり、専門的なアドバイスではありません',
+    num_pairs: '数字組み合わせエネルギー', num_stars: '星象分布', num_wuxing: '五行分布',
+    wuxing_metal: '金', wuxing_wood: '木', wuxing_water: '水', wuxing_fire: '火', wuxing_earth: '土',
+    body_weak: '偏弱', body_strong: '偏強', body_neutral: '中和',
+    bazi_destiny_suffix: '命',
     tab_compat: '縁分配対', tab_divination: '霊境占い', tab_cultivation: '霊境修行',
     tab_market: '霊境市場', tab_ziwei: '紫微斗数', tab_number: '数測',
     ladder_title: '修行階梯 · 初級から上級へ', ladder_sub: '機能の羅列ではなく、認識の深さで段階的に進む — あなたの今のレベルを見つける',
@@ -2290,6 +2390,7 @@ const I18N = {
     pillar_year: '年柱', pillar_month: '月柱',
     pillar_day: '日柱（日元）', pillar_hour: '時柱',
     pillar_self: '自己・日主',
+    bazi_animal_label: '生肖', bazi_zodiac_label: '星座',
     loading_main: '八字命盤を計算中...', loading_sub: '古代の知恵を参照中',
     step0: '八字四柱を計算中...', step1: '五行バランスを分析中...',
     step2: 'AI師が100年運勢を予測中...', step3: '6次元深度解析を生成中...', step4: '人生Kラインを描画中...',
@@ -2309,6 +2410,7 @@ const I18N = {
     market_title: '霊境市場', market_subtitle: 'デジタルグッズ · クリスタルエネルギー · オフラインイベント',
     market_digital: 'デジタル', market_crystals: 'クリスタル', market_events: 'イベント',
     chart_hint: 'データポイントにホバーして年運詳細を見る · <span class="text-red-400">赤上昇</span> = 運勢良好，<span class="text-green-400">緑下落</span> = 注意（中国株式市場慣習）',
+    age_jump_label: '年齢へ移動',
     age_jump_placeholder: '歳',
     footer: 'Nexus Ora v3.0 © 2026 · AIソウルコンパニオン · 人生Kライン + 縁分配対 + 紫微斗数 · 東洋玄学 × 現代AI',
     compat_score_label: '相性指数', compat_radar_title: '五行エネルギー比較',
@@ -2438,6 +2540,7 @@ const I18N = {
 
 // Current language (persisted in localStorage)
 let currentLang = localStorage.getItem('nexus_lang') || 'zh';
+let isDemoMode  = false;
 
 function t(key, fallback) {
   return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['zh'] && I18N['zh'][key]) || fallback || key;
@@ -2552,7 +2655,7 @@ function setLang(lang) {
 
   // Update ziwei footer
   const ziweiFooter = document.querySelector('#section-hero-ziwei p.text-center.text-xs.text-gray-600');
-  if (ziweiFooter) ziweiFooter.textContent = t('ziwi_footer');
+  if (ziweiFooter) ziweiFooter.textContent = t('ziwei_footer');
 
   // Update divination tab text
   const diviTabs = ['tarot','jiaobei','daily'];
@@ -2572,6 +2675,14 @@ function setLang(lang) {
   // Update cultivation diary labels that may not have data-i18n
   const cultDiaryTitle = document.querySelector('#section-hero-cultivation .glass:last-child h3');
   if (cultDiaryTitle) cultDiaryTitle.innerHTML = '📓 ' + t('cult_diary_title');
+
+  // Re-generate demo report for the new language, then re-render
+  if (typeof rebuildDemoForLang === 'function') {
+    try { rebuildDemoForLang(); } catch (e) { console.error('[setLang] rebuild demo failed', e); }
+  }
+  if (isDemoMode && typeof renderAll === 'function') {
+    try { renderAll(); } catch (e) { console.error('[setLang] renderAll failed', e); }
+  }
 
   // Dispatch custom event so other modules can react
   document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
@@ -3018,7 +3129,6 @@ function applyProfileToCompatA() {
 const API_BASE = '';
 let reportData  = null;
 let isUnlocked  = false;
-let isDemoMode  = false;
 let chartMain   = null;
 let chartRadar  = null;
 let currentBirth = null;   // 当前测算的出生信息，供人生沙盘复用
@@ -3063,7 +3173,16 @@ const DEMO_PAIPAN = {
 };
 
 function buildDemoReport(y, m, d, h, gender) {
-  const paipan = { ...DEMO_PAIPAN, info: { ...DEMO_PAIPAN.info, gender, birth_date:`${y}-${m}-${d}` } };
+  y = y || 1990; m = m || 6; d = d || 15; h = h || 12; gender = gender || '女';
+  const isZh = currentLang === 'zh';
+  const isEn = currentLang === 'en';
+  const demoInfo = {
+    animal: isZh ? '马' : (isEn ? 'Horse' : '馬'),
+    zodiac: isZh ? '双子座' : (isEn ? 'Gemini' : '双子座'),
+    lunar_date: isZh ? '1990年5月23日' : (isEn ? 'May 23, 1990' : '1990年5月23日'),
+    gender, birth_date:`${y}-${m}-${d}`
+  };
+  const paipan = { ...DEMO_PAIPAN, info: demoInfo };
   const seed   = y * 10000 + m * 100 + d + h;
   const rng    = i => { const x = Math.sin(seed * 0.017 + i * 0.73) * 10000; return x - Math.floor(x); };
 
@@ -3124,13 +3243,23 @@ function buildDemoReport(y, m, d, h, gender) {
         valley_age: valley.age, valley_score: valley.score,
         best_ages: [...fortune].sort((a,b)=>b.score-a.score).slice(0,5).map(f=>f.age),
         caution_ages: [...fortune].sort((a,b)=>a.score-b.score).slice(0,3).map(f=>f.age),
-        overview: '辛金偏弱之命，大器晚成，35岁后厚积薄发，中年行水运时人生K线强劲上扬。'
+        overview: t('demo_overview')
       },
       ai_enhanced: false,
       engine: 'swarm',
       swarm: demSwarm
     }
   };
+}
+
+// Rebuild demo report when language changes (must be defined after reportData)
+function rebuildDemoForLang() {
+  if (!isDemoMode || !reportData?.data?.bazi?.info) return;
+  const info = reportData.data.bazi.info;
+  const [y, m, d] = (info.birth_date || '').split('-').map(Number);
+  if (y && m && d) {
+    reportData = buildDemoReport(y, m, d, 12, info.gender || '女');
+  }
 }
 
 // ── UI helpers ─────────────────────────────────
@@ -3366,13 +3495,13 @@ function renderEnginePanel() {
 
 // 智能体议会：逐个登场（思考→输出→完成）+ 主笔人综述流式
 async function playCouncil(council) {
-  setStatus('engine-status','议会推演中'); setProgress('engine-progress',5);
+  setStatus('engine-status', t('engine_status_council')); setProgress('engine-progress',5);
   const wrap = document.getElementById('agent-cards');
   const nb = document.getElementById('narrator-box');
   const AGENT_COLOR = { chart_analyst:'#8b5cf6', destiny_runner:'#3b82f6', life_strategist:'#10b981' };
   const agents = council.agents || [];
   wrap.innerHTML = agents.map(a=>thinkingCard(AGENT_COLOR[a.id]||'#a855f7', a.icon||'🔮', a.name, a.role||'')).join('');
-  nb.innerHTML = `<div class="text-xs text-purple-200/90"><span class="thinking-dots"><i></i><i></i><i></i></span> 📜 主笔人正在综合三方观点、裁定分歧…</div>`;
+  nb.innerHTML = `<div class="text-xs text-purple-200/90"><span class="thinking-dots"><i></i><i></i><i></i></span> ${t('engine_narrator_thinking')}</div>`;
   let done=0;
   for (const a of agents) {
     await sleep(700);
@@ -3406,7 +3535,7 @@ async function playCouncil(council) {
         <span class="text-lg">${a.icon||'🔮'}</span>
         <div class="font-semibold" style="color:${c}">${a.name}</div>
         <span class="text-[10px] text-gray-500 ml-auto">${a.role||''}</span>
-        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${c}22;color:${c}">✓ 已推演</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:${c}22;color:${c}">${t('engine_agent_done')}</span>
       </div><div class="council-body hatch" style="animation-delay:.05s">${body}</div>`;
     }
     done++; setProgress('engine-progress', Math.round(5+80*done/agents.length));
@@ -3420,12 +3549,12 @@ async function playCouncil(council) {
     if (n.final_advice) parts.push('最重要的一条建议：'+n.final_advice);
     await typewriter(nb.querySelector('.narrator-body'), parts.join(' ｜ '), 9);
   } else { nb.innerHTML=''; }
-  setProgress('engine-progress',100); setStatus('engine-status','议会推演完成 ✓');
+  setProgress('engine-progress',100); setStatus('engine-status', t('engine_status_council_done'));
 }
 
 // 因子共识：逐个代理投票点亮 + 共识曲线生长
 async function playSwarm(swarm) {
-  setStatus('engine-status','因子代理投票中'); setProgress('engine-progress',5);
+  setStatus('engine-status', t('engine_status_swarm')); setProgress('engine-progress',5);
   const breakdown = swarm.breakdown || [];
   const palette = ['#8b5cf6','#3b82f6','#10b981','#f59e0b','#ef4444','#06b6d4'];
   const votesEl = document.getElementById('factor-votes');
@@ -3461,8 +3590,8 @@ async function playSwarm(swarm) {
     });
   }
   const lg=document.getElementById('swarm-legend');
-  if (lg) lg.innerHTML = breakdown.map((b,i)=>`<span class="inline-flex items-center gap-1"><i style="width:10px;height:10px;border-radius:2px;background:${palette[i%6]};display:inline-block;"></i>${b.name}</span>`).join('') + `<div class="text-gray-500 ml-2">· 加权共识 = 六大因子代理投票聚合（MiroFish 群体智能）</div>`;
-  setProgress('engine-progress',100); setStatus('engine-status','共识达成 ✓');
+  if (lg) lg.innerHTML = breakdown.map((b,i)=>`<span class="inline-flex items-center gap-1"><i style="width:10px;height:10px;border-radius:2px;background:${palette[i%6]};display:inline-block;"></i>${b.name}</span>`).join('') + `<div class="text-gray-500 ml-2">${t('engine_consensus_note')}</div>`;
+  setProgress('engine-progress',100); setStatus('engine-status', t('engine_status_consensus'));
 }
 
 function switchEngineTab(tab) {
@@ -3635,7 +3764,9 @@ async function playSandbox(data, intvList) {
 // ── ① Overview ────────────────────────────────
 function renderOverview() {
   const s = reportData?.data?.summary || {};
-  const text = s.overview || `日主${s.day_master||''}${s.day_wuxing||''}，身${s.body_strength||'中和'}，人生K线均分 ${s.average_score||'--'}，峰值在 ${s.peak_age||'--'} 岁。`;
+  const text = reportData?.demo
+    ? t('demo_overview')
+    : (s.overview || `日主${s.day_master||''}${s.day_wuxing||''}，身${s.body_strength||'中和'}，人生K线均分 ${s.average_score||'--'}，峰值在 ${s.peak_age||'--'} 岁。`);
   setText('overview-text', text);
   setText('overview-mode-tag', reportData?.data?.ai_enhanced ? '🤖 AI Enhanced' : '⚙️ Algorithm');
   const EMOJIS = { '金':'⚔️', '木':'🌿', '水':'💧', '火':'🔥', '土':'🏔️' };
@@ -3683,9 +3814,11 @@ function renderBazi() {
   });
 
   const info = p.info || {};
-  setText('bazi-animal',   '生肖: ' + (info.animal  || '--'));
-  setText('bazi-zodiac',   '星座: ' + (info.zodiac  || '--'));
-  setText('bazi-strength',  (p.bazi?.body_strength || '--') + ' · ' + (p.bazi?.day_wuxing || '') + '命');
+  const WUXING_MAP = { '金': t('wuxing_metal'), '木': t('wuxing_wood'), '水': t('wuxing_water'), '火': t('wuxing_fire'), '土': t('wuxing_earth') };
+  const STRENGTH_MAP = { '偏弱': t('body_weak'), '偏强': t('body_strong'), '中和': t('body_neutral') };
+  setText('bazi-animal',   t('bazi_animal_label','生肖') + ': ' + (info.animal  || '--'));
+  setText('bazi-zodiac',   t('bazi_zodiac_label','星座') + ': ' + (info.zodiac  || '--'));
+  setText('bazi-strength',  (STRENGTH_MAP[p.bazi?.body_strength] || p.bazi?.body_strength || '--') + ' · ' + (WUXING_MAP[p.bazi?.day_wuxing] || p.bazi?.day_wuxing || '') + t('bazi_destiny_suffix'));
   setText('bazi-lunar',    info.lunar_date || info.birth_date || '--');
 }
 
@@ -3695,19 +3828,19 @@ function renderWuxing() {
   const total = Math.max(1, Object.values(wx).reduce((a, b) => a + b, 0));
   // 固定顺序 + 配置，缺失五行补 0
   const WX_ORDER = [
-    { name: '金', color: '#A0AEC0', bg: 'rgba(160,174,192,0.1)', emoji: '⚔️' },
-    { name: '木', color: '#48BB78', bg: 'rgba(72,187,120,0.1)',  emoji: '🌿' },
-    { name: '水', color: '#63B3ED', bg: 'rgba(99,179,237,0.1)',  emoji: '💧' },
-    { name: '火', color: '#FC8181', bg: 'rgba(252,129,129,0.1)', emoji: '🔥' },
-    { name: '土', color: '#ED8936', bg: 'rgba(237,137,54,0.1)',  emoji: '🏔️' }
+    { key: '金', nameKey: 'wuxing_metal', color: '#A0AEC0', bg: 'rgba(160,174,192,0.1)', emoji: '⚔️' },
+    { key: '木', nameKey: 'wuxing_wood',  color: '#48BB78', bg: 'rgba(72,187,120,0.1)',  emoji: '🌿' },
+    { key: '水', nameKey: 'wuxing_water', color: '#63B3ED', bg: 'rgba(99,179,237,0.1)',  emoji: '💧' },
+    { key: '火', nameKey: 'wuxing_fire',  color: '#FC8181', bg: 'rgba(252,129,129,0.1)', emoji: '🔥' },
+    { key: '土', nameKey: 'wuxing_earth', color: '#ED8936', bg: 'rgba(237,137,54,0.1)',  emoji: '🏔️' }
   ];
   const el = document.getElementById('wuxing-bars');
-  el.innerHTML = WX_ORDER.map(({ name, color, bg, emoji }) => {
-    const cnt = wx[name] || 0;
+  el.innerHTML = WX_ORDER.map(({ key, nameKey, color, bg, emoji }) => {
+    const cnt = wx[key] || 0;
     const pct = Math.round((cnt / total) * 100);
     return `<div style="padding:14px;border-radius:14px;background:${bg};border:1px solid ${color}33;text-align:center;">
       <div class="text-xl mb-1">${emoji}</div>
-      <div class="text-sm font-semibold" style="color:${color}">${name}</div>
+      <div class="text-sm font-semibold" style="color:${color}">${t(nameKey, key)}</div>
       <div class="text-2xl font-bold mt-1" style="color:${color}">${cnt}</div>
       <div class="wx-bar-bg mt-2"><div class="wx-bar-fill" style="width:${pct}%;background:${color};"></div></div>
       <div class="text-xs mt-1" style="color:${color}88">${pct}%</div>
@@ -5983,8 +6116,8 @@ function buyDemo(name) {
       <div id="o2o-events"></div>
       <div id="o2o-signup" class="hidden-section mt-3">
         <div class="flex flex-wrap gap-2">
-          <input id="o2o-name" placeholder="称呼" class="input-field" style="max-width:120px;font-size:13px;">
-          <input id="o2o-phone" placeholder="手机号" class="input-field" style="max-width:140px;font-size:13px;">
+          <input id="o2o-name" placeholder="称呼" class="input-field" style="max-width:120px;font-size:13px;" data-i18n-placeholder="o2o_name">
+          <input id="o2o-phone" placeholder="手机号" class="input-field" style="max-width:140px;font-size:13px;" data-i18n-placeholder="o2o_phone">
           <button onclick="signupEvent()" class="btn-primary" style="padding:10px 16px;font-size:13px;" data-i18n="o2o_signup">报名留资</button>
         </div>
         <p class="text-xs text-gray-600 mt-2">留资仅存本地浏览器，用于到店核销，不上传服务器</p>
@@ -6036,7 +6169,7 @@ function buyDemo(name) {
     <div class="space-y-4">
       <div>
         <label class="block text-xs font-medium text-gray-400 mb-1.5">称呼 / 昵称</label>
-        <input type="text" id="pf-name" placeholder="怎么称呼你？" class="input-field" style="font-size:14px;" maxlength="20">
+        <input type="text" id="pf-name" placeholder="怎么称呼你？" data-i18n-placeholder="pf_name_placeholder" class="input-field" style="font-size:14px;" maxlength="20">
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
@@ -6368,7 +6501,7 @@ function buyDemo(name) {
           </div>
           <div>
             <label style="font-size:12px;color:#999;display:block;margin-bottom:4px;">修改管理员密码 (留空不修改)</label>
-            <input type="password" id="cfg-admin-pass" placeholder="新密码" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
+            <input type="password" id="cfg-admin-pass" placeholder="新密码" data-i18n-placeholder="admin_new_password" style="width:100%;padding:9px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:13px;outline:none;box-sizing:border-box;">
           </div>
         </div>
       </div>
@@ -6533,14 +6666,14 @@ function selectNumKind(k, el) {
   currentNumKind = k;
   document.querySelectorAll('#num-kind-tabs .module-tab').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  const ph = k === 'phone' ? '输入手机号，如 138 0013 8000'
-           : k === 'plate' ? '输入车牌号，如 粤B12345'
-           : '输入电动车牌号，如 沪A12345';
+  const ph = k === 'phone' ? t('num_ph_phone')
+           : k === 'plate' ? t('num_ph_plate')
+           : t('num_ph_bike');
   document.getElementById('num-input').placeholder = ph;
 }
 async function analyzeNumber() {
   const raw = (document.getElementById('num-input').value || '').trim();
-  if (!raw) { showToast(currentLang === 'zh' ? '请先输入号码' : 'Please enter a number'); return; }
+  if (!raw) { showToast(t('num_empty_hint')); return; }
   const btn = document.getElementById('num-btn');
   btn.disabled = true; btn.textContent = '测算中…';
   const box = document.getElementById('num-result');
@@ -6617,7 +6750,7 @@ function signupEvent() {
   const i = (el && el.dataset.ev) || 0;
   const name = (document.getElementById('o2o-name').value || '').trim();
   const phone = (document.getElementById('o2o-phone').value || '').trim();
-  if (!name || !phone) { showToast(currentLang === 'zh' ? '请填写称呼与手机号' : 'Please fill name & phone'); return; }
+  if (!name || !phone) { showToast(t('o2o_signup_empty')); return; }
   try {
     const key = 'nexus_o2o_signups';
     const list = JSON.parse(localStorage.getItem(key) || '[]');
@@ -6651,7 +6784,7 @@ else document.addEventListener('DOMContentLoaded', renderO2O);
 (function() {
     function checkPreviewQuery() {
         try {
-            reportData = buildDemoReport();
+            reportData = buildDemoReport(1990, 6, 15, 12, '女');
             isDemoMode = true;
             hideAll();
             showSection('section-results');
@@ -6661,12 +6794,13 @@ else document.addEventListener('DOMContentLoaded', renderO2O);
                 b.id = 'demo-bar';
                 b.className = 'w-full mb-4 px-4 py-2 rounded-lg text-xs text-center';
                 b.style.cssText = 'background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);color:#d8b4fe;';
-                b.textContent = '🔮 预览模式 · Demo 数据 · 引擎透视 / 人生沙盘推演可直接体验（提交真实排盘将自动覆盖）';
+                b.setAttribute('data-i18n', 'preview_banner');
+                b.textContent = t('preview_banner');
                 const section = document.getElementById('section-results');
                 if (section) section.insertBefore(b, section.firstChild);
             }
             renderAll();
-            showToast('已加载预览报告，向下滑动查看「引擎透视」与「人生沙盘推演」');
+            showToast(t('preview_toast'));
         } catch (e) {
             console.error('[Preview] auto demo failed', e);
         }
