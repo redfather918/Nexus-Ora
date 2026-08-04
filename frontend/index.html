@@ -684,6 +684,213 @@ window.addEventListener('error', function(e) {
   </div>
 </section>
 
+<!-- ════════════════════════════════════════════════════════════
+     v3.4 灵境人格 — Module 2
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-persona" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-10 text-center mb-6">
+    <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">💞</div>
+    <h2 class="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="persona_title">灵境人格</h2>
+    <p class="text-gray-400 text-sm mb-6 leading-relaxed max-w-md mx-auto" data-i18n-html="persona_subtitle">
+      基于你的八字日主与十神组合，<br>生成一位灵魂伴侣式 AI 人格，与你日常对话、情绪疏导、命理解读
+    </p>
+    <!-- 档案自动填充提示 - 灵境人格 -->
+    <div id="persona-profile-bar" class="profile-autofill-bar max-w-sm mx-auto text-left mb-4" style="display:none;">
+      <span style="font-size:16px;">💞</span>
+      <span class="paf-name" id="persona-profile-bar-text">已读取命运档案</span>
+      <button onclick="openProfileModal()">修改档案</button>
+    </div>
+    <button class="btn-primary" onclick="generatePersona()">✨ <span data-i18n="persona_btn_generate">生成虚拟人格</span></button>
+    <p id="persona-needs-birth-hint" class="text-xs text-gray-600 mt-4" data-i18n="persona_hint">需要先在上方输入出生信息（灵境图谱页）</p>
+  </div>
+
+  <div id="persona-loading" class="hidden-section text-center py-12">
+    <div class="inline-block w-12 h-12 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    <p class="text-gray-400 mt-4 text-sm" data-i18n="persona_loading">正在召唤灵魂伴侣…</p>
+  </div>
+
+  <div id="persona-card-wrap" class="hidden-section">
+    <div class="glass p-6 md:p-8 mb-5">
+      <div class="text-center mb-5">
+        <h3 class="text-2xl font-bold mb-2" id="persona-name">—</h3>
+        <div class="flex flex-wrap justify-center gap-2" id="persona-meta"></div>
+      </div>
+      <div class="space-y-3 mb-5">
+        <div class="iblock">
+          <div class="text-xs text-purple-300 mb-1" data-i18n="persona_trait_label">主要特质</div>
+          <div class="text-sm text-gray-200" id="persona-ss-desc">—</div>
+        </div>
+        <div class="iblock">
+          <div class="text-xs text-amber-300 mb-1" data-i18n="persona_weakness_label">性格弱点</div>
+          <div class="text-sm text-gray-200" id="persona-weakness">—</div>
+        </div>
+        <div class="iblock">
+          <div class="text-xs text-pink-300 mb-1" data-i18n="persona_style_label">说话风格</div>
+          <div class="text-sm text-gray-200" id="persona-style">—</div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-2" data-i18n="persona_tags_label">特质标签</div>
+          <div class="flex flex-wrap gap-2" id="persona-traits"></div>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-2" data-i18n="persona_wuxing_label">五行状态</div>
+          <div class="flex flex-wrap gap-2" id="persona-missing"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass p-5 md:p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold">💬 <span data-i18n="persona_chat_title">与她/他对话</span></h3>
+        <button class="text-xs text-pink-400 hover:text-pink-300" onclick="resetPersona()" data-i18n="persona_reset_chat">重置对话</button>
+      </div>
+      <div id="persona-chat-list" class="space-y-3 mb-4" style="max-height:480px;overflow-y:auto"></div>
+      <div class="flex gap-2">
+        <textarea id="chat-input" class="input-field" rows="2" data-i18n-placeholder="persona_chat_ph" placeholder="说点什么… (Enter 发送, Shift+Enter 换行)" style="resize:none"></textarea>
+        <button class="btn-primary" style="padding:0 18px" onclick="sendChat()"><span data-i18n="persona_send">发送</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.5 灵境占卜 — Module 5
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-divination" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8 mb-6">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🃏</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="divi_title">灵境占卜</h2>
+      <p class="text-gray-400 text-sm" data-i18n="divi_subtitle">塔罗 · 杯筊 · 每日一签 — 与天地对话的仪式</p>
+    </div>
+
+    <div class="module-tabs mb-6" style="max-width:480px">
+      <button class="module-tab active divi-tab" id="divi-tab-tarot" onclick="selectDivinationType('tarot')">🃏 <span data-i18n="divi_tab_tarot">塔罗</span></button>
+      <button class="module-tab divi-tab" id="divi-tab-jiaobei" onclick="selectDivinationType('jiaobei')">🙏 <span data-i18n="divi_tab_jiaobei">杯筊</span></button>
+      <button class="module-tab divi-tab" id="divi-tab-daily" onclick="selectDivinationType('daily')">🎴 <span data-i18n="divi_tab_daily">每日一签</span></button>
+    </div>
+
+    <div id="divi-tarot-form" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_spread_label">牌阵</label>
+        <select id="tarot-spread" class="input-field">
+          <option value="single" data-i18n="divi_spread_single">单牌指引（适合日常）</option>
+          <option value="three" selected data-i18n="divi_spread_three">三牌时间线（过去/现在/未来）</option>
+          <option value="celtic" data-i18n="divi_spread_celtic">凯尔特十字（深度占卜）</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_question_label">你的问题（可选）</label>
+        <textarea id="tarot-question" class="input-field" rows="2" data-i18n-placeholder="divi_question_ph" placeholder="例如：我最近的工作方向该如何选择？"></textarea>
+      </div>
+      <button class="btn-primary w-full" onclick="doTarot()">🎴 <span data-i18n="divi_btn_tarot">开始占卜</span></button>
+    </div>
+
+    <div id="divi-jiaobei-form" class="hidden-section space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_jiaobei_label">请示问题</label>
+        <textarea id="jiaobei-question" class="input-field" rows="2" data-i18n-placeholder="divi_jiaobei_ph" placeholder="例如：本次合作是否可成？"></textarea>
+      </div>
+      <button class="btn-primary w-full" onclick="doJiaobei()">🙏 <span data-i18n="divi_btn_jiaobei">投掷杯筊</span></button>
+    </div>
+
+    <div id="divi-daily" class="hidden-section">
+      <button class="btn-primary w-full mb-4" onclick="loadDailyQian()">🎴 <span data-i18n="divi_btn_daily">抽取今日签文</span></button>
+    </div>
+
+    <div id="divi-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="divi-result" class="hidden-section mt-6"></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.6 灵境修行 — Module 6
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-cultivation" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8 mb-6">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🧘</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="cult_title">灵境修行</h2>
+      <p class="text-gray-400 text-sm" data-i18n="cult_subtitle">了凡四训 · 冥想引导 · 能量日记</p>
+    </div>
+    <div id="cultivation-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="cultivation-content" class="hidden-section">
+      <div id="cultivation-stats"></div>
+      <div id="cultivation-tasks" class="mb-6"></div>
+      <div id="cultivation-meditation" class="mb-6"></div>
+      <div id="diary-trend" class="iblock"></div>
+    </div>
+  </div>
+
+  <div class="glass p-5 md:p-6">
+    <h3 class="text-base font-bold mb-4" data-i18n="cult_diary_title">📓 今日能量日记</h3>
+    <div class="space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-gray-500" data-i18n="cult_mood_label">情绪 (1-10)</label>
+          <input type="number" id="diary-mood" min="1" max="10" value="7" class="input-field mt-1">
+        </div>
+        <div>
+          <label class="text-xs text-gray-500" data-i18n="cult_energy_label">精力 (1-10)</label>
+          <input type="number" id="diary-energy" min="1" max="10" value="7" class="input-field mt-1">
+        </div>
+      </div>
+      <div>
+          <label class="text-xs text-gray-500" data-i18n="cult_grat_label">感恩三件事（每行一件）</label>
+          <textarea id="diary-grat" class="input-field mt-1" rows="3" data-i18n-placeholder="cult_grat_ph" placeholder="今天值得感恩的事…"></textarea>
+      </div>
+      <div>
+          <label class="text-xs text-gray-500" data-i18n="cult_refl_label">今日反思</label>
+          <textarea id="diary-refl" class="input-field mt-1" rows="2" data-i18n-placeholder="cult_refl_ph" placeholder="今天的领悟…"></textarea>
+      </div>
+      <button class="btn-secondary w-full" onclick="saveDiary()">💾 <span data-i18n="cult_btn_save">保存今日日记</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════════
+     v3.7 灵境市集 — Module 7
+     ════════════════════════════════════════════════════════════ -->
+<section id="section-hero-market" class="hidden-section max-w-5xl mx-auto px-6 py-4 slide-in">
+  <div class="glass p-6 md:p-8">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🛍️</div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="market_title">灵境市集</h2>
+      <p class="text-gray-400 text-sm" data-i18n="market_subtitle">数字周边 · 水晶能量 · 线下活动</p>
+    </div>
+
+    <div class="module-tabs mb-6" style="max-width:480px">
+      <button class="module-tab active market-tab" id="market-tab-digital" onclick="selectMarketTab('digital')">📄 <span data-i18n="market_digital">数字周边</span></button>
+      <button class="module-tab market-tab" id="market-tab-crystals" onclick="selectMarketTab('crystals')">💎 <span data-i18n="market_crystals">水晶</span></button>
+      <button class="module-tab market-tab" id="market-tab-events" onclick="selectMarketTab('events')">🏯 <span data-i18n="market_events">线下</span></button>
+    </div>
+
+    <div id="market-loading" class="hidden-section text-center py-6">
+      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
+    </div>
+    <div id="market-content" class="hidden-section"></div>
+
+    <!-- 灵境·线下 O2O 生态 (v6.0) -->
+    <div style="margin-top:24px;padding:18px;border-radius:18px;background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);">
+      <h3 class="text-lg font-bold text-cyan-300 mb-1" data-i18n="o2o_title">灵境·线下 — 线上线下一体生态</h3>
+      <p class="text-xs text-gray-400 mb-3" data-i18n="o2o_sub">线上测算建立信任，线下活动沉淀关系。凭你的「灵境图谱 / 命盘报告」，到任一合作沙龙 / 禅修营可享专属 1v1 解读。</p>
+      <div id="o2o-events"></div>
+      <div id="o2o-signup" class="hidden-section mt-3">
+        <div class="flex flex-wrap gap-2">
+          <input id="o2o-name" placeholder="称呼" class="input-field" style="max-width:120px;font-size:13px;" data-i18n-placeholder="o2o_name">
+          <input id="o2o-phone" placeholder="手机号" class="input-field" style="max-width:140px;font-size:13px;" data-i18n-placeholder="o2o_phone">
+          <button onclick="signupEvent()" class="btn-primary" style="padding:10px 16px;font-size:13px;" data-i18n="o2o_signup">报名留资</button>
+        </div>
+        <p class="text-xs text-gray-600 mt-2">留资仅存本地浏览器，用于到店核销，不上传服务器</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ══════════════════ Section 0B: Compatibility Input ══════════════════ -->
 <section id="section-hero-compat" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
   <div class="glass p-8 md:p-10 text-center">
@@ -5931,213 +6138,6 @@ function buyDemo(name) {
 }
 
 </script>
-
-<!-- ════════════════════════════════════════════════════════════
-     v3.4 灵境人格 — Module 2
-     ════════════════════════════════════════════════════════════ -->
-<section id="section-hero-persona" class="hidden-section max-w-3xl mx-auto px-6 py-4 slide-in">
-  <div class="glass p-6 md:p-10 text-center mb-6">
-    <div class="text-5xl mb-4" style="animation:float 3s ease-in-out infinite">💞</div>
-    <h2 class="text-2xl md:text-3xl font-bold mb-3 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="persona_title">灵境人格</h2>
-    <p class="text-gray-400 text-sm mb-6 leading-relaxed max-w-md mx-auto" data-i18n-html="persona_subtitle">
-      基于你的八字日主与十神组合，<br>生成一位灵魂伴侣式 AI 人格，与你日常对话、情绪疏导、命理解读
-    </p>
-    <!-- 档案自动填充提示 - 灵境人格 -->
-    <div id="persona-profile-bar" class="profile-autofill-bar max-w-sm mx-auto text-left mb-4" style="display:none;">
-      <span style="font-size:16px;">💞</span>
-      <span class="paf-name" id="persona-profile-bar-text">已读取命运档案</span>
-      <button onclick="openProfileModal()">修改档案</button>
-    </div>
-    <button class="btn-primary" onclick="generatePersona()">✨ <span data-i18n="persona_btn_generate">生成虚拟人格</span></button>
-    <p id="persona-needs-birth-hint" class="text-xs text-gray-600 mt-4" data-i18n="persona_hint">需要先在上方输入出生信息（灵境图谱页）</p>
-  </div>
-
-  <div id="persona-loading" class="hidden-section text-center py-12">
-    <div class="inline-block w-12 h-12 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
-    <p class="text-gray-400 mt-4 text-sm" data-i18n="persona_loading">正在召唤灵魂伴侣…</p>
-  </div>
-
-  <div id="persona-card-wrap" class="hidden-section">
-    <div class="glass p-6 md:p-8 mb-5">
-      <div class="text-center mb-5">
-        <h3 class="text-2xl font-bold mb-2" id="persona-name">—</h3>
-        <div class="flex flex-wrap justify-center gap-2" id="persona-meta"></div>
-      </div>
-      <div class="space-y-3 mb-5">
-        <div class="iblock">
-          <div class="text-xs text-purple-300 mb-1" data-i18n="persona_trait_label">主要特质</div>
-          <div class="text-sm text-gray-200" id="persona-ss-desc">—</div>
-        </div>
-        <div class="iblock">
-          <div class="text-xs text-amber-300 mb-1" data-i18n="persona_weakness_label">性格弱点</div>
-          <div class="text-sm text-gray-200" id="persona-weakness">—</div>
-        </div>
-        <div class="iblock">
-          <div class="text-xs text-pink-300 mb-1" data-i18n="persona_style_label">说话风格</div>
-          <div class="text-sm text-gray-200" id="persona-style">—</div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 mb-2" data-i18n="persona_tags_label">特质标签</div>
-          <div class="flex flex-wrap gap-2" id="persona-traits"></div>
-        </div>
-        <div>
-          <div class="text-xs text-gray-500 mb-2" data-i18n="persona_wuxing_label">五行状态</div>
-          <div class="flex flex-wrap gap-2" id="persona-missing"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="glass p-5 md:p-6">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-base font-bold">💬 <span data-i18n="persona_chat_title">与她/他对话</span></h3>
-        <button class="text-xs text-pink-400 hover:text-pink-300" onclick="resetPersona()" data-i18n="persona_reset_chat">重置对话</button>
-      </div>
-      <div id="persona-chat-list" class="space-y-3 mb-4" style="max-height:480px;overflow-y:auto"></div>
-      <div class="flex gap-2">
-        <textarea id="chat-input" class="input-field" rows="2" data-i18n-placeholder="persona_chat_ph" placeholder="说点什么… (Enter 发送, Shift+Enter 换行)" style="resize:none"></textarea>
-        <button class="btn-primary" style="padding:0 18px" onclick="sendChat()"><span data-i18n="persona_send">发送</span></button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════
-     v3.5 灵境占卜 — Module 5
-     ════════════════════════════════════════════════════════════ -->
-<section id="section-hero-divination" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
-  <div class="glass p-6 md:p-8 mb-6">
-    <div class="text-center mb-6">
-      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🃏</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="divi_title">灵境占卜</h2>
-      <p class="text-gray-400 text-sm" data-i18n="divi_subtitle">塔罗 · 杯筊 · 每日一签 — 与天地对话的仪式</p>
-    </div>
-
-    <div class="module-tabs mb-6" style="max-width:480px">
-      <button class="module-tab active divi-tab" id="divi-tab-tarot" onclick="selectDivinationType('tarot')">🃏 <span data-i18n="divi_tab_tarot">塔罗</span></button>
-      <button class="module-tab divi-tab" id="divi-tab-jiaobei" onclick="selectDivinationType('jiaobei')">🙏 <span data-i18n="divi_tab_jiaobei">杯筊</span></button>
-      <button class="module-tab divi-tab" id="divi-tab-daily" onclick="selectDivinationType('daily')">🎴 <span data-i18n="divi_tab_daily">每日一签</span></button>
-    </div>
-
-    <div id="divi-tarot-form" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_spread_label">牌阵</label>
-        <select id="tarot-spread" class="input-field">
-          <option value="single" data-i18n="divi_spread_single">单牌指引（适合日常）</option>
-          <option value="three" selected data-i18n="divi_spread_three">三牌时间线（过去/现在/未来）</option>
-          <option value="celtic" data-i18n="divi_spread_celtic">凯尔特十字（深度占卜）</option>
-        </select>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_question_label">你的问题（可选）</label>
-        <textarea id="tarot-question" class="input-field" rows="2" data-i18n-placeholder="divi_question_ph" placeholder="例如：我最近的工作方向该如何选择？"></textarea>
-      </div>
-      <button class="btn-primary w-full" onclick="doTarot()">🎴 <span data-i18n="divi_btn_tarot">开始占卜</span></button>
-    </div>
-
-    <div id="divi-jiaobei-form" class="hidden-section space-y-4">
-      <div>
-        <label class="block text-sm font-medium text-gray-300 mb-2" data-i18n="divi_jiaobei_label">请示问题</label>
-        <textarea id="jiaobei-question" class="input-field" rows="2" data-i18n-placeholder="divi_jiaobei_ph" placeholder="例如：本次合作是否可成？"></textarea>
-      </div>
-      <button class="btn-primary w-full" onclick="doJiaobei()">🙏 <span data-i18n="divi_btn_jiaobei">投掷杯筊</span></button>
-    </div>
-
-    <div id="divi-daily" class="hidden-section">
-      <button class="btn-primary w-full mb-4" onclick="loadDailyQian()">🎴 <span data-i18n="divi_btn_daily">抽取今日签文</span></button>
-    </div>
-
-    <div id="divi-loading" class="hidden-section text-center py-6">
-      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
-    </div>
-    <div id="divi-result" class="hidden-section mt-6"></div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════
-     v3.6 灵境修行 — Module 6
-     ════════════════════════════════════════════════════════════ -->
-<section id="section-hero-cultivation" class="hidden-section max-w-4xl mx-auto px-6 py-4 slide-in">
-  <div class="glass p-6 md:p-8 mb-6">
-    <div class="text-center mb-6">
-      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🧘</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="cult_title">灵境修行</h2>
-      <p class="text-gray-400 text-sm" data-i18n="cult_subtitle">了凡四训 · 冥想引导 · 能量日记</p>
-    </div>
-    <div id="cultivation-loading" class="hidden-section text-center py-6">
-      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
-    </div>
-    <div id="cultivation-content" class="hidden-section">
-      <div id="cultivation-stats"></div>
-      <div id="cultivation-tasks" class="mb-6"></div>
-      <div id="cultivation-meditation" class="mb-6"></div>
-      <div id="diary-trend" class="iblock"></div>
-    </div>
-  </div>
-
-  <div class="glass p-5 md:p-6">
-    <h3 class="text-base font-bold mb-4" data-i18n="cult_diary_title">📓 今日能量日记</h3>
-    <div class="space-y-3">
-      <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs text-gray-500" data-i18n="cult_mood_label">情绪 (1-10)</label>
-          <input type="number" id="diary-mood" min="1" max="10" value="7" class="input-field mt-1">
-        </div>
-        <div>
-          <label class="text-xs text-gray-500" data-i18n="cult_energy_label">精力 (1-10)</label>
-          <input type="number" id="diary-energy" min="1" max="10" value="7" class="input-field mt-1">
-        </div>
-      </div>
-      <div>
-          <label class="text-xs text-gray-500" data-i18n="cult_grat_label">感恩三件事（每行一件）</label>
-          <textarea id="diary-grat" class="input-field mt-1" rows="3" data-i18n-placeholder="cult_grat_ph" placeholder="今天值得感恩的事…"></textarea>
-      </div>
-      <div>
-          <label class="text-xs text-gray-500" data-i18n="cult_refl_label">今日反思</label>
-          <textarea id="diary-refl" class="input-field mt-1" rows="2" data-i18n-placeholder="cult_refl_ph" placeholder="今天的领悟…"></textarea>
-      </div>
-      <button class="btn-secondary w-full" onclick="saveDiary()">💾 <span data-i18n="cult_btn_save">保存今日日记</span></button>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════════════════════
-     v3.7 灵境市集 — Module 7
-     ════════════════════════════════════════════════════════════ -->
-<section id="section-hero-market" class="hidden-section max-w-5xl mx-auto px-6 py-4 slide-in">
-  <div class="glass p-6 md:p-8">
-    <div class="text-center mb-6">
-      <div class="text-5xl mb-3" style="animation:float 3s ease-in-out infinite">🛍️</div>
-      <h2 class="text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent" data-i18n="market_title">灵境市集</h2>
-      <p class="text-gray-400 text-sm" data-i18n="market_subtitle">数字周边 · 水晶能量 · 线下活动</p>
-    </div>
-
-    <div class="module-tabs mb-6" style="max-width:480px">
-      <button class="module-tab active market-tab" id="market-tab-digital" onclick="selectMarketTab('digital')">📄 <span data-i18n="market_digital">数字周边</span></button>
-      <button class="module-tab market-tab" id="market-tab-crystals" onclick="selectMarketTab('crystals')">💎 <span data-i18n="market_crystals">水晶</span></button>
-      <button class="module-tab market-tab" id="market-tab-events" onclick="selectMarketTab('events')">🏯 <span data-i18n="market_events">线下</span></button>
-    </div>
-
-    <div id="market-loading" class="hidden-section text-center py-6">
-      <div class="inline-block w-10 h-10 rounded-full border-2 border-purple-400 border-t-transparent" style="animation:spin-slow 1s linear infinite"></div>
-    </div>
-    <div id="market-content" class="hidden-section"></div>
-
-    <!-- 灵境·线下 O2O 生态 (v6.0) -->
-    <div style="margin-top:24px;padding:18px;border-radius:18px;background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.2);">
-      <h3 class="text-lg font-bold text-cyan-300 mb-1" data-i18n="o2o_title">灵境·线下 — 线上线下一体生态</h3>
-      <p class="text-xs text-gray-400 mb-3" data-i18n="o2o_sub">线上测算建立信任，线下活动沉淀关系。凭你的「灵境图谱 / 命盘报告」，到任一合作沙龙 / 禅修营可享专属 1v1 解读。</p>
-      <div id="o2o-events"></div>
-      <div id="o2o-signup" class="hidden-section mt-3">
-        <div class="flex flex-wrap gap-2">
-          <input id="o2o-name" placeholder="称呼" class="input-field" style="max-width:120px;font-size:13px;" data-i18n-placeholder="o2o_name">
-          <input id="o2o-phone" placeholder="手机号" class="input-field" style="max-width:140px;font-size:13px;" data-i18n-placeholder="o2o_phone">
-          <button onclick="signupEvent()" class="btn-primary" style="padding:10px 16px;font-size:13px;" data-i18n="o2o_signup">报名留资</button>
-        </div>
-        <p class="text-xs text-gray-600 mt-2">留资仅存本地浏览器，用于到店核销，不上传服务器</p>
-      </div>
-    </div>
-  </div>
-</section>
 
 <style>
 /* ── 新增模块样式 ── */
