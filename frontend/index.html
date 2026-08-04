@@ -3266,7 +3266,7 @@ function rebuildDemoForLang() {
 }
 
 // ── UI helpers ─────────────────────────────────
-function showSection(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden-section'); }
+function showSection(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden-section'); return el; }
 function show(id)    { document.getElementById(id).classList.remove('hidden-section'); }
 function hide(id)    { document.getElementById(id).classList.add('hidden-section'); }
 function setText(id, txt) { const el = document.getElementById(id); if (el) el.textContent = txt; }
@@ -4427,27 +4427,37 @@ function switchModule(module) {
     // Hide all sections
     hideAll();
 
+    let sectionEl = null;
     if (module === 'kline') {
-        showSection('section-hero');
+        sectionEl = showSection('section-hero');
     } else if (module === 'compat') {
-        showSection('section-hero-compat');
+        sectionEl = showSection('section-hero-compat');
         setTimeout(applyProfileToCompatA, 50);
     } else if (module === 'ziwei') {
-        showSection('section-hero-ziwei');
+        sectionEl = showSection('section-hero-ziwei');
     } else if (module === 'dream') {
-        showSection('section-hero-dream');
+        sectionEl = showSection('section-hero-dream');
     } else if (module === 'persona') {
-        showSection('section-hero-persona');
+        sectionEl = showSection('section-hero-persona');
     } else if (module === 'divination') {
-        showSection('section-hero-divination');
+        sectionEl = showSection('section-hero-divination');
     } else if (module === 'cultivation') {
-        showSection('section-hero-cultivation');
+        sectionEl = showSection('section-hero-cultivation');
         if (typeof loadCultivation === 'function') loadCultivation();
     } else if (module === 'market') {
-        showSection('section-hero-market');
+        sectionEl = showSection('section-hero-market');
         if (typeof loadMarket === 'function') loadMarket();
     } else if (module === 'number') {
-        showSection('section-hero-number');
+        sectionEl = showSection('section-hero-number');
+    }
+
+    // Scroll the active section into view (keep some top padding for nav)
+    if (sectionEl) {
+        setTimeout(() => {
+            const navHeight = 80;
+            const top = sectionEl.getBoundingClientRect().top + window.scrollY - navHeight;
+            window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+        }, 10);
     }
 
     // Reset chart refs
