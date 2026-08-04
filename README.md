@@ -1,21 +1,16 @@
 # Nexus Ora — AI 原生玄学平台 MVP
 
-> **人生 K 线** · 用东方命理 × AI 预测你的人生运势曲线
+人生 K 线 · 用东方命理 × AI 预测你的人生运势曲线
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?logo=node.js&logoColor=white)](https://nodejs.org)
-[![Pure JS](https://img.shields.io/badge/Paipan-Pure%20JS-f7df1e?logo=javascript&logoColor=black)](#)
+License: MIT Node.js Pure JS
 
----
-
-## ✨ 功能特性
-
-- 🔮 **精准八字排盘** — 基于 `lunar-typescript` 开源库，纯 JS 实现，年月日时四柱精确计算
-- 📈 **人生 K 线可视化** — ECharts 折线图，中国股市红涨绿跌惯例
-- 🤖 **AI 运势解读** — DeepSeek LLM 预测 0-100 岁运势曲线 + 六维度深度分析
-- 🔊 **算法回退** — 无 AI Key 时自动使用五行生克算法，离线完整可用
-- 💾 **本地数据持久化** — sql.js (WASM SQLite)，无需安装数据库
-- 🌐 **零配置启动** — 无需 Python、无需 API Key，一条命令即可运行
+✨ 功能特性
+🔮 精准八字排盘 — 基于 lunar-typescript 开源库，纯 JS 实现，年月日时四柱精确计算
+📈 人生 K 线可视化 — ECharts 折线图，中国股市红涨绿跌惯例
+🤖 AI 运势解读 — DeepSeek LLM 预测 0-100 岁运势曲线 + 六维度深度分析
+🔊 算法回退 — 无 AI Key 时自动使用五行生克算法，离线完整可用
+💾 本地数据持久化 — sql.js (WASM SQLite)，无需安装数据库
+🌐 零配置启动 — 无需 Python、无需 API Key，一条命令即可运行
 
 ---
 
@@ -48,6 +43,8 @@ cp .env.example .env
 | `PORT` | 服务器端口 | `3000` |
 | `DEEPSEEK_API_KEY` | DeepSeek API Key（可选） | 空（算法模式） |
 | `STRIPE_SECRET_KEY` | Stripe 私钥（可选） | 空（Demo 模式） |
+| `UNLOCK_FULL_REPORT` | 推广模式：true 时完整报告对所有人免费 | `false` |
+| `SHARE_URL` | 分享图二维码域名（留空回退当前域名） | 空 |
 
 ---
 
@@ -59,9 +56,10 @@ nexus-ora-mvp/
 │   └── index.html           # 完整 SPA（Tailwind CSS + ECharts，CDN 引入）
 ├── backend/
 │   ├── server_unified.js    # Express 主服务器（API + AI + DB + 支付）
-│   ├── paipan_engine.js     # JS 八字排盘引擎（lunar-typescript）🆕
-│   ├── paipan_engine.py     # Python 版本（保留参考）
-│   ├── verify.js            # 全链路验证测试
+│   ├── agents/              # 多智能体议会（盘师/运师/世师 + 主笔人）
+│   ├── swarm_fortune.js     # 群体涌现运势预测
+│   ├── life_sandbox.js      # 人生沙盘推演（平行世界线）
+│   ├── paipan_engine.js     # JS 八字排盘引擎（lunar-typescript）
 │   └── package.json
 ├── docs/
 │   ├── PRD.md               # 产品需求文档
@@ -110,7 +108,9 @@ nexus-ora-mvp/
 
 - [x] MVP：八字排盘 + 人生 K 线 + AI 解读
 - [x] 纯 JS 排盘引擎（v3.0）
-- [x] 付费解锁 + 数据持久化
+- [x] 多智能体议会解读 + 群体涌现算法
+- [x] 人生沙盘推演 + 引擎透视可视化
+- [x] 付费解锁 + 数据持久化 + 推广模式开关
 - [ ] 紫微斗数模块
 - [ ] 流年运势日历
 - [ ] 合婚测算
