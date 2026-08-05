@@ -224,6 +224,70 @@ if (digits.length < 2) return { ok:false, error:'号码至少需要 2 位数字'
 - 等级阈值与 §2.4 运势等级一致；`gradeColor` 红涨绿跌（大吉=红 #ef4444，大凶=绿 #16a34a）。
 - 零外部依赖：不调用 LLM、不读写数据库、不依赖网络。
 
+### 3.9 命理分值与后天精进引擎（`server_unified.js` — v6.2 新增）
+
+**背景**：采纳专家 Wilson review 五项建议，新增一组**纯算法、零 LLM、可离线**的命理量化能力：先天三分数、后天精进多维加权、加权综合、命理画像具象化、服务分层白名单与四层阶梯配置。与 ADR-009（算法回退一致性）一脉相承。
+
+**历法常量**（模块级，`server_unified.js` 顶部）：
+
+```
+GAN  = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']
+ZHI  = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']
+GAN_WX = { 甲/乙:木, 丙/丁:火, 戊/己:土, 庚/辛:金, 壬/癸:水 }
+ZHI_WX = { 寅/卯:木, 巳/午:火, 辰/戌/丑/未:土, 申/酉:金, 亥/子:水 }
+WX_SHENG = { 木:'火', 火:'土', 土:'金', 金:'水', 水:'木' }   // 我生
+WX_KE    = { 木:'土', 土:'水', 水:'火', 火:'金', 金:'木' }   // 我克
+```
+
+**五行关系打分 `wxRelationScore(dayWx, otherWx)`**（以日主五行 `dayWx` 为基准）：
+
+| 关系 | 条件 | 分值 |
+|------|------|------|
+| 生我（印） | `WX_SHENG[other] === day` | +0.8 |
+| 我生（食伤） | `WX_SHENG[day] === other` | −0.2 |
+| 克我（官杀） | `WX_KE[other] === day` | −0.6 |
+| 我克（财） | `WX_KE[day] === other` | +0.1 |
+| 同我（比劫） | `other === day` | +0.3 |
+| 其他 | — | 0 |
+
+**大运干支 `computeDayunGanZhi(yearGan, monthGZ, gender, age)`**：从月柱起，阳年男/阴年女顺排（`dir=+1`），反之逆排（`dir=−1`）；按 `floor(age/10)` 步向前/后推算（简化模型，忽略起运岁数）。
+
+**先天气运三分数 `computeInnateScores(birth)`**（基于八字 + 大运 + 流年 12 字，简化可复现模型）：
+
+| 分数 | 公式 | 含义 |
+|------|------|------|
+| 生命禀赋值 `life_endowment` | `clamp(0.5·身强分 + 0.3·五行平衡分 + 0.2·吉神占比×100, 1, 99)` | 先天命格底盘 |
+| 大运生命值 `dayun_value` | `clamp(50 + wxRelationScore(日主五行, 大运五行)·40, 1, 99)` | 当前十年大运与日主契合度 |
+| 今年生命力活跃度 `year_vitality` | `clamp(50 + wxRelationScore(日主五行, 流年五行)·40, 1, 99)` | 当年度气运活跃度 |
+| 综合 `overall` | `clamp((三者和)/3, 1, 99)` | 先天均分（用于加权） |
+
+其中：身强分取自 `paipan` 的 `bazi.strength_score`；五行平衡分 = `(1 − (max−min)/total)·100`；吉神占比 = 十神中 正印/正官/食神/正财/比肩 占比。
+
+**后天精进单日评分 `computeCultivationScore(e)`**（仿蚂蚁信用多维加权）：
+
+- 正向：`(reading_min/30)·3 + sleepScore + (exercise_min/30)·2 + (charity_min/30)·2`
+  - `sleepScore`：睡眠 7–8h = 5；6–<7 或 8–≤9 = 3；其余 = 1
+- 负向（penalty）：`anger·2 + lack_sleep·3 + drinking·4 + sugar·3 + coffee·1 + smoking·6`
+- 单日分 = `clamp(round(60 + 正向 − 负向), 1, 99)`；7 日滚动均值 = **后天精进值**
+
+**加权综合**：`综合 = clamp(round(先天均分 × 0.55 + 后天精进值 × 0.45), 1, 99)`，体现「先天为基，后天为用」。
+
+**命理画像具象化 `buildPersonaAvatar(persona)`**：按 `day_wuxing` 映射 `PERSONA_AVATAR`（木🌳绿 / 火🔥红 / 土⛰️黄 / 金⚔️灰 / 水🌊蓝），返回 `{ element, emoji, color, celeb_tag, archetype, main_shishen, name }`；`celeb_tag` 给出古今名人风格标签（如金 →「如·辛弃疾之风（刚健雄烈）」）。在 `POST /api/persona/generate` 响应中注入 `persona.avatar`。
+
+**服务分层与四层阶梯常量**：
+
+```
+FREE_MODULES = ['kline', 'divination', 'number']   // 免费白名单
+LADDER_4 = [
+  { id:'life',      title:'生命赋能',        modules:['kline'] },
+  { id:'cognition', title:'生活认知',        modules:['divination','number','dream'] },
+  { id:'highdim',   title:'生命力高维解析',  modules:['ziwei','persona','compat'] },
+  { id:'cause',     title:'推演因果平行人生', modules:['sandbox','council','qintian'] },
+]
+```
+
+**实现位置**：全部置于 `server_unified.js`（v6.2 新增块，位于 `// Start` 之前）；数据持久化依赖 `cultivation_daily` 表（§3.6）。
+
 ### 3.1 排盘引擎 (`paipan_engine.js`)
 
 **v3.0 重要变更**：排盘引擎从 Python (`lunar-python`) 迁移为纯 JavaScript (`lunar-typescript`)，不再依赖 `child_process` 调用外部 Python 进程。这解决了 WorkBuddy 沙箱环境下子进程调用受限的问题。
@@ -339,6 +403,7 @@ paipan(personA) + paipan(personB)   # 独立排盘
 | `checkins` | id, user_id, task_id, task_type, checkin_date, created_at | 修行打卡 (v3.6) |
 | `diary` | id, user_id, mood, energy, gratitudes, reflection, diary_date | 能量日记 (v3.6) |
 | `wishlist` | id, user_id, item_id, item_type, created_at | 心愿单 (v3.7) |
+| `cultivation_daily` | id, user_id, entry_date, reading_min, sleep_hours, exercise_min, charity_min, anger, lack_sleep, drinking, sugar, coffee, smoking, score, UNIQUE(user_id,entry_date) | 后天精进每日打卡 (v6.2) |
 
 ---
 
@@ -545,6 +610,40 @@ Response (fail):
 - 纯算法：不调用 LLM、不读写 DB、可不联网。
 - `kind` 缺省按 `phone` 处理，仅影响 `kindName` 与解读文案。
 - 前端对应模块：`switchModule('number')`，结果渲染分数环 + 八星分布 + 五行条 + 解读，红涨绿跌。
+
+---
+
+### 4.15 命理分值与后天精进 (v6.2)
+
+```
+POST /api/scores/innate
+Body:      { year, month, day, hour?, minute?, gender? }
+Response:  { success:true,  data:{ ok, life_endowment, dayun_value, year_vitality, overall,
+                                    detail:{ day_wuxing, body_strength, wuxing_balance, benign_ratio, dayun_ganzhi, year_ganzhi } } }
+           { success:false, message }
+// 排盘失败返回 { success:false, message:'排盘失败' }
+
+POST /api/scores/combined
+Body:      { birth?:{year,month,day,...}, cultivation?:number }   // birth 缺省取顶层字段
+Response:  { success:true, data:{ innate:{...}, cultivation, combined } }
+// combined = clamp(round(innate.overall*0.55 + cultivation*0.45),1,99)；cultivation 缺省为 0 时 combined=overall
+
+POST /api/cultivation/submit
+Body:      { user_id?, entry_date?, reading_min?, sleep_hours?, exercise_min?, charity_min?,
+             anger?, lack_sleep?, drinking?, sugar?, coffee?, smoking? }
+Response:  { success:true, score, breakdown:{ reading, sleep, exercise, charity, penalty }, stored }
+// stored=false 表示无 DB（Demo 模式）；ON CONFLICT(user_id,entry_date) DO UPDATE 幂等 upsert
+
+GET /api/cultivation/score?user_id=guest&days=7
+Response:  { success:true, cultivation:number(7日滚动均值), entries:[{ date, score }] }
+
+GET /api/platform/config
+Response:  { success:true, free_modules:['kline','divination','number'], ladder:[...4层...], avatar_tags:[木,火,土,金,水] }
+```
+
+- 上述接口均为纯算法 / 轻 DB，不调用 LLM（既有的 `/api/persona/generate` 仍走 LLM，但在 v6.2 额外注入 `persona.avatar` 字段，结构见 §3.9）。
+- `/api/platform/config` 是前端 `FREE_MODULES` 与四层阶梯渲染的**唯一数据源**；非白名单模块前端带 🔒 角标，点击触发 `openMembershipModal()` 且不切换模块。
+- 前端对应：首页分值面板（`section-scorepanel`）调用 `/api/scores/innate` 与 `/api/cultivation/score` 渲染三分数环 + 后天精进热力图；修习阶梯四列来自 `LADDER_4`；命理画像卡片渲染 `persona.avatar`。
 
 ---
 
@@ -815,6 +914,12 @@ const API_BASE = '';
 - **决策**：基于用户反馈做六项策略采纳——① 对外去「AI 算命」话术化，统一为「东方命理 · 算法可视化平台」；② 明确定位主轴为「可验证计算 + 垂直建议为核，娱乐/社区为翼」；③ 新增「修习阶梯」将九大模块按认知深度分 启蒙/进阶/宗师 三层（非并列）；④ 新增「灵境启蒙」新手村（八字/五行/十神/K线 科普 + AI 角色声明 + 免责）；⑤ 新增「灵境数测」纯算法传播模块；⑥ 市集新增「灵境·线下」O2O 闭环（活动报名留资 + 凭报告享专属解读）。
 - **理由**：命理/玄学领域提 AI 是双刃剑，过度强调「AI 算命」既引发伦理顾虑，又诱导用户转向通用 ChatBot；分层递进的信息架构体现专业度与差异化高级感；新手铺垫与线上线下生态提升信任与粘性。
 - **影响**：所有对外文案（tagline/hero/badge/声明）须遵循新口径；AI 角色被明确定义为「后台推演引擎」而非算命主体；详见 PRD §1.4 与 §2.16。
+
+### ADR-025: v6.2 命理量化与产品分层（采纳专家 review）
+- **决策**：采纳专家 Wilson 五项建议——① 命理分值面板（先天三分数 + 后天精进值 + 加权综合）② 后天精进体系（仿蚂蚁信用多维加权 + 7 日热力图）③ 服务分层（免费白名单：图谱/占卜/数测）④ 修行之路四层重分类（生命赋能/生活认知/生命力高维解析/推演因果平行人生）⑤ 命理画像具象化（五行原型 avatar + 名人标签）。
+- **理由**：先天气运三分数将「命」量化为可比、可追踪的数字，配合后天精进（用户每日行为打分）形成「算命 → 行动 → 看到变化」的复用闭环，是该赛道的市场空白点；服务分层用三个轻量模块做免费钩子降低首访门槛、其余转化为付费点；四层阶梯替代原 启蒙/进阶/宗师 三层，更贴合「生命赋能 → 生活认知 → 高维解析 → 推演因果」的认知递进；命理画像具象化用五行 emoji + 名人标签快速建立辨识度与情感连接。
+- **实现**：纯算法常量与函数置于 `server_unified.js`（零 LLM、可离线）；`cultivation_daily` 表持久化（§3.6）；5 个新 API（§4.15）；`FREE_MODULES` / `LADDER_4` 由 `/api/platform/config` 下发。
+- **影响**：先天三分数采用简化可复现模型（大运忽略起运岁数、流年按年干支五行），仅供自我探索参考，UI 须标注免责；命理画像名人标签为风格类比、非真实命盘断言。
 
 ---
 

@@ -190,6 +190,26 @@ async function initDatabase() {
         updated_at TEXT DEFAULT (datetime('now'))
     )`);
 
+    // v6.2 后天精进 · 行为日历打卡（仿蚂蚁信用多维加权）
+    db.run(`CREATE TABLE IF NOT EXISTS cultivation_daily (
+        id          TEXT PRIMARY KEY,
+        user_id     TEXT,
+        entry_date  TEXT,
+        reading_min INTEGER DEFAULT 0,
+        sleep_hours REAL    DEFAULT 0,
+        exercise_min INTEGER DEFAULT 0,
+        charity_min INTEGER DEFAULT 0,
+        anger       INTEGER DEFAULT 0,
+        lack_sleep  INTEGER DEFAULT 0,
+        drinking    INTEGER DEFAULT 0,
+        sugar       INTEGER DEFAULT 0,
+        coffee      INTEGER DEFAULT 0,
+        smoking     INTEGER DEFAULT 0,
+        score       INTEGER DEFAULT 60,
+        created_at  TEXT DEFAULT (datetime('now')),
+        UNIQUE(user_id, entry_date)
+    )`);
+
     // v5.0 Membership Subscriptions
     db.run(`CREATE TABLE IF NOT EXISTS subscriptions (
         id TEXT PRIMARY KEY,
@@ -1735,6 +1755,7 @@ app.post('/api/persona/generate', (req, res) => {
     try {
         const persona = buildPersona(b);
         if (!persona) return res.status(500).json({ success:false, error:'排盘失败' });
+        persona.avatar = buildPersonaAvatar(persona);   // v6.2 命理画像具象化
         if (db) {
             try {
                 db.run(`INSERT INTO persona(id,user_id,name,archetype,traits,speaking_style,system_prompt) VALUES(?,?,?,?,?,?,?)`, [
@@ -2500,6 +2521,250 @@ app.post('/api/admin/config', (req, res) => {
     } catch(e) {
         res.status(500).json({ success: false, error: e.message });
     }
+});
+
+// ════════════════════════════════════════════════════════════
+//  v6.2  先天气运分值体系 + 后天精进体系 + 修习阶梯 4 层 + 命理画像具象化
+//  对应专家建议（Wilson review）：
+//   ① 首页分数展示：先天气运(生命禀赋值/大运生命值/今年生命力活跃度) + 后天精进日历
+//   ② 后天精进体系：仿蚂蚁信用多维加权，可与先天值加权
+//   ③ 服务分层：免费仅 灵境图谱/灵境占卜/灵境数测，其余进阶付费/限次
+//   ④ 修行之路 4 层重分类：生命赋能/生活认知/生命力高维解析/推演因果平行人生
+//   ⑤ 命理画像具象化：模拟人物 avatar（命格原型 + 名人风格标签）
+// ════════════════════════════════════════════════════════════
+
+// ── 基础历法常量（与 paipan_engine 同源）──
+const GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+const ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+const GAN_WX = { 甲:'木',乙:'木',丙:'火',丁:'火',戊:'土',己:'土',庚:'金',辛:'金',壬:'水',癸:'水' };
+const ZHI_WX = { 子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水' };
+const WX_SHENG = { 木:'火',火:'土',土:'金',金:'水',水:'木' };   // X 生 Y
+const WX_KE    = { 木:'土',火:'金',土:'水',金:'木',水:'火' };    // X 克 Y
+
+// 五行关系打分（other 对 day）：生我 +0.8 / 同我 +0.3 / 我克 +0.1 / 我生 -0.2 / 克我 -0.6
+function wxRelationScore(dayWx, otherWx) {
+    if (!dayWx || !otherWx) return 0;
+    if (WX_SHENG[otherWx] === dayWx) return 0.8;   // 生我（印）
+    if (WX_SHENG[dayWx] === otherWx) return -0.2;  // 我生（食伤）
+    if (WX_KE[otherWx] === dayWx) return -0.6;      // 克我（官杀）
+    if (WX_KE[dayWx] === otherWx) return 0.1;      // 我克（财）
+    if (otherWx === dayWx) return 0.3;              // 同我（比劫）
+    return 0;
+}
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+// 大运干支：从月柱起，阳年男/阴年女顺排，反之逆排；按年龄每 10 岁一步（简化模型，忽略起运岁数）
+function computeDayunGanZhi(yearGan, monthGZ, gender, age) {
+    const ygIdx = GAN.indexOf(yearGan);
+    const mg = monthGZ[0], mz = monthGZ[1];
+    const mgIdx = GAN.indexOf(mg), mzIdx = ZHI.indexOf(mz);
+    const yangYear = (ygIdx % 2 === 0);                 // 甲丙戊庚壬=阳
+    const male = (gender === '男');
+    const dir = (yangYear && male) || (!yangYear && !male) ? 1 : -1;
+    const n = Math.max(0, Math.floor((age || 0) / 10));
+    const dgIdx = ((mgIdx + dir * n) % 10 + 10) % 10;
+    const dzIdx = ((mzIdx + dir * n) % 12 + 12) % 12;
+    return GAN[dgIdx] + ZHI[dzIdx];
+}
+
+// 先天气运三分数（基于八字 + 大运 + 流年 12 字排解，简化可复现模型）
+function computeInnateScores(birth) {
+    const p = paipan({
+        year: +birth.year, month: +birth.month, day: +birth.day,
+        hour: birth.hour || 12, minute: birth.minute || 0,
+        gender: birth.gender || '未知'
+    });
+    if (!p.success) return { ok:false, error: p.error || '排盘失败' };
+
+    const dayWx = p.bazi.day_wuxing;
+    const strengthScore = clamp(p.bazi.strength_score || 60, 1, 99);
+    // 五行平衡度（分布越均匀分越高）
+    const wb = p.wuxing_balance || {};
+    const vals = Object.values(wb);
+    const total = vals.reduce((a, b) => a + b, 0) || 1;
+    const balanceScore = clamp(Math.round((1 - (Math.max(...vals) - Math.min(...vals)) / total) * 100), 1, 99);
+    // 吉神占比（正印/正官/食神/正财/比肩 视为良性）
+    const benign = ['正印','正官','食神','正财','比肩'];
+    const ss = p.pillars.map(x => x.shishen).filter(s => s && s !== '日主');
+    const benignRatio = ss.length ? ss.filter(s => benign.includes(s)).length / ss.length : 0.5;
+
+    // ① 生命禀赋值：身强 + 平衡 + 吉神
+    const lifeEndowment = clamp(Math.round(0.5 * strengthScore + 0.3 * balanceScore + 0.2 * (benignRatio * 100)), 1, 99);
+
+    // ② 大运生命值：当前大运干支五行 vs 日主
+    const now = new Date();
+    const age = birth.year ? (now.getFullYear() - (+birth.year) + (now.getMonth()+1 >= (birth.month||1) ? 0 : -1)) : 30;
+    const monthGZ = p.pillars[1].ganzhi;
+    const yearGan = GAN[((+birth.year - 4) % 10 + 10) % 10];
+    const dayunGZ = computeDayunGanZhi(yearGan, monthGZ, birth.gender, age);
+    const dayunWx = GAN_WX[dayunGZ[0]] || ZHI_WX[dayunGZ[1]] || '土';
+    const dayunValue = clamp(Math.round(50 + wxRelationScore(dayWx, dayunWx) * 40), 1, 99);
+
+    // ③ 今年生命力活跃度：流年干支五行 vs 日主
+    const yG = GAN[(now.getFullYear() - 4) % 10];
+    const yZ = ZHI[(now.getFullYear() - 4) % 12];
+    const yearWx = GAN_WX[yG] || ZHI_WX[yZ] || '土';
+    const yearVitality = clamp(Math.round(50 + wxRelationScore(dayWx, yearWx) * 40), 1, 99);
+
+    const overall = clamp(Math.round((lifeEndowment + dayunValue + yearVitality) / 3), 1, 99);
+
+    return {
+        ok: true,
+        life_endowment: lifeEndowment,
+        dayun_value: dayunValue,
+        year_vitality: yearVitality,
+        overall,
+        detail: {
+            day_wuxing: dayWx,
+            body_strength: p.bazi.body_strength,
+            wuxing_balance: wb,
+            benign_ratio: Math.round(benignRatio * 100),
+            dayun_ganzhi: dayunGZ,
+            year_ganzhi: yG + yZ
+        }
+    };
+}
+
+// 后天精进单日评分（仿蚂蚁信用多维加权）
+function computeCultivationScore(e) {
+    e = e || {};
+    const reading = +e.reading_min || 0;
+    const sleep   = +e.sleep_hours || 0;
+    const exercise = +e.exercise_min || 0;
+    const charity = +e.charity_min || 0;
+    const anger   = +e.anger || 0;
+    const lackSleep = +e.lack_sleep || 0;
+    const drinking = +e.drinking || 0;
+    const sugar   = +e.sugar || 0;
+    const coffee  = +e.coffee || 0;
+    const smoking = +e.smoking || 0;
+
+    // 睡眠评分（7-8h 最佳）
+    let sleepScore;
+    if (sleep >= 7 && sleep <= 8) sleepScore = 5;
+    else if ((sleep >= 6 && sleep < 7) || (sleep > 8 && sleep <= 9)) sleepScore = 3;
+    else sleepScore = 1;
+
+    const pos = (reading / 30) * 3 + sleepScore + (exercise / 30) * 2 + (charity / 30) * 2;
+    const neg = anger * 2 + lackSleep * 3 + drinking * 4 + sugar * 3 + coffee * 1 + smoking * 6;
+    const score = clamp(Math.round(60 + pos - neg), 1, 99);
+
+    return {
+        score,
+        breakdown: {
+            reading: Math.round((reading / 30) * 3 * 10) / 10,
+            sleep: sleepScore,
+            exercise: Math.round((exercise / 30) * 2 * 10) / 10,
+            charity: Math.round((charity / 30) * 2 * 10) / 10,
+            penalty: -(anger * 2 + lackSleep * 3 + drinking * 4 + sugar * 3 + coffee * 1 + smoking * 6)
+        }
+    };
+}
+
+// 命理画像具象化：模拟人物 avatar（命格原型 + 古今名人风格标签）
+const PERSONA_AVATAR = {
+    '木': { emoji:'🌳', color:'#22c55e', celeb:'如·嵇康之风（清逸旷达）' },
+    '火': { emoji:'🔥', color:'#ef4444', celeb:'如·李白之风（豪放飘逸）' },
+    '土': { emoji:'⛰️', color:'#eab308', celeb:'如·杜甫之风（厚重沉稳）' },
+    '金': { emoji:'⚔️', color:'#a1a1aa', celeb:'如·辛弃疾之风（刚健雄烈）' },
+    '水': { emoji:'🌊', color:'#3b82f6', celeb:'如·庄子之风（深沉逍遥）' }
+};
+function buildPersonaAvatar(persona) {
+    const wx = persona.day_wuxing || '水';
+    const av = PERSONA_AVATAR[wx] || PERSONA_AVATAR['水'];
+    return {
+        element: wx,
+        emoji: av.emoji,
+        color: av.color,
+        celeb_tag: av.celeb,
+        archetype: persona.archetype,
+        main_shishen: persona.main_shishen,
+        name: persona.name
+    };
+}
+
+// ── 服务分层：免费仅 图谱/占卜/数测 ──
+const FREE_MODULES = ['kline', 'divination', 'number'];
+
+// ── 修行之路 4 层重分类（专家建议）──
+const LADDER_4 = [
+    { id:'life',     title:'生命赋能',   desc:'认识自己 · 命理内核',   color:'#22c55e',
+      modules:['kline'] },
+    { id:'cognition',title:'生活认知',   desc:'事前占卜 · 日常指引',   color:'#38bdf8',
+      modules:['divination','number','dream','cultivation','market'] },
+    { id:'highdim',  title:'生命力高维解析', desc:'格局与缘分深度解读', color:'#a855f7',
+      modules:['ziwei','persona','compat'] },
+    { id:'cause',    title:'推演因果平行人生', desc:'多智能体 · 平行世界线', color:'#eab308',
+      modules:['sandbox','council','qintian'] }
+];
+
+// ── 先天气运三分数接口 ──
+app.post('/api/scores/innate', (req, res) => {
+    try {
+        const r = computeInnateScores(req.body || {});
+        if (!r.ok) return res.json({ success:false, message: r.error });
+        res.json({ success:true, data: r });
+    } catch(e) { res.json({ success:false, message:String(e && e.message ? e.message : e) }); }
+});
+
+// ── 加权综合（先天为基，后天为用）──
+app.post('/api/scores/combined', (req, res) => {
+    try {
+        const b = req.body || {};
+        const innate = computeInnateScores(b.birth || b);
+        if (!innate.ok) return res.json({ success:false, message: innate.error });
+        const cultivation = +b.cultivation || 0;
+        const combined = cultivation
+            ? clamp(Math.round(innate.overall * 0.55 + cultivation * 0.45), 1, 99)
+            : innate.overall;
+        res.json({ success:true, data: { innate, cultivation, combined } });
+    } catch(e) { res.json({ success:false, message:String(e && e.message ? e.message : e) }); }
+});
+
+// ── 后天精进：提交单日行为 ──
+app.post('/api/cultivation/submit', (req, res) => {
+    const b = req.body || {};
+    const userId = b.user_id || 'guest';
+    const date = b.entry_date || new Date().toISOString().slice(0,10);
+    const sc = computeCultivationScore(b);
+    if (!db) return res.json({ success:true, score: sc.score, breakdown: sc.breakdown, stored:false });
+    try {
+        const id = 'C' + Date.now().toString(36).toUpperCase();
+        db.run(`INSERT INTO cultivation_daily(id,user_id,entry_date,reading_min,sleep_hours,exercise_min,charity_min,anger,lack_sleep,drinking,sugar,coffee,smoking,score)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(user_id,entry_date) DO UPDATE SET
+                reading_min=excluded.reading_min, sleep_hours=excluded.sleep_hours, exercise_min=excluded.exercise_min,
+                charity_min=excluded.charity_min, anger=excluded.anger, lack_sleep=excluded.lack_sleep, drinking=excluded.drinking,
+                sugar=excluded.sugar, coffee=excluded.coffee, smoking=excluded.smoking, score=excluded.score`,
+            [id, userId, date, +b.reading_min||0, +b.sleep_hours||0, +b.exercise_min||0, +b.charity_min||0,
+             +b.anger||0, +b.lack_sleep||0, +b.drinking||0, +b.sugar||0, +b.coffee||0, +b.smoking||0, sc.score]);
+        saveDB();
+        res.json({ success:true, score: sc.score, breakdown: sc.breakdown, stored:true });
+    } catch(e) { res.json({ success:false, message:e.message }); }
+});
+
+// ── 后天精进：滚动分值 + 7 日热力图 ──
+app.get('/api/cultivation/score', (req, res) => {
+    const userId = req.query.user_id || 'guest';
+    const days = +(req.query.days || 7);
+    if (!db) return res.json({ success:true, cultivation: 0, entries: [] });
+    try {
+        const r = db.exec('SELECT entry_date, score FROM cultivation_daily WHERE user_id=? ORDER BY entry_date DESC LIMIT ?', [userId, days]);
+        if (!r.length) return res.json({ success:true, cultivation: 0, entries: [] });
+        const entries = r[0].values.map(v => ({ date:v[0], score:v[1] })).reverse();
+        const avg = Math.round(entries.reduce((s, e) => s + e.score, 0) / entries.length);
+        res.json({ success:true, cultivation: avg, entries });
+    } catch(e) { res.json({ success:false, message:e.message }); }
+});
+
+// ── 平台配置：服务分层 + 4 层阶梯（供前端渲染）──
+app.get('/api/platform/config', (_req, res) => {
+    res.json({
+        success:true,
+        free_modules: FREE_MODULES,
+        ladder: LADDER_4,
+        avatar_tags: Object.keys(PERSONA_AVATAR)
+    });
 });
 
 // ───────────────────────── Start ──────────────────────────
